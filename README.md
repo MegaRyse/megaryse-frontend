@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MegaRyse Website Templates
 
 Three complete, standalone website templates for MegaRyse MBA Education Consultancy.
@@ -68,3 +69,7 @@ Each template folder contains:
 - Templates are completely redesigned from reference websites (no similarity)
 - Background images use placeholder emojis/icons
 
+=======
+# megaryse-frontend
+Frontend application for the Megaryse, built using React and Tailwind CSS with a focus on responsive design, performance, and SEO.
+>>>>>>> 340bdfb8c070ac2f490b4f8e7cbfb205a36e0ab0
