@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import Logo from '../assets/images/Logo.jpg'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -224,48 +225,35 @@ const Navbar = () => {
     }
   }, [location])
 
-  // Determine text colors based on background
-  // Always ensure text is visible - default to black if state is undefined
-  const textColorClass = isDarkBackground 
-    ? 'text-white' 
-    : 'text-black'
+  // Text colors - always navy blue
+  const textColorClass = 'text-navy'
   
-  const activeTextColorClass = isDarkBackground
-    ? 'text-white font-bold'
-    : 'text-navy font-bold'
+  const activeTextColorClass = 'text-navy font-bold'
   
-  const hoverTextColorClass = isDarkBackground
-    ? 'text-white font-semibold'
-    : 'text-navy font-semibold'
+  const hoverTextColorClass = 'text-navy font-semibold'
 
   return (
-    <nav className="sticky top-0 z-50 bg-offwhite/98 backdrop-blur-md shadow-lg border-b-2 border-gold-bright/30">
+    <nav className="sticky top-0 z-50 ">
       {/* Main Navigation Bar */}
       <div className="w-full px-8">
-        <div className="relative flex items-center justify-between h-20">
-          {/* Container 1: Logo/Company Name - Left Side */}
-          <div className="flex-shrink-0">
+        <div className="relative flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch h-20 md:gap-8">
+          {/* Container 1: Logo/Company Name */}
+          <div className="flex-shrink-0 flex justify-start">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-3"
             >
               <Link to="/" className="relative inline-flex items-center gap-3">
-                {/* Logo Circle - Placeholder for future image */}
-                <div className="w-12 h-12 bg-gradient-to-br from-gold to-gold-bright rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-white text-xl font-bold">M</span>
-                </div>
+                {/* Logo Image */}
+                <img 
+                  src={Logo} 
+                  alt="MegaRyse Logo" 
+                  className="w-20 h-20 object-contain"
+                />
                 <div className="flex flex-col">
-                  <span className={`text-2xl font-bold leading-tight transition-colors duration-300 ${
-                    isDarkBackground ? 'text-white' : 'text-navy'
-                  }`}>
-                    MegaRyse
-                  </span>
-                  <span className={`text-xs font-medium transition-colors duration-300 ${
-                    isDarkBackground ? 'text-white/80' : 'text-black/70'
-                  }`}>
-                    If You Can Dream It, You Can Do It
-                  </span>
+                  
+                 
                 </div>
                 <motion.span
                   className="absolute -inset-2 bg-gradient-to-r from-gold/20 to-gold-bright/20 rounded-lg blur-sm -z-10"
@@ -277,34 +265,31 @@ const Navbar = () => {
             </motion.div>
           </div>
 
-          {/* Container 2: Navigation Items - Centered on Screen */}
-          <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+          {/* Container 2: Navigation Items with Glassmorphism */}
+          <div className="hidden min-w-[800px] md:flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto ">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onMouseEnter={() => setHoveredItem(item.path)}
                 onMouseLeave={() => setHoveredItem(null)}
-                className="relative px-4 py-2 rounded-lg overflow-hidden group"
+                className="relative px-3.5 py-1.5 rounded-full group whitespace-nowrap flex-shrink-0"
               >
                 {/* Background animation on hover */}
                 <motion.div
-                  className={`absolute inset-0 rounded-lg transition-colors ${
-                    isDarkBackground
-                      ? 'bg-gradient-to-r from-gold/20 via-gold-bright/30 to-gold/20'
-                      : 'bg-gradient-to-r from-gold/10 via-gold-bright/20 to-gold/10'
-                  }`}
+                  className="absolute inset-0 rounded-full transition-colors bg-gradient-to-r from-gold/10 via-gold-bright/20 to-gold/10"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{
                     scale: hoveredItem === item.path ? 1 : 0,
                     opacity: hoveredItem === item.path ? 1 : 0,
                   }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
+                  style={{ transformOrigin: 'center' }}
                 />
                 
                 {/* Border animation */}
                 <motion.div
-                  className="absolute inset-0 border-2 border-transparent rounded-lg"
+                  className="absolute inset-0 border-2 border-transparent rounded-full"
                   animate={{
                     borderColor: hoveredItem === item.path 
                       ? 'rgba(255, 212, 71, 0.5)' 
@@ -314,7 +299,7 @@ const Navbar = () => {
                 />
                 
                 {/* Text - Adapts to background */}
-                <span className={`relative z-10 text-sm font-medium transition-all duration-300 ${
+                <span className={`relative z-10 text-sm font-medium transition-all duration-300 whitespace-nowrap inline-block ${
                   isActive(item.path)
                     ? activeTextColorClass
                     : hoveredItem === item.path
@@ -322,23 +307,24 @@ const Navbar = () => {
                     : textColorClass
                 }`}>
                   {item.label}
+                  {/* Bottom underline animation
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-gold via-gold-bright to-gold rounded-b-full"
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{
+                      scaleX: isActive(item.path) ? 1 : 0,
+                      opacity: isActive(item.path) ? 1 : 0,
+                    }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    style={{ transformOrigin: 'center' }}
+                  /> */}
                 </span>
-                
-                {/* Bottom underline animation */}
-                <motion.div
-                  className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-gold via-gold-bright to-gold origin-left"
-                  initial={{ scaleX: 0 }}
-                  animate={{
-                    scaleX: hoveredItem === item.path || isActive(item.path) ? 1 : 0,
-                  }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
-                />
                 
                 {/* Active indicator with glow */}
                 {isActive(item.path) && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-gold via-gold-bright to-gold"
+                    className="absolute -bottom-1 left-2 right-2 h-1 bg-gradient-to-r from-gold via-gold-bright to-gold rounded-b-full"
                     initial={false}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                   >
@@ -352,9 +338,7 @@ const Navbar = () => {
                 
                 {/* Shine effect on hover */}
                 <motion.div
-                  className={`absolute inset-0 bg-gradient-to-r from-transparent ${
-                    isDarkBackground ? 'via-white/10' : 'via-white/20'
-                  } to-transparent`}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                   initial={{ x: '-100%' }}
                   animate={{
                     x: hoveredItem === item.path ? '100%' : '-100%',
@@ -365,8 +349,8 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Container 3: CTA Button - Right Side */}
-          <div className="flex-shrink-0">
+          {/* Container 3: CTA Button */}
+          <div className="flex-shrink-0 flex justify-end">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -389,9 +373,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`md:hidden focus:outline-none relative z-50 transition-colors duration-300 ${
-              isDarkBackground ? 'text-white' : 'text-black'
-            }`}
+            className="md:hidden focus:outline-none absolute right-8 z-50 transition-colors duration-300 text-navy"
             aria-label="Toggle menu"
           >
             <motion.div
@@ -418,7 +400,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="md:hidden bg-offwhite border-t-2 border-gold-bright/30 overflow-hidden"
+            className="md:hidden overflow-hidden"
           >
             <div className="px-8 py-6 space-y-2">
               {navItems.map((item, idx) => (
@@ -433,12 +415,8 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={`block relative px-4 py-3 rounded-lg text-base font-medium transition-all ${
                       isActive(item.path)
-                        ? isDarkBackground
-                          ? 'text-white font-bold bg-gradient-to-r from-gold/30 to-gold-bright/30'
-                          : 'text-navy font-bold bg-gradient-to-r from-gold/20 to-gold-bright/20'
-                        : isDarkBackground
-                        ? 'text-white/90 hover:bg-gradient-to-r hover:from-gold/20 hover:to-gold-bright/20'
-                        : 'text-black hover:bg-gradient-to-r hover:from-gold/10 hover:to-gold-bright/10'
+                        ? 'text-navy font-bold bg-gradient-to-r from-gold/20 to-gold-bright/20'
+                        : 'text-navy hover:bg-gradient-to-r hover:from-gold/10 hover:to-gold-bright/10'
                     }`}
                   >
                     {item.label}

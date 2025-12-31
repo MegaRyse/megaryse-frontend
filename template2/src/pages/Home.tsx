@@ -1,22 +1,42 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import HeroImg2 from '../assets/images/Hero_Img2.png'
 
 const Home = () => {
   return (
     <div className="w-full bg-offwhite">
       {/* Hero Section - Centered Layout */}
-      <section className="relative py-32 md:py-40 bg-offwhite overflow-hidden">
+      <section className="relative pt-0 pb-32 md:pt-0 md:pb-40 bg-offwhite overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-offwhite via-offwhite/95 to-offwhite"></div>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
         
-        <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
-          >
+        <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Hero Image - Left Side */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="flex justify-center lg:justify-start relative"
+            >
+              <div className="relative">
+                <img 
+                  src={HeroImg2} 
+                  alt="Hero" 
+                  className="w-full max-w-lg h-auto object-contain relative z-10"
+                />
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/15 blur-xl rounded-4xl"></div>
+              </div>
+            </motion.div>
+            
+            {/* Hero Content - Right Side */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center max-w-4xl mx-auto"
+            >
             <motion.div
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
@@ -27,7 +47,7 @@ const Home = () => {
                 Trusted by 10,000+ Students
               </span>
             </motion.div>
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-black mb-8 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-8 leading-tight">
               Transform Your Future with
               <span className="block mt-4 relative">
                 <span className="text-black">World-Class Education</span>
@@ -39,7 +59,7 @@ const Home = () => {
                 />
               </span>
             </h1>
-            <p className="text-2xl text-black mb-12 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-xl text-black mb-12 leading-relaxed max-w-3xl mx-auto">
               Join thousands of successful professionals who chose MegaRyse for their career transformation journey
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -56,7 +76,8 @@ const Home = () => {
                 Schedule Consultation
               </Link>
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
           {/* Floating Stats Cards */}
           <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6">
