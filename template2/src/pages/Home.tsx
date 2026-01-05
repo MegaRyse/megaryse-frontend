@@ -1,8 +1,30 @@
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { useRef, useState, useEffect } from 'react'
 import HeroImg2 from '../assets/images/Hero_Img2.png'
 
 const Home = () => {
+  const featuresRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: featuresRef,
+    offset: ["start end", "end start"]
+  })
+  
+  // Transform scroll progress to control animation
+  const visualWidth = useTransform(scrollYProgress, [0, 0.5], ['100%', 'calc(50% - 1.5rem)'])
+  const leftOpacity = useTransform(scrollYProgress, [0, 0.5], [0, 1])
+  const leftX = useTransform(scrollYProgress, [0, 0.5], [-100, 0])
+  const leftWidth = useTransform(scrollYProgress, [0, 0.5], ['0%', 'calc(50% - 1.5rem)'])
+  
+  // Get scroll progress value for conditional rendering
+  const [scrollProgress, setScrollProgress] = useState(0)
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
+      setScrollProgress(latest)
+    })
+    return () => unsubscribe()
+  }, [scrollYProgress])
+
   return (
     <div className="w-full bg-offwhite">
       {/* Hero Section - Centered Layout */}
@@ -109,7 +131,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section - Zigzag Layout */}
+      {/* Features Section - Split Screen Layout */}
       <section className="py-24 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -136,54 +158,85 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <div className="space-y-16">
-            {[
-              {
-                title: 'Expert Career Counseling',
-                description: 'Our experienced counselors provide personalized guidance tailored to your career aspirations and goals.',
-                icon: '🎯',
-                image: 'left',
-              },
-              {
-                title: 'Wide Range of Programs',
-                description: 'Choose from hundreds of programs across management, technology, arts, and sciences from top universities.',
-                icon: '📚',
-                image: 'right',
-              },
-              {
-                title: 'Seamless Admission Process',
-                description: 'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.',
-                icon: '✅',
-                image: 'left',
-              },
-            ].map((feature, idx) => (
+          <div ref={featuresRef} className="relative min-h-[1000px] py-20 overflow-hidden">
+            <div className="relative w-full">
+              {/* Left Side - Content Sections (Appears on scroll) */}
               <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: feature.image === 'left' ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: idx * 0.2 }}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${
-                  feature.image === 'right' ? 'lg:flex-row-reverse' : ''
-                }`}
+                style={{ 
+                  opacity: leftOpacity,
+                  x: leftX,
+                  width: leftWidth,
+                  pointerEvents: scrollProgress > 0.1 ? 'auto' : 'none'
+                }}
+                className="absolute left-0 top-20 space-y-12 z-10 overflow-hidden"
               >
-                <div className={feature.image === 'right' ? 'lg:order-2' : ''}>
-                  <div className="bg-navy rounded-3xl p-12 relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative text-center">
-                      <div className="text-7xl mb-6">{feature.icon}</div>
-                      <div className="w-24 h-24 bg-gold rounded-full mx-auto flex items-center justify-center text-4xl">
-                        ✨
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className={feature.image === 'right' ? 'lg:order-1' : ''}>
-                  <h3 className="text-4xl font-bold text-black mb-4">{feature.title}</h3>
-                  <p className="text-lg text-black leading-relaxed">{feature.description}</p>
-                </div>
+              {[
+                {
+                  title: 'Expert Career Counseling',
+                  description: 'Our experienced counselors provide personalized guidance tailored to your career aspirations and goals.',
+                  icon: '🎯',
+                  link: '/courses',
+                  linkText: 'Career Counseling Services',
+                },
+                {
+                  title: 'Wide Range of Programs',
+                  description: 'Choose from hundreds of programs across management, technology, arts, and sciences from top universities.',
+                  icon: '📚',
+                  link: '/courses',
+                  linkText: 'Explore Programs',
+                },
+                {
+                  title: 'Seamless Admission Process',
+                  description: 'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.',
+                  icon: '✅',
+                  link: '/contact',
+                  linkText: 'Get Started',
+                },
+              ].map((feature, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.2 }}
+                  className="relative pl-8"
+                >
+                  {/* Vertical Accent Line */}
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-bright to-gold rounded-full"></div>
+                  
+                  <h3 className="text-3xl font-bold text-black mb-3">{feature.title}</h3>
+                  <p className="text-lg text-black leading-relaxed mb-4">{feature.description}</p>
+                  <Link
+                    to={feature.link}
+                    className="inline-flex items-center gap-2 text-gold-bright font-semibold hover:gap-4 transition-all group"
+                  >
+                    {feature.linkText}
+                    <span className="text-gold-bright group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </motion.div>
+              ))}
               </motion.div>
-            ))}
+
+              {/* Right Side - Visual Content (Full width initially, moves to right on scroll) */}
+              <motion.div
+                style={{ 
+                  width: visualWidth
+                }}
+                className={`relative transition-all duration-500 ${scrollProgress > 0.1 ? 'ml-auto' : ''}`}
+              >
+              <div className="bg-navy rounded-3xl p-12 relative overflow-hidden group h-full min-h-[500px] flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative text-center z-10">
+                  <div className="text-8xl mb-8">🎓</div>
+                  <div className="w-32 h-32 bg-gold rounded-full mx-auto flex items-center justify-center text-5xl mb-6">
+                    ✨
+                  </div>
+                  <h3 className="text-3xl font-bold text-white mb-4">Your Success Journey</h3>
+                  <p className="text-white/90 text-lg">Transforming dreams into reality</p>
+                </div>
+              </div>
+            </motion.div>
+            </div>
           </div>
         </div>
       </section>

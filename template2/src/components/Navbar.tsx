@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import Logo from '../assets/images/Logo.jpg'
+import Logo from '../assets/images/logo_1.png'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -193,7 +193,7 @@ const Navbar = () => {
       },
       {
         root: null,
-        rootMargin: '-80px 0px 0px 0px', // Offset for navbar height
+        rootMargin: '-112px 0px 0px 0px', // Offset for navbar height
         threshold: 0.1,
       }
     )
@@ -236,7 +236,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 ">
       {/* Main Navigation Bar */}
       <div className="w-full px-8">
-        <div className="relative flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch h-20 md:gap-8">
+        <div className="relative flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch h-30 md:gap-8 bg-red-200">
           {/* Container 1: Logo/Company Name */}
           <div className="flex-shrink-0 flex justify-start">
             <motion.div
@@ -249,7 +249,7 @@ const Navbar = () => {
                 <img 
                   src={Logo} 
                   alt="MegaRyse Logo" 
-                  className="w-20 h-20 object-contain"
+                  className="w-[10rem] h-[10rem] object-contain"
                 />
                 <div className="flex flex-col">
                   
