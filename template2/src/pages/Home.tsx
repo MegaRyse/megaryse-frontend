@@ -1,10 +1,9 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent, useAnimationFrame } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect } from 'react'
 import HeroImg2 from '../assets/images/Hero_Img2.png'
-import { useAnimationFrame, useMotionValue } from 'framer-motion'
 
-// Component for animated stat card
+// Component for animated stat card (unchanged)
 const AnimatedStatCard = ({
   stat,
   idx,
@@ -12,7 +11,6 @@ const AnimatedStatCard = ({
   stat: { number: string; label: string; icon: string }
   idx: number
 }) => {
-  // Parse the number and suffix
   const parseNumber = (numStr: string) => {
     if (numStr.includes('k+')) {
       const num = parseInt(numStr.replace('k+', ''))
@@ -31,7 +29,7 @@ const AnimatedStatCard = ({
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    const duration = 2000 // 2 seconds
+    const duration = 2000
     const steps = 60
     const increment = value / steps
     const stepDuration = duration / steps
@@ -49,7 +47,7 @@ const AnimatedStatCard = ({
           if (intervalId) clearInterval(intervalId)
         }
       }, stepDuration)
-    }, idx * 100 + 600) // Stagger the start based on index + initial animation delay
+    }, idx * 100 + 600)
 
     return () => {
       clearTimeout(timer)
@@ -102,56 +100,54 @@ const Home = () => {
     offset: ['start start', 'end end'],
   })
 
-  // Shared scroll range for shrink + left reveal
   const SHRINK_START = 0.2
   const SHRINK_END = 0.8
 
-  // Normalized t in [0,1] for that range
-  const [t, setT] = useState(0)
-  useEffect(() => {
-    const unsub = scrollYProgress.on('change', p => {
-      const normalized = Math.min(
-        Math.max((p - SHRINK_START) / (SHRINK_END - SHRINK_START), 0),
-        1,
-      )
-      setT(normalized)
-    })
-    return () => unsub()
-  }, [scrollYProgress])
+  // 🎯 FIXED HEIGHTS - No more dynamic vh calculations
+  const FIXED_FULL_HEIGHT = '80vh'  // Full height before shrink
+  const FIXED_SHRUNK_HEIGHT = '50vh'  // Shrunk height after animation
 
-  // Right visual width: 100% -> 50% over the same range
+  // Right visual shrinks smoothly (WIDTH)
   const visualWidth = useTransform(
     scrollYProgress,
-    [0, SHRINK_START, SHRINK_END, 1],
-    ['100%', '100%', '30%', '50%'],
+    [0, SHRINK_START, SHRINK_END],
+    ['100%', '100%', '50%'],
   )
 
-  // Left column width: 0% -> 50% over the same range
+  // Right HEIGHT - Fixed values only
+  const rightHeightAnim = useTransform(
+    scrollYProgress,
+    [0, SHRINK_START, SHRINK_END, 1],
+    [FIXED_FULL_HEIGHT, FIXED_FULL_HEIGHT, FIXED_SHRUNK_HEIGHT, FIXED_SHRUNK_HEIGHT]
+  )
+
+  // Left width grows as right shrinks
   const leftWidth = useTransform(
     scrollYProgress,
-    [0, SHRINK_START, SHRINK_END, 1],
-    ['0%', '0%', '50%', '50%'],
+    [SHRINK_START, SHRINK_END],
+    ['0%', '50%'],
   )
 
-  // Left column opacity / slide-in within that window
+  // Left HEIGHT - Fixed values matching right
+  const leftHeightAnim = useTransform(
+    scrollYProgress,
+    [0, SHRINK_START, SHRINK_END],
+    [FIXED_FULL_HEIGHT, FIXED_FULL_HEIGHT, FIXED_SHRUNK_HEIGHT]
+  )
+
+  // Left opacity reveal
   const leftOpacity = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_START + (SHRINK_END - SHRINK_START) * 0.3],
+    [SHRINK_START + 0.1, SHRINK_START + 0.3],
     [0, 1],
   )
+
+  // LEFT SIDE SLIDE-IN
   const leftX = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_START + (SHRINK_END - SHRINK_START) * 0.3],
-    [-100, 0],
+    [SHRINK_START, SHRINK_START + 0.2],
+    ['-100%', '0%'],
   )
-
-  const [scrollProgress, setScrollProgress] = useState(0)
-  useEffect(() => {
-    const unsubscribe = scrollYProgress.on('change', latest => {
-      setScrollProgress(latest)
-    })
-    return () => unsubscribe()
-  }, [scrollYProgress])
 
   const features = [
     {
@@ -180,18 +176,10 @@ const Home = () => {
     },
   ]
 
-  // Active feature index is tied to t so highlight changes are synced with shrinking
-  const [activeFeatureIndex, setActiveFeatureIndex] = useState(0)
-  useEffect(() => {
-    const step = Math.floor(t * features.length) // 0..features.length-1
-    setActiveFeatureIndex(step)
-  }, [t, features.length])
-
   // Testimonial auto-scroll state
   const [isHovered, setIsHovered] = useState(false)
   const x = useMotionValue(0)
 
-  // Testimonials data - duplicated for seamless loop
   const testimonials = [
     {
       name: 'Heena',
@@ -213,17 +201,13 @@ const Home = () => {
     },
   ]
 
-  // Duplicate testimonials for seamless infinite scroll
   const duplicatedTestimonials = [...testimonials, ...testimonials]
 
-  // Auto-scroll animation using useAnimationFrame
   useAnimationFrame((time, delta) => {
     if (!isHovered) {
-      const speed = 0.1 // Adjust speed here (lower = slower)
+      const speed = 0.1
       x.set(x.get() - delta * speed)
-      
-      // Reset position when scrolled past the second set
-      if (x.get() <= -(testimonials.length * 400)) { // 400px approx card width + gap
+      if (x.get() <= -(testimonials.length * 400)) {
         x.set(0)
       }
     }
@@ -231,7 +215,7 @@ const Home = () => {
 
   return (
     <div className="w-full bg-offwhite">
-      {/* Hero Section - Centered Layout */}
+      {/* Hero Section - unchanged */}
       <section className="relative pt-0 pb-32 md:pt-0 md:pb-40 bg-offwhite overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-offwhite via-offwhite/95 to-offwhite"></div>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
@@ -239,7 +223,6 @@ const Home = () => {
 
         <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 pt-2">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Hero Image - Left Side */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -256,12 +239,11 @@ const Home = () => {
               </div>
             </motion.div>
 
-            {/* Hero Content - Right Side */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center max-w-4xl mx-auto " 
+              className="text-center max-w-4xl mx-auto"
             >
               <motion.div
                 initial={{ scale: 0.9 }}
@@ -307,12 +289,11 @@ const Home = () => {
           </div>
         </div>
 
-        {/* FULL WIDTH FLOATING STATS CARDS - EXACTLY LIKE REFERENCE CODE */}
+        {/* Stats - unchanged */}
         <div className="w-full px-4 sm:px-6 lg:px-8 mt-20">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
               {(() => {
-                // Calculate years of experience from establishment date (4th November 2024)
                 const establishmentDate = new Date('2024-11-04')
                 const currentDate = new Date()
                 const yearsDiff = currentDate.getFullYear() - establishmentDate.getFullYear()
@@ -341,15 +322,15 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section - Split Screen Layout */}
-      <section className="py-24 bg-offwhite">
+      {/* ========== FEATURES SECTION - FIXED HEIGHTS ========== */}
+      <section ref={featuresRef} className="py-32 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-20"
+            className="text-center mb-10"
           >
             <h2 className="text-5xl md:text-6xl font-bold text-black mb-6">
               Why Choose{' '}
@@ -369,94 +350,75 @@ const Home = () => {
             </p>
           </motion.div>
 
-          {/* Sticky / pinned feature layout */}
-          <div ref={featuresRef} className="relative h-[220vh]">
+          {/* Fixed height container for pinning */}
+          <div className="relative h-[200vh]">
             <motion.div
-              style={{ position: 'sticky', top: 0, height: '100vh' }}
-              className="relative w-full flex items-center"
+              style={{ 
+                position: 'sticky', 
+                top: 0, 
+                height: FIXED_FULL_HEIGHT  // 🎯 FIXED STICKY HEIGHT
+              }}
+              className="w-full h-full flex items-center relative overflow-hidden"
             >
-              <div className="relative w-full">
-                {/* Left Side - Content (all visible, one highlighted) */}
+              {/* LEFT SIDE: Fixed height container */}
+              <div className="w-1/2 h-full flex items-center overflow-hidden pr-10">
                 <motion.div
                   style={{
+                    width: '100%',
                     opacity: leftOpacity,
                     x: leftX,
-                    width: leftWidth,
-                    pointerEvents: t > 0 ? 'auto' : 'none',
+                    height: leftHeightAnim,  // 🎯 FIXED ANIMATED HEIGHT
                   }}
-                  className="absolute left-0 top-20 space-y-8 z-10 overflow-hidden"
+                  className="space-y-8 w-full flex flex-col justify-center px-4"  // 🎯 Fixed content positioning
                 >
-                  {features.map((feature, idx) => {
-                    const isActive = idx === activeFeatureIndex
-                    return (
-                      <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, x: -30, filter: 'blur(8px)' }}
-                        animate={{
-                          opacity: 1,
-                          x: 0,
-                          filter: isActive ? 'blur(0px)' : 'blur(4px)',
-                          scale: isActive ? 1.02 : 0.98,
-                        }}
-                        transition={{ duration: 0.3 }}
-                        className={`relative pl-8 rounded-2xl ${
-                          isActive ? 'bg-white shadow-xl' : 'bg-transparent'
-                        } transition-colors`}
-                      >
-                        {/* Vertical Accent Line */}
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-bright to-gold rounded-full"></div>
-
-                        <h3 className="text-3xl font-bold text-black mb-3 flex items-center gap-2">
-                          <span className="text-2xl">{feature.icon}</span>
-                          {feature.title}
-                        </h3>
-                        <p className="text-lg text-black leading-relaxed mb-4">
-                          {feature.description}
-                        </p>
-                        <Link
-                          to={feature.link}
-                          className="inline-flex items-center gap-2 text-gold-bright font-semibold hover:gap-4 transition-all group"
-                        >
-                          {feature.linkText}
-                          <span className="text-gold-bright group-hover:translate-x-1 transition-transform">
-                            →
-                          </span>
-                        </Link>
-                      </motion.div>
-                    )
-                  })}
-                </motion.div>
-
-                {/* Right Side - Visual Content (shrinks in sync with left reveal) */}
-                <motion.div
-                  style={{
-                    width: visualWidth,
-                  }}
-                  className={`relative transition-all duration-500 ${
-                    scrollProgress > SHRINK_START ? 'ml-auto' : ''
-                  }`}
-                >
-                  <div className="bg-navy rounded-3xl p-12 relative overflow-hidden group h-full min-h-[500px] flex items-center justify-center">
-                    <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative text-center z-10">
-                      <div className="text-8xl mb-8">🎓</div>
-                      <div className="w-32 h-32 bg-gold rounded-full mx-auto flex items-center justify-center text-5xl mb-6">
-                        ✨
-                      </div>
-                      <h3 className="text-3xl font-bold text-white mb-4">
-                        Your Success Journey
+                  {features.map((feature, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ x: -40, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                      className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all flex-shrink-0 max-w-sm mx-auto"  // 🎯 Fixed card sizing
+                    >
+                      <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
+                        <span className="text-xl">{feature.icon}</span>
+                        {feature.title}
                       </h3>
-                      <p className="text-white/90 text-lg">Transforming dreams into reality</p>
-                    </div>
-                  </div>
+                      <p className="text-lg leading-relaxed mb-6">{feature.description}</p>
+                      <Link
+                        to={feature.link}
+                        className="inline-flex items-center gap-2 text-gold-bright font-semibold hover:gap-4 transition-all"
+                      >
+                        {feature.linkText}
+                        <span className="text-gold-bright transition-transform hover:translate-x-1">→</span>
+                      </Link>
+                    </motion.div>
+                  ))}
                 </motion.div>
               </div>
+
+              {/* RIGHT VISUAL: Fixed height container */}
+              <motion.div
+                style={{ 
+                  width: visualWidth,
+                  height: rightHeightAnim,  // 🎯 FIXED ANIMATED HEIGHT
+                }}
+                className="ml-auto flex items-center justify-center flex-shrink-0"
+              >
+                <div 
+                  className="bg-navy rounded-3xl p-12 lg:p-16 text-center text-white relative overflow-hidden flex flex-col justify-center items-center w-full h-full max-w-2xl"
+                  style={{ height: '100%' }}  // 🎯 Fill exact parent height
+                >
+                  <div className="text-6xl lg:text-7xl mb-6 animate-pulse">🎓</div>
+                  <h3 className="text-2xl lg:text-3xl font-bold mb-4 px-4">Your Success Journey</h3>
+                  <p className="text-white/90 text-base lg:text-lg px-4 leading-relaxed">Transforming dreams into reality</p>
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Programs Section - Masonry Style */}
+      {/* Programs Section - unchanged */}
       <section className="py-24 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -521,7 +483,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials - Horizontal Auto-Scroll Carousel */}
+      {/* Testimonials Section - unchanged */}
       <section className="py-24 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -549,7 +511,6 @@ const Home = () => {
             </p>
           </motion.div>
 
-          {/* Horizontal scrolling container */}
           <div 
             className="overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
@@ -602,7 +563,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section - Split Design */}
+      {/* CTA Section - unchanged */}
       <section className="py-24 bg-gradient-to-r from-offwhite via-offwhite to-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
