@@ -97,23 +97,18 @@ const Home = () => {
   // 🎯 NEW: Staggered text reveal state
   const [showFeatureTexts, setShowFeatureTexts] = useState(false)
 
-  // 🎯 NEW: Active feature highlight state (0-2 for 3 features)
-  const [activeFeature, setActiveFeature] = useState(0)
+  // 🎯 NEW: Active feature highlight state (-1 means "none highlighted yet")
+  const [activeFeature, setActiveFeature] = useState<number>(-1)
 
-  // Scroll progress for Features section
+  // Scroll progress for Features section (0 → 1 across full section)
   const { scrollYProgress } = useScroll({
     target: featuresRef,
-    offset: ['start start', '70% end'],
-  })
-
-  // 🎯 NEW: Scroll progress for feature highlighting (after main animation)
-  const highlightProgress = useScroll({
-    target: featuresRef,
-    offset: ['end end', '1 1'], // Starts after features section ends, continues through full scroll
+    offset: ['start start', 'end end'],
   })
 
   const SHRINK_START = 0.2
   const SHRINK_END = 0.8
+  const HIGHLIGHT_START = SHRINK_END + 0.02
 
   // 🎯 FIXED HEIGHT - No height changes during shrink
   const FIXED_HEIGHT = '75vh'
@@ -153,10 +148,10 @@ const Home = () => {
     [50, 0],
   )
 
-  // 🎯 NEW: Transform highlightProgress (0-1) to feature index (0-2)
-  const highlightIndex = useTransform(highlightProgress.scrollYProgress, [0, 1], [0, 3])
+  // 🎯 NEW: Transform scroll progress (from AFTER main animation to section end) to feature index (0-2)
+  const highlightIndex = useTransform(scrollYProgress, [HIGHLIGHT_START, 1], [0, 3])
 
-  // Update activeFeature based on highlightIndex
+  // Update activeFeature based on highlightIndex while user scrolls down the pinned section
   useEffect(() => {
     const unsubscribe = highlightIndex.on('change', (latest: number) => {
       const newIndex = Math.floor(latest)
@@ -165,7 +160,7 @@ const Home = () => {
       }
     })
     return unsubscribe
-  }, [activeFeature, highlightIndex])
+  }, [highlightIndex])
 
   const features = [
     {
@@ -242,7 +237,7 @@ const Home = () => {
   return (
     <div className="w-full bg-offwhite">
       {/* Hero Section - unchanged */}
-      <section className="relative pt-0 pb-32 md:pt-0 md:pb-40 bg-offwhite overflow-hidden">
+      <section className="relative pt-0 md:pt-0  bg-offwhite overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-offwhite via-offwhite/95 to-offwhite"></div>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
@@ -349,95 +344,105 @@ const Home = () => {
       </section>
 
       {/* ========== FEATURES SECTION - WHITE CONTAINERS FIRST, TEXTS LATER + HIGHLIGHTING ========== */}
-      <section ref={featuresRef} className="py-32">
+      <section ref={featuresRef} className="pb-32">
         <div className="max-w-container mx-auto px-6">
-          <h2 className="text-5xl font-bold text-center mb-20">
-            Why Choose MegaRyse?
-          </h2>
-
-          <div className="relative h-[200vh]">
+          <div
+            className="relative"
+            style={{ height: `${(features.length + 1) * 100}vh` }}
+          >
             <motion.div
               style={{ position: 'sticky', top: 0, height: '100vh' }}
-              className="flex items-center relative"
+              className="relative flex flex-col gap-10 pt-32"
             >
-              {/* LEFT CONTENT - STAGGERED REVEAL: CONTAINERS → TEXTS + HIGHLIGHTING */}
-              <motion.div
-                style={{
-                  width: leftWidth,
-                  opacity: leftOpacity,
-                  x: leftX,
-                  filter: `blur(${leftBlur}px)`,
-                }}
-                className="space-y-2 pr-10 flex flex-col items-center justify-center h-[75vh] overflow-hidden"
-              >
-                {features.map((f, i) => (
-                  <div key={i} className="flex-shrink-0 w-full max-w-sm">
-                    {/* 1️⃣ WHITE CONTAINER - appears first with blur→sharp + BLUE HIGHLIGHT */}
-                    <motion.div
-                      className={`p-6 rounded-2xl shadow overflow-hidden transition-all duration-500 ${i === activeFeature
-                          ? 'bg-gradient-to-br from-blue-500/10 to-blue-600/20 shadow-2xl shadow-blue-500/25 border-2 border-blue-400/50 ring-2 ring-blue-500/30'
-                          : 'bg-white shadow-lg'
-                        }`}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{
-                        opacity: 1,
-                        scale: 1,
-                        transition: { delay: 0.2 + i * 0.1 } // Staggered container reveal
-                      }}
-                    >
-                      {/* 2️⃣ TEXT CONTENT - 400ms later + staggered + color changes on highlight */}
+              <h2 className="text-5xl font-bold text-center">
+                Why Choose MegaRyse?
+              </h2>
+
+              <div className="flex items-center relative flex-1">
+                {/* LEFT CONTENT - STAGGERED REVEAL: CONTAINERS → TEXTS + HIGHLIGHTING */}
+                <motion.div
+                  style={{
+                    width: leftWidth,
+                    opacity: leftOpacity,
+                    x: leftX,
+                    filter: `blur(${leftBlur}px)`,
+                    height: FIXED_HEIGHT,
+                  }}
+                  className="pr-10 flex flex-col justify-between h-full"
+                >
+                  {features.map((f, i) => (
+                    <div key={i} className="w-full max-w-sm">
+                      {/* 1️⃣ WHITE CONTAINER - appears first with blur→sharp + BLUE HIGHLIGHT */}
                       <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={showFeatureTexts ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                        transition={{
-                          duration: 0.6,
-                          delay: 0.8 + i * 0.15 // Delayed + staggered text reveal
-                        }}
-                        className={`h-full flex flex-col justify-center transition-all duration-500 ${i === activeFeature
-                            ? 'text-blue-900'
-                            : 'text-gray-900'
+                        className={`p-6 rounded-2xl shadow overflow-hidden transition-all duration-500 ${i === activeFeature
+                            ? 'bg-gradient-to-br from-blue-500/10 to-blue-600/20 shadow-2xl shadow-blue-500/25 border-2 border-blue-400/50 ring-2 ring-blue-500/30'
+                            : 'bg-white shadow-lg'
                           }`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{
+                          opacity: 1,
+                          scale: 1,
+                          transition: { delay: 0.2 + i * 0.1 }, // Staggered container reveal
+                        }}
                       >
-                        <h3 className={`text-2xl font-bold mb-2 ${i === activeFeature ? 'drop-shadow-lg' : ''
-                          }`}>
-                          {f.icon} {f.title}
-                        </h3>
-                        <p className={`text-lg leading-relaxed mb-4 flex-1 ${i === activeFeature ? 'font-medium drop-shadow-sm' : ''
-                          }`}>
-                          {f.description}
-                        </p>
-                        <Link
-                          to={f.link}
-                          className={`inline-flex items-center gap-2 font-semibold hover:gap-4 transition-all self-start ${i === activeFeature
-                              ? 'text-blue-600 hover:text-blue-700'
-                              : 'text-blue-600 hover:text-blue-700'
+                        {/* 2️⃣ TEXT CONTENT - 400ms later + staggered + color changes on highlight */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={showFeatureTexts ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                          transition={{
+                            duration: 0.6,
+                            delay: 0.8 + i * 0.15, // Delayed + staggered text reveal
+                          }}
+                          className={`h-full flex flex-col justify-center transition-all duration-500 ${i === activeFeature
+                              ? 'text-blue-900'
+                              : 'text-gray-900'
                             }`}
                         >
-                          {f.linkText}
-                          <span className="transition-transform hover:translate-x-1">→</span>
-                        </Link>
+                          <h3
+                            className={`text-2xl font-bold mb-2 ${i === activeFeature ? 'drop-shadow-lg' : ''
+                              }`}
+                          >
+                            {f.icon} {f.title}
+                          </h3>
+                          <p
+                            className={`text-lg leading-relaxed mb-4 flex-1 ${i === activeFeature ? 'font-medium drop-shadow-sm' : ''
+                              }`}
+                          >
+                            {f.description}
+                          </p>
+                          <Link
+                            to={f.link}
+                            className={`inline-flex items-center gap-2 font-semibold hover:gap-4 transition-all self-start ${i === activeFeature
+                                ? 'text-blue-600 hover:text-blue-700'
+                                : 'text-blue-600 hover:text-blue-700'
+                              }`}
+                          >
+                            {f.linkText}
+                            <span className="transition-transform hover:translate-x-1">→</span>
+                          </Link>
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  </div>
-                ))}
-              </motion.div>
+                    </div>
+                  ))}
+                </motion.div>
 
-              {/* RIGHT VISUAL - FIXED HEIGHT, SHRINKS WIDTH ONLY */}
-              <motion.div
-                style={{
-                  width: visualWidth,
-                  height: FIXED_HEIGHT
-                }}
-                className="ml-auto flex items-center justify-center flex-shrink-0"
-              >
-                <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center">
-                  <div className="text-7xl mb-6">🎓</div>
-                  <h3 className="text-3xl font-bold mb-2">
-                    Your Success Journey
-                  </h3>
-                  <p className="text-white/90">Transforming dreams into reality</p>
-                </div>
-              </motion.div>
+                {/* RIGHT VISUAL - FIXED HEIGHT, SHRINKS WIDTH ONLY */}
+                <motion.div
+                  style={{
+                    width: visualWidth,
+                    height: FIXED_HEIGHT,
+                  }}
+                  className="ml-auto flex items-center justify-center flex-shrink-0"
+                >
+                  <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center">
+                    <div className="text-7xl mb-6">🎓</div>
+                    <h3 className="text-3xl font-bold mb-2">
+                      Your Success Journey
+                    </h3>
+                    <p className="text-white/90">Transforming dreams into reality</p>
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
           </div>
         </div>
