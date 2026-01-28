@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent, useAnimationFrame } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect } from 'react'
 import HeroImg2 from '../assets/images/Hero_Img2.png'
@@ -94,31 +94,35 @@ const AnimatedStatCard = ({
 const Home = () => {
   const featuresRef = useRef<HTMLDivElement | null>(null)
 
+  // 🎯 NEW: Staggered text reveal state
+  const [showFeatureTexts, setShowFeatureTexts] = useState(false)
+
+  // 🎯 NEW: Active feature highlight state (0-2 for 3 features)
+  const [activeFeature, setActiveFeature] = useState(0)
+
   // Scroll progress for Features section
   const { scrollYProgress } = useScroll({
     target: featuresRef,
-    offset: ['start start', 'end end'],
+    offset: ['start start', '70% end'],
+  })
+
+  // 🎯 NEW: Scroll progress for feature highlighting (after main animation)
+  const highlightProgress = useScroll({
+    target: featuresRef,
+    offset: ['end end', '1 1'], // Starts after features section ends, continues through full scroll
   })
 
   const SHRINK_START = 0.2
   const SHRINK_END = 0.8
 
-  // 🎯 FIXED HEIGHTS - No more dynamic vh calculations
-  const FIXED_FULL_HEIGHT = '80vh'  // Full height before shrink
-  const FIXED_SHRUNK_HEIGHT = '50vh'  // Shrunk height after animation
+  // 🎯 FIXED HEIGHT - No height changes during shrink
+  const FIXED_HEIGHT = '75vh'
 
-  // Right visual shrinks smoothly (WIDTH)
+  // Right visual shrinks smoothly (WIDTH only)
   const visualWidth = useTransform(
     scrollYProgress,
     [0, SHRINK_START, SHRINK_END],
     ['100%', '100%', '50%'],
-  )
-
-  // Right HEIGHT - Fixed values only
-  const rightHeightAnim = useTransform(
-    scrollYProgress,
-    [0, SHRINK_START, SHRINK_END, 1],
-    [FIXED_FULL_HEIGHT, FIXED_FULL_HEIGHT, FIXED_SHRUNK_HEIGHT, FIXED_SHRUNK_HEIGHT]
   )
 
   // Left width grows as right shrinks
@@ -128,13 +132,6 @@ const Home = () => {
     ['0%', '50%'],
   )
 
-  // Left HEIGHT - Fixed values matching right
-  const leftHeightAnim = useTransform(
-    scrollYProgress,
-    [0, SHRINK_START, SHRINK_END],
-    [FIXED_FULL_HEIGHT, FIXED_FULL_HEIGHT, FIXED_SHRUNK_HEIGHT]
-  )
-
   // Left opacity reveal
   const leftOpacity = useTransform(
     scrollYProgress,
@@ -142,12 +139,33 @@ const Home = () => {
     [0, 1],
   )
 
-  // LEFT SIDE SLIDE-IN
+  // Left slide-in animation
   const leftX = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.2],
-    ['-100%', '0%'],
+    [SHRINK_START + 0.1, SHRINK_START + 0.3],
+    [-80, 0],
   )
+
+  // Left blur effect - starts blurred (20px), ends sharp (0px)
+  const leftBlur = useTransform(
+    scrollYProgress,
+    [SHRINK_START + 0.1, SHRINK_START + 0.3],
+    [50, 0],
+  )
+
+  // 🎯 NEW: Transform highlightProgress (0-1) to feature index (0-2)
+  const highlightIndex = useTransform(highlightProgress.scrollYProgress, [0, 1], [0, 3])
+
+  // Update activeFeature based on highlightIndex
+  useEffect(() => {
+    const unsubscribe = highlightIndex.on('change', (latest: number) => {
+      const newIndex = Math.floor(latest)
+      if (newIndex !== activeFeature && newIndex >= 0 && newIndex < 3) {
+        setActiveFeature(newIndex)
+      }
+    })
+    return unsubscribe
+  }, [activeFeature, highlightIndex])
 
   const features = [
     {
@@ -202,6 +220,14 @@ const Home = () => {
   ]
 
   const duplicatedTestimonials = [...testimonials, ...testimonials]
+
+  // 🎯 NEW: Delayed text reveal after scroll animation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFeatureTexts(true)
+    }, 800) // 400ms delay after left content animation completes
+    return () => clearTimeout(timer)
+  }, [])
 
   useAnimationFrame((time, delta) => {
     if (!isHovered) {
@@ -322,95 +348,94 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ========== FEATURES SECTION - FIXED HEIGHTS ========== */}
-      <section ref={featuresRef} className="py-32 bg-offwhite">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-10"
-          >
-            <h2 className="text-5xl md:text-6xl font-bold text-black mb-6">
-              Why Choose{' '}
-              <span className="relative">
-                <span className="text-black">MegaRyse?</span>
-                <motion.span
-                  className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                />
-              </span>
-            </h2>
-            <p className="text-xl text-black max-w-2xl mx-auto">
-              Your trusted partner in achieving academic and career excellence
-            </p>
-          </motion.div>
+      {/* ========== FEATURES SECTION - WHITE CONTAINERS FIRST, TEXTS LATER + HIGHLIGHTING ========== */}
+      <section ref={featuresRef} className="py-32">
+        <div className="max-w-container mx-auto px-6">
+          <h2 className="text-5xl font-bold text-center mb-20">
+            Why Choose MegaRyse?
+          </h2>
 
-          {/* Fixed height container for pinning */}
           <div className="relative h-[200vh]">
             <motion.div
-              style={{ 
-                position: 'sticky', 
-                top: 0, 
-                height: FIXED_FULL_HEIGHT  // 🎯 FIXED STICKY HEIGHT
-              }}
-              className="w-full h-full flex items-center relative overflow-hidden"
+              style={{ position: 'sticky', top: 0, height: '100vh' }}
+              className="flex items-center relative"
             >
-              {/* LEFT SIDE: Fixed height container */}
-              <div className="w-1/2 h-full flex items-center overflow-hidden pr-10">
-                <motion.div
-                  style={{
-                    width: '100%',
-                    opacity: leftOpacity,
-                    x: leftX,
-                    height: leftHeightAnim,  // 🎯 FIXED ANIMATED HEIGHT
-                  }}
-                  className="space-y-8 w-full flex flex-col justify-center px-4"  // 🎯 Fixed content positioning
-                >
-                  {features.map((feature, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ x: -40, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.5, delay: idx * 0.1 }}
-                      className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all flex-shrink-0 max-w-sm mx-auto"  // 🎯 Fixed card sizing
-                    >
-                      <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
-                        <span className="text-xl">{feature.icon}</span>
-                        {feature.title}
-                      </h3>
-                      <p className="text-lg leading-relaxed mb-6">{feature.description}</p>
-                      <Link
-                        to={feature.link}
-                        className="inline-flex items-center gap-2 text-gold-bright font-semibold hover:gap-4 transition-all"
-                      >
-                        {feature.linkText}
-                        <span className="text-gold-bright transition-transform hover:translate-x-1">→</span>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-
-              {/* RIGHT VISUAL: Fixed height container */}
+              {/* LEFT CONTENT - STAGGERED REVEAL: CONTAINERS → TEXTS + HIGHLIGHTING */}
               <motion.div
-                style={{ 
+                style={{
+                  width: leftWidth,
+                  opacity: leftOpacity,
+                  x: leftX,
+                  filter: `blur(${leftBlur}px)`,
+                }}
+                className="space-y-2 pr-10 flex flex-col items-center justify-center h-[75vh] overflow-hidden"
+              >
+                {features.map((f, i) => (
+                  <div key={i} className="flex-shrink-0 w-full max-w-sm">
+                    {/* 1️⃣ WHITE CONTAINER - appears first with blur→sharp + BLUE HIGHLIGHT */}
+                    <motion.div
+                      className={`p-6 rounded-2xl shadow overflow-hidden transition-all duration-500 ${i === activeFeature
+                          ? 'bg-gradient-to-br from-blue-500/10 to-blue-600/20 shadow-2xl shadow-blue-500/25 border-2 border-blue-400/50 ring-2 ring-blue-500/30'
+                          : 'bg-white shadow-lg'
+                        }`}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                        transition: { delay: 0.2 + i * 0.1 } // Staggered container reveal
+                      }}
+                    >
+                      {/* 2️⃣ TEXT CONTENT - 400ms later + staggered + color changes on highlight */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={showFeatureTexts ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                        transition={{
+                          duration: 0.6,
+                          delay: 0.8 + i * 0.15 // Delayed + staggered text reveal
+                        }}
+                        className={`h-full flex flex-col justify-center transition-all duration-500 ${i === activeFeature
+                            ? 'text-blue-900'
+                            : 'text-gray-900'
+                          }`}
+                      >
+                        <h3 className={`text-2xl font-bold mb-2 ${i === activeFeature ? 'drop-shadow-lg' : ''
+                          }`}>
+                          {f.icon} {f.title}
+                        </h3>
+                        <p className={`text-lg leading-relaxed mb-4 flex-1 ${i === activeFeature ? 'font-medium drop-shadow-sm' : ''
+                          }`}>
+                          {f.description}
+                        </p>
+                        <Link
+                          to={f.link}
+                          className={`inline-flex items-center gap-2 font-semibold hover:gap-4 transition-all self-start ${i === activeFeature
+                              ? 'text-blue-600 hover:text-blue-700'
+                              : 'text-blue-600 hover:text-blue-700'
+                            }`}
+                        >
+                          {f.linkText}
+                          <span className="transition-transform hover:translate-x-1">→</span>
+                        </Link>
+                      </motion.div>
+                    </motion.div>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* RIGHT VISUAL - FIXED HEIGHT, SHRINKS WIDTH ONLY */}
+              <motion.div
+                style={{
                   width: visualWidth,
-                  height: rightHeightAnim,  // 🎯 FIXED ANIMATED HEIGHT
+                  height: FIXED_HEIGHT
                 }}
                 className="ml-auto flex items-center justify-center flex-shrink-0"
               >
-                <div 
-                  className="bg-navy rounded-3xl p-12 lg:p-16 text-center text-white relative overflow-hidden flex flex-col justify-center items-center w-full h-full max-w-2xl"
-                  style={{ height: '100%' }}  // 🎯 Fill exact parent height
-                >
-                  <div className="text-6xl lg:text-7xl mb-6 animate-pulse">🎓</div>
-                  <h3 className="text-2xl lg:text-3xl font-bold mb-4 px-4">Your Success Journey</h3>
-                  <p className="text-white/90 text-base lg:text-lg px-4 leading-relaxed">Transforming dreams into reality</p>
+                <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center">
+                  <div className="text-7xl mb-6">🎓</div>
+                  <h3 className="text-3xl font-bold mb-2">
+                    Your Success Journey
+                  </h3>
+                  <p className="text-white/90">Transforming dreams into reality</p>
                 </div>
               </motion.div>
             </motion.div>
@@ -511,31 +536,40 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <div 
+          <div
             className="overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <motion.div 
+            <motion.div
               className="flex gap-8 py-4"
-              style={{ 
+              style={{
                 x,
                 display: 'flex',
               }}
             >
               {duplicatedTestimonials.map((testimonial, idx) => (
+                // Replace the testimonial card motion.div with this glassmorphic version:
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: Math.min(idx * 0.1, 0.3) }}
-                  whileHover={{ 
+                  transition={{ duration: 0.2, delay: Math.min(idx * 0.1, 0.1) }}
+                  whileHover={{
                     y: -5,
-                    scale: 1.02,
-                    zIndex: 10
+                    scale: 1,
+                    zIndex: 10,
+                    backdropFilter: 'blur(20px)',
+                    background: 'rgb(209, 167, 27)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
                   }}
-                  className="bg-navy rounded-2xl p-8 shadow-lg border-2 border-transparent hover:border-gold-bright transition-all flex-shrink-0 w-full max-w-sm hover:scale-[1.02]"
+                  className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-8 transition-all duration-300 flex-shrink-0 w-full max-w-sm hover:scale-[1.02]"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                  }}
                 >
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
@@ -544,19 +578,20 @@ const Home = () => {
                       </span>
                     ))}
                   </div>
-                  <p className="text-white/90 mb-6 leading-relaxed italic text-sm">
+                  <p className="text-navy/95 mb-6 leading-relaxed italic text-sm drop-shadow-lg">
                     "{testimonial.text}"
                   </p>
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gold rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    <div className="w-14 h-14 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                       {testimonial.name[0]}
                     </div>
                     <div>
-                      <div className="font-bold text-white text-lg">{testimonial.name}</div>
-                      <div className="text-sm text-white/80">{testimonial.role}</div>
+                      <div className="font-bold text-navy text-lg drop-shadow-md">{testimonial.name}</div>
+                      <div className="text-sm text-yellow-500/80 drop-shadow-sm">{testimonial.role}</div>
                     </div>
                   </div>
                 </motion.div>
+
               ))}
             </motion.div>
           </div>
