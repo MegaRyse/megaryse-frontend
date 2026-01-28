@@ -109,6 +109,8 @@ const Home = () => {
   const SHRINK_START = 0.2
   const SHRINK_END = 0.8
   const HIGHLIGHT_START = SHRINK_END + 0.02
+  // Extra viewport height so the section stays pinned for a short hold after the last highlight
+  const HOLD_EXTRA_VH = 80
 
   // 🎯 FIXED HEIGHT - No height changes during shrink
   const FIXED_HEIGHT = '75vh'
@@ -187,6 +189,14 @@ const Home = () => {
       link: '/contact',
       linkText: 'Get Started',
     },
+  ]
+
+  // Right-side visual content in sync with left-side highlight (default + one per feature)
+  const rightVisuals = [
+    { icon: '🎓', title: 'Your Success Journey', subtitle: 'Transforming dreams into reality' },
+    { icon: '🎯', title: 'One-on-One Guidance', subtitle: 'Personalized roadmaps for your career goals' },
+    { icon: '📚', title: 'Programs That Fit You', subtitle: 'Management, tech, arts & sciences worldwide' },
+    { icon: '✅', title: 'Hassle-Free Admission', subtitle: 'We handle paperwork so you can focus on goals' },
   ]
 
   // Testimonial auto-scroll state
@@ -348,7 +358,7 @@ const Home = () => {
         <div className="max-w-container mx-auto px-6">
           <div
             className="relative"
-            style={{ height: `${(features.length + 1) * 100}vh` }}
+            style={{ height: `${(features.length + 1) * 100 + HOLD_EXTRA_VH}vh` }}
           >
             <motion.div
               style={{ position: 'sticky', top: 0, height: '100vh' }}
@@ -372,40 +382,36 @@ const Home = () => {
                 >
                   {features.map((f, i) => (
                     <div key={i} className="w-full max-w-sm">
-                      {/* 1️⃣ WHITE CONTAINER - appears first with blur→sharp + BLUE HIGHLIGHT */}
+                      {/* 1️⃣ CONTAINER - glassmorphism when highlighted, same dimensions */}
                       <motion.div
-                        className={`p-6 rounded-2xl shadow overflow-hidden transition-all duration-500 ${i === activeFeature
-                            ? 'bg-gradient-to-br from-blue-500/10 to-blue-600/20 shadow-2xl shadow-blue-500/25 border-2 border-blue-400/50 ring-2 ring-blue-500/30'
-                            : 'bg-white shadow-lg'
+                        className={`p-6 rounded-2xl shadow-lg overflow-hidden transition-colors duration-300 border ${i === activeFeature
+                            ? 'bg-navy border-gold'
+                            : 'bg-white border-transparent'
                           }`}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{
                           opacity: 1,
                           scale: 1,
-                          transition: { delay: 0.2 + i * 0.1 }, // Staggered container reveal
+                          transition: { delay: 0.2 + i * 0.1 },
                         }}
                       >
-                        {/* 2️⃣ TEXT CONTENT - 400ms later + staggered + color changes on highlight */}
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={showFeatureTexts ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                           transition={{
                             duration: 0.6,
-                            delay: 0.8 + i * 0.15, // Delayed + staggered text reveal
+                            delay: 0.8 + i * 0.15,
                           }}
-                          className={`h-full flex flex-col justify-center transition-all duration-500 ${i === activeFeature
-                              ? 'text-blue-900'
+                          className={`h-full flex flex-col justify-center transition-colors duration-300 ${i === activeFeature
+                              ? 'text-white'
                               : 'text-gray-900'
                             }`}
                         >
-                          <h3
-                            className={`text-2xl font-bold mb-2 ${i === activeFeature ? 'drop-shadow-lg' : ''
-                              }`}
-                          >
+                          <h3 className="text-2xl font-bold mb-2">
                             {f.icon} {f.title}
                           </h3>
                           <p
-                            className={`text-lg leading-relaxed mb-4 flex-1 ${i === activeFeature ? 'font-medium drop-shadow-sm' : ''
+                            className={`text-lg leading-relaxed mb-4 flex-1 ${i === activeFeature ? 'text-white/90' : 'text-gray-700'
                               }`}
                           >
                             {f.description}
@@ -413,7 +419,7 @@ const Home = () => {
                           <Link
                             to={f.link}
                             className={`inline-flex items-center gap-2 font-semibold hover:gap-4 transition-all self-start ${i === activeFeature
-                                ? 'text-blue-600 hover:text-blue-700'
+                                ? 'text-gold-bright hover:text-gold-bright'
                                 : 'text-blue-600 hover:text-blue-700'
                               }`}
                           >
@@ -426,7 +432,7 @@ const Home = () => {
                   ))}
                 </motion.div>
 
-                {/* RIGHT VISUAL - FIXED HEIGHT, SHRINKS WIDTH ONLY */}
+                {/* RIGHT VISUAL - FIXED HEIGHT, SHRINKS WIDTH ONLY; content syncs with left highlight */}
                 <motion.div
                   style={{
                     width: visualWidth,
@@ -434,12 +440,26 @@ const Home = () => {
                   }}
                   className="ml-auto flex items-center justify-center flex-shrink-0"
                 >
-                  <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center">
-                    <div className="text-7xl mb-6">🎓</div>
-                    <h3 className="text-3xl font-bold mb-2">
-                      Your Success Journey
-                    </h3>
-                    <p className="text-white/90">Transforming dreams into reality</p>
+                  <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center relative overflow-hidden">
+                    {rightVisuals.map((visual, idx) => {
+                      const isActive = idx === activeFeature + 1
+                      return (
+                        <motion.div
+                          key={idx}
+                          className="absolute inset-0 flex flex-col items-center justify-center p-16"
+                          initial={false}
+                          animate={{
+                            opacity: isActive ? 1 : 0,
+                            scale: isActive ? 1 : 0.95,
+                          }}
+                          transition={{ duration: 0.35 }}
+                        >
+                          <div className="text-7xl mb-6">{visual.icon}</div>
+                          <h3 className="text-3xl font-bold mb-2">{visual.title}</h3>
+                          <p className="text-white/90">{visual.subtitle}</p>
+                        </motion.div>
+                      )
+                    })}
                   </div>
                 </motion.div>
               </div>
