@@ -1,0 +1,76 @@
+---
+alwaysApply: true
+---
+# MBA CONSULTANCY REACT SITE - MASTER RULES (STRICT)
+
+## 🎨 COLORS (MANDATORY - FROM VISITING CARD)
+- Navy Primary: #00275E (bg-navy, text-navy)
+- Navy Dark: #0F162D (hover: bg-navy-dark)
+- Offwhite BG: #FAFAFA (bg-offwhite)
+- Offwhite Light: #F8FAFC (hover: bg-offwhite-light)
+- Gold Muted: #C9A55E (border-gold-muted, accent)
+- Gold Soft: #D5AD36 (hover: border-gold-soft)
+- Black: #111827 (headings)
+- Gradients:
+  gradient-gold: linear-gradient(135deg, #D5AD36 0%, #E8C547 50%, #FAF0E0 100%)
+  gradient-gold-soft: linear-gradient(135deg, rgba(201,169,120,0.08) 0%, rgba(213,173,54,0.12) 100%)
+
+## 🚀 ANIMATIONS (60FPS FRAMER MOTION ONLY)
+EVERY interactive element MUST use Framer Motion:
+- whileHover: { y: -6, scale: 1.05, boxShadow: '0 20px 40px rgba(24,31,101,0.15)' }
+- whileTap: { scale: 0.98 }
+- transition: { type: 'spring', stiffness: 400, damping: 20 }
+- Page loads: initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+- NO CSS transitions—Framer Motion ONLY for pro effects
+
+## 📱 RESPONSIVE (ZERO OVERFLOW)
+- Container: max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
+- Typography: text-3xl md:text-4xl lg:text-5xl
+- Spacing: py-12 md:py-16 lg:py-20
+- Grids: grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+- Mobile-first: sm:, md:, lg:, xl:, 2xl: breakpoints
+- NO horizontal scroll: overflow-hidden where needed
+
+## 🏗️ STRUCTURE (EXACT SECTIONS)
+1. Hero: H1 "Find Your Perfect Course", tabs selector, CTA
+2. Courses: Undergraduate/Postgrad/Professional tabs + cards
+3. Universities: Plugin grid (4-col responsive)
+4. Careers: Path cards with icons
+5. About: Team avatars (navy-gold students)
+6. Contact: Form + map
+
+## 💎 STUDENT CONSULTANCY UX
+- Trust: Navy authority + gold prestige
+- Clarity: Large headings, bullet career paths
+- Action: Gold CTAs "Know More →" with arrow slide
+- Avatars: Diverse students (gold accents) from vecteezy/freepik
+- Micro-interactions: Hover lifts, underline reveals
+
+## ⚛️ CODE STANDARDS (ROBUST)
+- React 18 + Tailwind + Framer Motion + React Router
+- Components: PascalCase, props typed if TS
+- Hooks: useState for tabs, useEffect for scroll
+- Accessible: aria-label, focus-visible:ring-2 ring-gold-muted
+- Performance: lazy load universities plugin
+- NO complexity: Clean, standard patterns only
+
+## 🎯 PROMPT FORMAT (ALWAYS FOLLOW)
+When generating:
+1. "Create [Hero/Courses/etc] component using EXACT rules above"
+2. Output COMPLETE working code (imports + JSX + styles)
+3. Test responsive: Mention breakpoints used
+4. 60fps proof: Framer Motion on ALL hovers/CTAs
+
+## ❌ NEVER DO
+- Bright colors, gradients on backgrounds
+- Complex nested components
+- CSS animations (Framer ONLY)
+- Fixed widths/heights
+- Deviate from navy-gold-offwhite
+- Mobile overflow
+
+## ✅ ALWAYS IMPROVE
+- Add subtle parallax scroll (Framer)
+- Gold glow on focus/active
+- Staggered card reveals (idx * 0.1 delay)
+- Smooth tab underline slide
