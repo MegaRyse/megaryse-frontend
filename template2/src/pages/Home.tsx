@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import HeroImg2 from '../assets/images/Hero_Img2.png'
 
 // Component for animated stat card (unchanged)
@@ -94,11 +94,11 @@ const AnimatedStatCard = ({
 const Home = () => {
   const featuresRef = useRef<HTMLDivElement | null>(null)
 
-  // 🎯 NEW: Staggered text reveal state
-  const [showFeatureTexts, setShowFeatureTexts] = useState(false)
-
-  // 🎯 NEW: Active feature highlight state (-1 means "none highlighted yet")
+  // Active feature highlight state (-1 means "none highlighted yet")
   const [activeFeature, setActiveFeature] = useState<number>(-1)
+
+  // When each left item's text should play inner animations (word/line stagger)
+  const [leftItemTextRevealed, setLeftItemTextRevealed] = useState<boolean[]>([false, false, false])
 
   // Scroll progress for Features section (0 → 1 across full section)
   const { scrollYProgress } = useScroll({
@@ -108,61 +108,149 @@ const Home = () => {
 
   const SHRINK_START = 0.2
   const SHRINK_END = 0.8
-  const HIGHLIGHT_START = SHRINK_END + 0.02
+  // Start highlighting as soon as shrink ends so first card + first right visual show immediately
+  const HIGHLIGHT_START = SHRINK_END
   // Extra viewport height so the section stays pinned for a short hold after the last highlight
-  const HOLD_EXTRA_VH = 80
+  const HOLD_EXTRA_VH = 50
 
-  // 🎯 FIXED HEIGHT - No height changes during shrink
-  const FIXED_HEIGHT = '75vh'
+  // After animation: right visual = 60%, left contents = 40%
+  const VISUAL_MIN_WIDTH_RATIO = 0.6
+  const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
+  const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
 
-  // Right visual shrinks smoothly (WIDTH only)
+  // 🎯 FIXED HEIGHT - Reduced for a shorter Feature section
+  const FIXED_HEIGHT = '60vh'
+  // Fixed height per left content card
+  const LEFT_CARD_FIXED_HEIGHT = '16vh'
+
+  // Left section uses max width (40%) as both initial and final: fixed at that width when visible
+  const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
+  // Right shrinks to 60% in sync with left appearing at 40%, then both stay fixed
+  const WIDTH_SETTLE_END = SHRINK_START + 0.08
+
+  // Right visual: 100% until shrink, then shrink to 60% as left appears; then stay 60%
   const visualWidth = useTransform(
     scrollYProgress,
-    [0, SHRINK_START, SHRINK_END],
-    ['100%', '100%', '50%'],
+    [0, SHRINK_START, WIDTH_SETTLE_END],
+    ['100%', '100%', VISUAL_MIN_WIDTH],
   )
 
-  // Left width grows as right shrinks
+  // Left column: as soon as shrink starts, go to max width (40%) and stay there
   const leftWidth = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_END],
-    ['0%', '50%'],
+    [SHRINK_START, WIDTH_SETTLE_END],
+    ['0%', LEFT_SECTION_WIDTH],
   )
 
-  // Left opacity reveal
+  // Left content reveal: slightly longer range for smoother scroll-linked motion
+  const REVEAL_END = SHRINK_START + 0.32
+
+  // Left opacity: ease-out feel via midpoint (0 → 0.6 → 1) over longer scroll range
   const leftOpacity = useTransform(
     scrollYProgress,
-    [SHRINK_START + 0.1, SHRINK_START + 0.3],
-    [0, 1],
+    [SHRINK_START, SHRINK_START + 0.12, REVEAL_END],
+    [0, 0.65, 1],
   )
 
-  // Left slide-in animation
+  // Left slide-in: same range, smoother over more scroll distance
   const leftX = useTransform(
     scrollYProgress,
-    [SHRINK_START + 0.1, SHRINK_START + 0.3],
-    [-80, 0],
+    [SHRINK_START, SHRINK_START + 0.12, REVEAL_END],
+    [-50, -20, 0],
   )
 
-  // Left blur effect - starts blurred (20px), ends sharp (0px)
+  // Left blur: reduced max (12px) for better perf; shorter range so sharp sooner
   const leftBlur = useTransform(
     scrollYProgress,
-    [SHRINK_START + 0.1, SHRINK_START + 0.3],
-    [50, 0],
+    [SHRINK_START, SHRINK_START + 0.18],
+    [12, 0],
   )
 
-  // 🎯 NEW: Transform scroll progress (from AFTER main animation to section end) to feature index (0-2)
+  // Subtle scale: gentle zoom over same reveal range
+  const leftScale = useTransform(
+    scrollYProgress,
+    [SHRINK_START, REVEAL_END],
+    [0.97, 1],
+  )
+
+  // Per-item: wider scroll ranges = smoother card slide-in; slightly shorter travel (240px)
+  const CARD_SLIDE_START = 0.03
+  const CARD_SLIDE_DURATION = 0.2
+  const CARD_SLIDE_OFFSET = 0.1
+
+  const leftItem0Opacity = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [0, 1],
+  )
+  const leftItem1Opacity = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [0, 1],
+  )
+  const leftItem2Opacity = useTransform(
+    scrollYProgress,
+    [SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [0, 1],
+  )
+  const leftItem0X = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [240, 0],
+  )
+  const leftItem1X = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [240, 0],
+  )
+  const leftItem2X = useTransform(
+    scrollYProgress,
+    [SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [240, 0],
+  )
+
+  const leftItemOpacities = useMemo(
+    () => [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity],
+    [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity],
+  )
+  const leftItemXs = useMemo(
+    () => [leftItem0X, leftItem1X, leftItem2X],
+    [leftItem0X, leftItem1X, leftItem2X],
+  )
+
+  // Transform scroll progress (highlight phase) to feature index: 0 → first, 1 → second, 2 → third
   const highlightIndex = useTransform(scrollYProgress, [HIGHLIGHT_START, 1], [0, 3])
 
-  // Update activeFeature based on highlightIndex while user scrolls down the pinned section
+  // Sync activeFeature (left highlight + right visual) with scroll; clamp 0–2 so all three steps work
   useEffect(() => {
-    const unsubscribe = highlightIndex.on('change', (latest: number) => {
-      const newIndex = Math.floor(latest)
-      if (newIndex !== activeFeature && newIndex >= 0 && newIndex < 3) {
-        setActiveFeature(newIndex)
-      }
-    })
+    const updateFromScroll = (latest: number) => {
+      const clamped = Math.min(2, Math.max(0, Math.floor(latest)))
+      setActiveFeature(clamped)
+    }
+    updateFromScroll(highlightIndex.get())
+    const unsubscribe = highlightIndex.on('change', updateFromScroll)
     return unsubscribe
   }, [highlightIndex])
+
+  // When left item opacity crosses threshold, allow inner text animations (word/line stagger)
+  useEffect(() => {
+    const check = (opacity: number, idx: number) => {
+      setLeftItemTextRevealed((prev) => {
+        if (prev[idx] || opacity < 0.75) return prev
+        const next = [...prev]
+        next[idx] = true
+        return next
+      })
+    }
+    const unsub0 = leftItem0Opacity.on('change', (v) => check(v, 0))
+    const unsub1 = leftItem1Opacity.on('change', (v) => check(v, 1))
+    const unsub2 = leftItem2Opacity.on('change', (v) => check(v, 2))
+    return () => {
+      unsub0()
+      unsub1()
+      unsub2()
+    }
+  }, [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity])
 
   const features = [
     {
@@ -225,14 +313,6 @@ const Home = () => {
   ]
 
   const duplicatedTestimonials = [...testimonials, ...testimonials]
-
-  // 🎯 NEW: Delayed text reveal after scroll animation
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowFeatureTexts(true)
-    }, 800) // 400ms delay after left content animation completes
-    return () => clearTimeout(timer)
-  }, [])
 
   useAnimationFrame((time, delta) => {
     if (!isHovered) {
@@ -353,106 +433,204 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ========== FEATURES SECTION - WHITE CONTAINERS FIRST, TEXTS LATER + HIGHLIGHTING ========== */}
+      {/* ========== FEATURES SECTION - Full-width visual when initial; no section padding on row ========== */}
       <section ref={featuresRef} className="pb-32">
-        <div className="max-w-container mx-auto px-6">
+        <div className="max-w-container mx-auto w-full">
           <div
             className="relative"
-            style={{ height: `${(features.length + 1) * 100 + HOLD_EXTRA_VH}vh` }}
+            style={{ height: `${(features.length + 1) * 75 + HOLD_EXTRA_VH}vh` }}
           >
             <motion.div
               style={{ position: 'sticky', top: 0, height: '100vh' }}
               className="relative flex flex-col gap-10 pt-32"
             >
-              <h2 className="text-5xl font-bold text-center">
-                Why Choose MegaRyse?
-              </h2>
+              <div className="px-6 sm:px-8 lg:px-10">
+                <h2 className="text-5xl font-bold text-center">
+                  Why Choose{' '}
+                  <span className="relative">
+                    <span className="text-black">MegaRyse</span>
+                    <motion.span
+                      className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: 0.3 }}
+                    />
+                  </span>
+                  ?
+                </h2>
+                <p className="text-center text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
+                  Your trusted partner in achieving academic and career excellence
+                </p>
+              </div>
 
-              <div className="flex items-center relative flex-1">
-                {/* LEFT CONTENT - STAGGERED REVEAL: CONTAINERS → TEXTS + HIGHLIGHTING */}
+              <div className="flex items-center relative flex-1 w-full min-w-0">
+                {/* LEFT CONTENT - No padding on wrapper so when width 0% it takes zero space (visual stays centered) */}
                 <motion.div
                   style={{
                     width: leftWidth,
                     opacity: leftOpacity,
                     x: leftX,
+                    scale: leftScale,
                     filter: `blur(${leftBlur}px)`,
                     height: FIXED_HEIGHT,
+                    minWidth: 0,
                   }}
-                  className="pr-10 flex flex-col justify-between h-full"
+                  className="flex flex-col justify-between gap-8 h-full origin-left overflow-hidden transform-gpu flex-shrink-0"
                 >
+                  <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-between gap-8 h-full min-h-0 flex-1">
                   {features.map((f, i) => (
-                    <div key={i} className="w-full max-w-sm">
-                      {/* 1️⃣ CONTAINER - glassmorphism when highlighted, same dimensions */}
+                    <motion.div
+                      key={i}
+                      className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-hidden transform-gpu"
+                      style={{
+                        height: LEFT_CARD_FIXED_HEIGHT,
+                        width: '100%',
+                        opacity: leftItemOpacities[i],
+                        x: leftItemXs[i],
+                      }}
+                    >
+                      {/* Active accent: left border */}
                       <motion.div
-                        className={`p-6 rounded-2xl shadow-lg overflow-hidden transition-colors duration-300 border ${i === activeFeature
-                            ? 'bg-navy border-gold'
-                            : 'bg-white border-transparent'
-                          }`}
-                        initial={{ opacity: 0, scale: 0.95 }}
+                        className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${i === activeFeature ? 'bg-gold' : 'bg-transparent'}`}
+                        initial={false}
                         animate={{
-                          opacity: 1,
-                          scale: 1,
-                          transition: { delay: 0.2 + i * 0.1 },
+                          scaleY: i === activeFeature ? 1 : 0.3,
+                          opacity: i === activeFeature ? 1 : 0,
                         }}
-                      >
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={showFeatureTexts ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                          transition={{
-                            duration: 0.6,
-                            delay: 0.8 + i * 0.15,
+                        transition={{ duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] }}
+                      />
+                      <div className="flex flex-col justify-center py-2 w-full max-w-full min-h-0 h-full">
+                        {/* Title: word stagger with fade + slide; lighter blur for perf */}
+                        <motion.h3
+                          className="text-2xl font-bold mb-2 text-navy transition-colors duration-300"
+                          variants={{
+                            hidden: {},
+                            visible: {
+                              transition: { staggerChildren: 0.032, delayChildren: 0.01 },
+                            },
                           }}
-                          className={`h-full flex flex-col justify-center transition-colors duration-300 ${i === activeFeature
-                              ? 'text-white'
-                              : 'text-gray-900'
-                            }`}
+                          initial="hidden"
+                          animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
+                          whileHover={{ x: 4 }}
                         >
-                          <h3 className="text-2xl font-bold mb-2">
-                            {f.icon} {f.title}
-                          </h3>
-                          <p
-                            className={`text-lg leading-relaxed mb-4 flex-1 ${i === activeFeature ? 'text-white/90' : 'text-gray-700'
-                              }`}
-                          >
-                            {f.description}
-                          </p>
+                          {`${f.icon} ${f.title}`.split(/\s+/).map((word, wi) => (
+                            <motion.span
+                              key={wi}
+                              className="inline-block mr-1.5 align-baseline will-change-transform"
+                              variants={{
+                                hidden: { opacity: 0, y: 8, filter: 'blur(2px)' },
+                                visible: {
+                                  opacity: 1,
+                                  y: 0,
+                                  filter: 'blur(0px)',
+                                  transition: { duration: 0.28, ease: [0.22, 0.5, 0.35, 0.98] },
+                                },
+                              }}
+                            >
+                              {word}
+                            </motion.span>
+                          ))}
+                        </motion.h3>
+                        {/* Description: word stagger; transform-only for smoothness */}
+                        <motion.p
+                          className={`text-base leading-relaxed mb-3 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
+                          variants={{
+                            hidden: {},
+                            visible: {
+                              transition: { staggerChildren: 0.022, delayChildren: 0.08 },
+                            },
+                          }}
+                          initial="hidden"
+                          animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
+                        >
+                          {f.description.split(/\s+/).map((word, wi) => (
+                            <motion.span
+                              key={wi}
+                              className="inline-block mr-1.5 align-baseline will-change-transform"
+                              variants={{
+                                hidden: { opacity: 0, y: 5 },
+                                visible: {
+                                  opacity: 1,
+                                  y: 0,
+                                  transition: { duration: 0.24, ease: [0.22, 0.5, 0.35, 0.98] },
+                                },
+                              }}
+                            >
+                              {word}{' '}
+                            </motion.span>
+                          ))}
+                        </motion.p>
+                        {/* Link: fade + slide; single ease for consistency */}
+                        <motion.span
+                          className="inline-block overflow-hidden"
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={
+                            leftItemTextRevealed[i]
+                              ? { opacity: 1, x: 0 }
+                              : { opacity: 0, x: -6 }
+                          }
+                          transition={{
+                            duration: 0.28,
+                            delay: leftItemTextRevealed[i] ? 0.18 : 0,
+                            ease: [0.22, 0.5, 0.35, 0.98],
+                          }}
+                        >
                           <Link
                             to={f.link}
-                            className={`inline-flex items-center gap-2 font-semibold hover:gap-4 transition-all self-start ${i === activeFeature
-                                ? 'text-gold-bright hover:text-gold-bright'
-                                : 'text-blue-600 hover:text-blue-700'
-                              }`}
+                            className={`inline-flex items-center gap-2 font-semibold transition-all duration-300 group/link ${i === activeFeature ? 'text-gold hover:text-gold-bright' : 'text-navy hover:text-gold'}`}
                           >
-                            {f.linkText}
-                            <span className="transition-transform hover:translate-x-1">→</span>
+                            <motion.span
+                              className="inline-block relative underline decoration-gold/60 decoration-2 underline-offset-2 hover:decoration-gold-bright"
+                              whileHover={{ x: 4 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                            >
+                              {f.linkText}
+                              <motion.span
+                                className="absolute left-0 bottom-0 w-full h-0.5 bg-current origin-left will-change-transform"
+                                initial={{ scaleX: 0 }}
+                                animate={
+                                  leftItemTextRevealed[i] ? { scaleX: 1 } : { scaleX: 0 }
+                                }
+                                transition={{ duration: 0.32, delay: 0.28, ease: [0.22, 0.5, 0.35, 0.98] }}
+                              />
+                            </motion.span>
+                            <motion.span
+                              className="transition-transform inline-block"
+                              whileHover={{ x: 4 }}
+                            >
+                              →
+                            </motion.span>
                           </Link>
-                        </motion.div>
-                      </motion.div>
-                    </div>
+                        </motion.span>
+                      </div>
+                    </motion.div>
                   ))}
+                  </div>
                 </motion.div>
 
-                {/* RIGHT VISUAL - FIXED HEIGHT, SHRINKS WIDTH ONLY; content syncs with left highlight */}
+                {/* RIGHT VISUAL - Full width of container when initial; equal space both sides = centered */}
                 <motion.div
                   style={{
                     width: visualWidth,
                     height: FIXED_HEIGHT,
+                    minWidth: 0,
                   }}
-                  className="ml-auto flex items-center justify-center flex-shrink-0"
+                  className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
                 >
-                  <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
                     {rightVisuals.map((visual, idx) => {
                       const isActive = idx === activeFeature + 1
                       return (
                         <motion.div
                           key={idx}
-                          className="absolute inset-0 flex flex-col items-center justify-center p-16"
+                          className="absolute inset-0 flex flex-col items-center justify-center p-16 will-change-transform"
                           initial={false}
                           animate={{
                             opacity: isActive ? 1 : 0,
-                            scale: isActive ? 1 : 0.95,
+                            scale: isActive ? 1 : 0.97,
                           }}
-                          transition={{ duration: 0.35 }}
+                          transition={{ duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] }}
                         >
                           <div className="text-7xl mb-6">{visual.icon}</div>
                           <h3 className="text-3xl font-bold mb-2">{visual.title}</h3>
