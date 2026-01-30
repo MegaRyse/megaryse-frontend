@@ -1,6 +1,6 @@
-import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent, useAnimationFrame } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import HeroImg2 from '../assets/images/Hero_Img2.png'
 
 // Component for animated stat card (unchanged)
@@ -94,7 +94,13 @@ const AnimatedStatCard = ({
 const Home = () => {
   const featuresRef = useRef<HTMLDivElement | null>(null)
 
-  // Scroll progress for Features section
+  // Active feature highlight state (-1 means "none highlighted yet")
+  const [activeFeature, setActiveFeature] = useState<number>(-1)
+
+  // When each left item's text should play inner animations (word/line stagger)
+  const [leftItemTextRevealed, setLeftItemTextRevealed] = useState<boolean[]>([false, false, false])
+
+  // Scroll progress for Features section (0 → 1 across full section)
   const { scrollYProgress } = useScroll({
     target: featuresRef,
     offset: ['start start', 'end end'],
@@ -102,52 +108,149 @@ const Home = () => {
 
   const SHRINK_START = 0.2
   const SHRINK_END = 0.8
+  // Start highlighting as soon as shrink ends so first card + first right visual show immediately
+  const HIGHLIGHT_START = SHRINK_END
+  // Extra viewport height so the section stays pinned for a short hold after the last highlight
+  const HOLD_EXTRA_VH = 50
 
-  // 🎯 FIXED HEIGHTS - No more dynamic vh calculations
-  const FIXED_FULL_HEIGHT = '80vh'  // Full height before shrink
-  const FIXED_SHRUNK_HEIGHT = '50vh'  // Shrunk height after animation
+  // After animation: right visual = 60%, left contents = 40%
+  const VISUAL_MIN_WIDTH_RATIO = 0.6
+  const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
+  const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
 
-  // Right visual shrinks smoothly (WIDTH)
+  // 🎯 FIXED HEIGHT - Reduced for a shorter Feature section
+  const FIXED_HEIGHT = '60vh'
+  // Fixed height per left content card
+  const LEFT_CARD_FIXED_HEIGHT = '16vh'
+
+  // Left section uses max width (40%) as both initial and final: fixed at that width when visible
+  const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
+  // Right shrinks to 60% in sync with left appearing at 40%, then both stay fixed
+  const WIDTH_SETTLE_END = SHRINK_START + 0.08
+
+  // Right visual: 100% until shrink, then shrink to 60% as left appears; then stay 60%
   const visualWidth = useTransform(
     scrollYProgress,
-    [0, SHRINK_START, SHRINK_END],
-    ['100%', '100%', '50%'],
+    [0, SHRINK_START, WIDTH_SETTLE_END],
+    ['100%', '100%', VISUAL_MIN_WIDTH],
   )
 
-  // Right HEIGHT - Fixed values only
-  const rightHeightAnim = useTransform(
-    scrollYProgress,
-    [0, SHRINK_START, SHRINK_END, 1],
-    [FIXED_FULL_HEIGHT, FIXED_FULL_HEIGHT, FIXED_SHRUNK_HEIGHT, FIXED_SHRUNK_HEIGHT]
-  )
-
-  // Left width grows as right shrinks
+  // Left column: as soon as shrink starts, go to max width (40%) and stay there
   const leftWidth = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_END],
-    ['0%', '50%'],
+    [SHRINK_START, WIDTH_SETTLE_END],
+    ['0%', LEFT_SECTION_WIDTH],
   )
 
-  // Left HEIGHT - Fixed values matching right
-  const leftHeightAnim = useTransform(
-    scrollYProgress,
-    [0, SHRINK_START, SHRINK_END],
-    [FIXED_FULL_HEIGHT, FIXED_FULL_HEIGHT, FIXED_SHRUNK_HEIGHT]
-  )
+  // Left content reveal: slightly longer range for smoother scroll-linked motion
+  const REVEAL_END = SHRINK_START + 0.32
 
-  // Left opacity reveal
+  // Left opacity: ease-out feel via midpoint (0 → 0.6 → 1) over longer scroll range
   const leftOpacity = useTransform(
     scrollYProgress,
-    [SHRINK_START + 0.1, SHRINK_START + 0.3],
-    [0, 1],
+    [SHRINK_START, SHRINK_START + 0.12, REVEAL_END],
+    [0, 0.65, 1],
   )
 
-  // LEFT SIDE SLIDE-IN
+  // Left slide-in: same range, smoother over more scroll distance
   const leftX = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.2],
-    ['-100%', '0%'],
+    [SHRINK_START, SHRINK_START + 0.12, REVEAL_END],
+    [-50, -20, 0],
   )
+
+  // Left blur: reduced max (12px) for better perf; shorter range so sharp sooner
+  const leftBlur = useTransform(
+    scrollYProgress,
+    [SHRINK_START, SHRINK_START + 0.18],
+    [12, 0],
+  )
+
+  // Subtle scale: gentle zoom over same reveal range
+  const leftScale = useTransform(
+    scrollYProgress,
+    [SHRINK_START, REVEAL_END],
+    [0.97, 1],
+  )
+
+  // Per-item: wider scroll ranges = smoother card slide-in; slightly shorter travel (240px)
+  const CARD_SLIDE_START = 0.03
+  const CARD_SLIDE_DURATION = 0.2
+  const CARD_SLIDE_OFFSET = 0.1
+
+  const leftItem0Opacity = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [0, 1],
+  )
+  const leftItem1Opacity = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [0, 1],
+  )
+  const leftItem2Opacity = useTransform(
+    scrollYProgress,
+    [SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [0, 1],
+  )
+  const leftItem0X = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [240, 0],
+  )
+  const leftItem1X = useTransform(
+    scrollYProgress,
+    [SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [240, 0],
+  )
+  const leftItem2X = useTransform(
+    scrollYProgress,
+    [SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
+    [240, 0],
+  )
+
+  const leftItemOpacities = useMemo(
+    () => [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity],
+    [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity],
+  )
+  const leftItemXs = useMemo(
+    () => [leftItem0X, leftItem1X, leftItem2X],
+    [leftItem0X, leftItem1X, leftItem2X],
+  )
+
+  // Transform scroll progress (highlight phase) to feature index: 0 → first, 1 → second, 2 → third
+  const highlightIndex = useTransform(scrollYProgress, [HIGHLIGHT_START, 1], [0, 3])
+
+  // Sync activeFeature (left highlight + right visual) with scroll; clamp 0–2 so all three steps work
+  useEffect(() => {
+    const updateFromScroll = (latest: number) => {
+      const clamped = Math.min(2, Math.max(0, Math.floor(latest)))
+      setActiveFeature(clamped)
+    }
+    updateFromScroll(highlightIndex.get())
+    const unsubscribe = highlightIndex.on('change', updateFromScroll)
+    return unsubscribe
+  }, [highlightIndex])
+
+  // When left item opacity crosses threshold, allow inner text animations (word/line stagger)
+  useEffect(() => {
+    const check = (opacity: number, idx: number) => {
+      setLeftItemTextRevealed((prev) => {
+        if (prev[idx] || opacity < 0.75) return prev
+        const next = [...prev]
+        next[idx] = true
+        return next
+      })
+    }
+    const unsub0 = leftItem0Opacity.on('change', (v) => check(v, 0))
+    const unsub1 = leftItem1Opacity.on('change', (v) => check(v, 1))
+    const unsub2 = leftItem2Opacity.on('change', (v) => check(v, 2))
+    return () => {
+      unsub0()
+      unsub1()
+      unsub2()
+    }
+  }, [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity])
 
   const features = [
     {
@@ -174,6 +277,14 @@ const Home = () => {
       link: '/contact',
       linkText: 'Get Started',
     },
+  ]
+
+  // Right-side visual content in sync with left-side highlight (default + one per feature)
+  const rightVisuals = [
+    { icon: '🎓', title: 'Your Success Journey', subtitle: 'Transforming dreams into reality' },
+    { icon: '🎯', title: 'One-on-One Guidance', subtitle: 'Personalized roadmaps for your career goals' },
+    { icon: '📚', title: 'Programs That Fit You', subtitle: 'Management, tech, arts & sciences worldwide' },
+    { icon: '✅', title: 'Hassle-Free Admission', subtitle: 'We handle paperwork so you can focus on goals' },
   ]
 
   // Testimonial auto-scroll state
@@ -216,7 +327,7 @@ const Home = () => {
   return (
     <div className="w-full bg-offwhite">
       {/* Hero Section - unchanged */}
-      <section className="relative pt-0 pb-32 md:pt-0 md:pb-40 bg-offwhite overflow-hidden">
+      <section className="relative pt-0 md:pt-0  bg-offwhite overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-offwhite via-offwhite/95 to-offwhite"></div>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
@@ -322,97 +433,214 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ========== FEATURES SECTION - FIXED HEIGHTS ========== */}
-      <section ref={featuresRef} className="py-32 bg-offwhite">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-10"
+      {/* ========== FEATURES SECTION - Full-width visual when initial; no section padding on row ========== */}
+      <section ref={featuresRef} className="pb-32">
+        <div className="max-w-container mx-auto w-full">
+          <div
+            className="relative"
+            style={{ height: `${(features.length + 1) * 75 + HOLD_EXTRA_VH}vh` }}
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-black mb-6">
-              Why Choose{' '}
-              <span className="relative">
-                <span className="text-black">MegaRyse?</span>
-                <motion.span
-                  className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                />
-              </span>
-            </h2>
-            <p className="text-xl text-black max-w-2xl mx-auto">
-              Your trusted partner in achieving academic and career excellence
-            </p>
-          </motion.div>
-
-          {/* Fixed height container for pinning */}
-          <div className="relative h-[200vh]">
             <motion.div
-              style={{ 
-                position: 'sticky', 
-                top: 0, 
-                height: FIXED_FULL_HEIGHT  // 🎯 FIXED STICKY HEIGHT
-              }}
-              className="w-full h-full flex items-center relative overflow-hidden"
+              style={{ position: 'sticky', top: 0, height: '100vh' }}
+              className="relative flex flex-col gap-10 pt-32"
             >
-              {/* LEFT SIDE: Fixed height container */}
-              <div className="w-1/2 h-full flex items-center overflow-hidden pr-10">
-                <motion.div
-                  style={{
-                    width: '100%',
-                    opacity: leftOpacity,
-                    x: leftX,
-                    height: leftHeightAnim,  // 🎯 FIXED ANIMATED HEIGHT
-                  }}
-                  className="space-y-8 w-full flex flex-col justify-center px-4"  // 🎯 Fixed content positioning
-                >
-                  {features.map((feature, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ x: -40, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.5, delay: idx * 0.1 }}
-                      className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all flex-shrink-0 max-w-sm mx-auto"  // 🎯 Fixed card sizing
-                    >
-                      <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
-                        <span className="text-xl">{feature.icon}</span>
-                        {feature.title}
-                      </h3>
-                      <p className="text-lg leading-relaxed mb-6">{feature.description}</p>
-                      <Link
-                        to={feature.link}
-                        className="inline-flex items-center gap-2 text-gold-bright font-semibold hover:gap-4 transition-all"
-                      >
-                        {feature.linkText}
-                        <span className="text-gold-bright transition-transform hover:translate-x-1">→</span>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </motion.div>
+              <div className="px-6 sm:px-8 lg:px-10">
+                <h2 className="text-5xl font-bold text-center">
+                  Why Choose{' '}
+                  <span className="relative">
+                    <span className="text-black">MegaRyse</span>
+                    <motion.span
+                      className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: 0.3 }}
+                    />
+                  </span>
+                  ?
+                </h2>
+                <p className="text-center text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
+                  Your trusted partner in achieving academic and career excellence
+                </p>
               </div>
 
-              {/* RIGHT VISUAL: Fixed height container */}
-              <motion.div
-                style={{ 
-                  width: visualWidth,
-                  height: rightHeightAnim,  // 🎯 FIXED ANIMATED HEIGHT
-                }}
-                className="ml-auto flex items-center justify-center flex-shrink-0"
-              >
-                <div 
-                  className="bg-navy rounded-3xl p-12 lg:p-16 text-center text-white relative overflow-hidden flex flex-col justify-center items-center w-full h-full max-w-2xl"
-                  style={{ height: '100%' }}  // 🎯 Fill exact parent height
+              <div className="flex items-center relative flex-1 w-full min-w-0">
+                {/* LEFT CONTENT - No padding on wrapper so when width 0% it takes zero space (visual stays centered) */}
+                <motion.div
+                  style={{
+                    width: leftWidth,
+                    opacity: leftOpacity,
+                    x: leftX,
+                    scale: leftScale,
+                    filter: `blur(${leftBlur}px)`,
+                    height: FIXED_HEIGHT,
+                    minWidth: 0,
+                  }}
+                  className="flex flex-col justify-between gap-8 h-full origin-left overflow-hidden transform-gpu flex-shrink-0"
                 >
-                  <div className="text-6xl lg:text-7xl mb-6 animate-pulse">🎓</div>
-                  <h3 className="text-2xl lg:text-3xl font-bold mb-4 px-4">Your Success Journey</h3>
-                  <p className="text-white/90 text-base lg:text-lg px-4 leading-relaxed">Transforming dreams into reality</p>
-                </div>
-              </motion.div>
+                  <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-between gap-8 h-full min-h-0 flex-1">
+                  {features.map((f, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-hidden transform-gpu"
+                      style={{
+                        height: LEFT_CARD_FIXED_HEIGHT,
+                        width: '100%',
+                        opacity: leftItemOpacities[i],
+                        x: leftItemXs[i],
+                      }}
+                    >
+                      {/* Active accent: left border */}
+                      <motion.div
+                        className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${i === activeFeature ? 'bg-gold' : 'bg-transparent'}`}
+                        initial={false}
+                        animate={{
+                          scaleY: i === activeFeature ? 1 : 0.3,
+                          opacity: i === activeFeature ? 1 : 0,
+                        }}
+                        transition={{ duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] }}
+                      />
+                      <div className="flex flex-col justify-center py-2 w-full max-w-full min-h-0 h-full">
+                        {/* Title: word stagger with fade + slide; lighter blur for perf */}
+                        <motion.h3
+                          className="text-2xl font-bold mb-2 text-navy transition-colors duration-300"
+                          variants={{
+                            hidden: {},
+                            visible: {
+                              transition: { staggerChildren: 0.032, delayChildren: 0.01 },
+                            },
+                          }}
+                          initial="hidden"
+                          animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
+                          whileHover={{ x: 4 }}
+                        >
+                          {`${f.icon} ${f.title}`.split(/\s+/).map((word, wi) => (
+                            <motion.span
+                              key={wi}
+                              className="inline-block mr-1.5 align-baseline will-change-transform"
+                              variants={{
+                                hidden: { opacity: 0, y: 8, filter: 'blur(2px)' },
+                                visible: {
+                                  opacity: 1,
+                                  y: 0,
+                                  filter: 'blur(0px)',
+                                  transition: { duration: 0.28, ease: [0.22, 0.5, 0.35, 0.98] },
+                                },
+                              }}
+                            >
+                              {word}
+                            </motion.span>
+                          ))}
+                        </motion.h3>
+                        {/* Description: word stagger; transform-only for smoothness */}
+                        <motion.p
+                          className={`text-base leading-relaxed mb-3 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
+                          variants={{
+                            hidden: {},
+                            visible: {
+                              transition: { staggerChildren: 0.022, delayChildren: 0.08 },
+                            },
+                          }}
+                          initial="hidden"
+                          animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
+                        >
+                          {f.description.split(/\s+/).map((word, wi) => (
+                            <motion.span
+                              key={wi}
+                              className="inline-block mr-1.5 align-baseline will-change-transform"
+                              variants={{
+                                hidden: { opacity: 0, y: 5 },
+                                visible: {
+                                  opacity: 1,
+                                  y: 0,
+                                  transition: { duration: 0.24, ease: [0.22, 0.5, 0.35, 0.98] },
+                                },
+                              }}
+                            >
+                              {word}{' '}
+                            </motion.span>
+                          ))}
+                        </motion.p>
+                        {/* Link: fade + slide; single ease for consistency */}
+                        <motion.span
+                          className="inline-block overflow-hidden"
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={
+                            leftItemTextRevealed[i]
+                              ? { opacity: 1, x: 0 }
+                              : { opacity: 0, x: -6 }
+                          }
+                          transition={{
+                            duration: 0.28,
+                            delay: leftItemTextRevealed[i] ? 0.18 : 0,
+                            ease: [0.22, 0.5, 0.35, 0.98],
+                          }}
+                        >
+                          <Link
+                            to={f.link}
+                            className={`inline-flex items-center gap-2 font-semibold transition-all duration-300 group/link ${i === activeFeature ? 'text-gold hover:text-gold-bright' : 'text-navy hover:text-gold'}`}
+                          >
+                            <motion.span
+                              className="inline-block relative underline decoration-gold/60 decoration-2 underline-offset-2 hover:decoration-gold-bright"
+                              whileHover={{ x: 4 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                            >
+                              {f.linkText}
+                              <motion.span
+                                className="absolute left-0 bottom-0 w-full h-0.5 bg-current origin-left will-change-transform"
+                                initial={{ scaleX: 0 }}
+                                animate={
+                                  leftItemTextRevealed[i] ? { scaleX: 1 } : { scaleX: 0 }
+                                }
+                                transition={{ duration: 0.32, delay: 0.28, ease: [0.22, 0.5, 0.35, 0.98] }}
+                              />
+                            </motion.span>
+                            <motion.span
+                              className="transition-transform inline-block"
+                              whileHover={{ x: 4 }}
+                            >
+                              →
+                            </motion.span>
+                          </Link>
+                        </motion.span>
+                      </div>
+                    </motion.div>
+                  ))}
+                  </div>
+                </motion.div>
+
+                {/* RIGHT VISUAL - Full width of container when initial; equal space both sides = centered */}
+                <motion.div
+                  style={{
+                    width: visualWidth,
+                    height: FIXED_HEIGHT,
+                    minWidth: 0,
+                  }}
+                  className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
+                >
+                  <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
+                    {rightVisuals.map((visual, idx) => {
+                      const isActive = idx === activeFeature + 1
+                      return (
+                        <motion.div
+                          key={idx}
+                          className="absolute inset-0 flex flex-col items-center justify-center p-16 will-change-transform"
+                          initial={false}
+                          animate={{
+                            opacity: isActive ? 1 : 0,
+                            scale: isActive ? 1 : 0.97,
+                          }}
+                          transition={{ duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] }}
+                        >
+                          <div className="text-7xl mb-6">{visual.icon}</div>
+                          <h3 className="text-3xl font-bold mb-2">{visual.title}</h3>
+                          <p className="text-white/90">{visual.subtitle}</p>
+                        </motion.div>
+                      )
+                    })}
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -511,31 +739,40 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <div 
+          <div
             className="overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <motion.div 
+            <motion.div
               className="flex gap-8 py-4"
-              style={{ 
+              style={{
                 x,
                 display: 'flex',
               }}
             >
               {duplicatedTestimonials.map((testimonial, idx) => (
+                // Replace the testimonial card motion.div with this glassmorphic version:
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: Math.min(idx * 0.1, 0.3) }}
-                  whileHover={{ 
+                  transition={{ duration: 0.2, delay: Math.min(idx * 0.1, 0.1) }}
+                  whileHover={{
                     y: -5,
-                    scale: 1.02,
-                    zIndex: 10
+                    scale: 1,
+                    zIndex: 10,
+                    backdropFilter: 'blur(20px)',
+                    background: 'rgb(209, 167, 27)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
                   }}
-                  className="bg-navy rounded-2xl p-8 shadow-lg border-2 border-transparent hover:border-gold-bright transition-all flex-shrink-0 w-full max-w-sm hover:scale-[1.02]"
+                  className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-8 transition-all duration-300 flex-shrink-0 w-full max-w-sm hover:scale-[1.02]"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                  }}
                 >
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
@@ -544,19 +781,20 @@ const Home = () => {
                       </span>
                     ))}
                   </div>
-                  <p className="text-white/90 mb-6 leading-relaxed italic text-sm">
+                  <p className="text-navy/95 mb-6 leading-relaxed italic text-sm drop-shadow-lg">
                     "{testimonial.text}"
                   </p>
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gold rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    <div className="w-14 h-14 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                       {testimonial.name[0]}
                     </div>
                     <div>
-                      <div className="font-bold text-white text-lg">{testimonial.name}</div>
-                      <div className="text-sm text-white/80">{testimonial.role}</div>
+                      <div className="font-bold text-navy text-lg drop-shadow-md">{testimonial.name}</div>
+                      <div className="text-sm text-yellow-500/80 drop-shadow-sm">{testimonial.role}</div>
                     </div>
                   </div>
                 </motion.div>
+
               ))}
             </motion.div>
           </div>
