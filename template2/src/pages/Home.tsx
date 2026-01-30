@@ -118,10 +118,10 @@ const Home = () => {
   const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
   const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
 
-  // 🎯 FIXED HEIGHT - Reduced for a shorter Feature section
-  const FIXED_HEIGHT = '60vh'
-  // Fixed height per left content card
-  const LEFT_CARD_FIXED_HEIGHT = '16vh'
+  // 🎯 FIXED HEIGHT - Right visual + left content fit within viewport (below section heading)
+  const FIXED_HEIGHT = '62vh'
+  // Min height per left content card so title + description + link all display fully
+  const LEFT_CARD_MIN_HEIGHT = '16vh'
 
   // Left section uses max width (40%) as both initial and final: fixed at that width when visible
   const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
@@ -476,15 +476,15 @@ const Home = () => {
                     height: FIXED_HEIGHT,
                     minWidth: 0,
                   }}
-                  className="flex flex-col justify-between gap-8 h-full origin-left overflow-hidden transform-gpu flex-shrink-0"
+                  className="flex flex-col justify-start gap-6 h-full origin-left overflow-y-auto overflow-x-hidden transform-gpu flex-shrink-0"
                 >
-                  <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-between gap-8 h-full min-h-0 flex-1">
+                  <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-start gap-6 flex-1 min-h-0">
                   {features.map((f, i) => (
                     <motion.div
                       key={i}
-                      className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-hidden transform-gpu"
+                      className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-visible transform-gpu"
                       style={{
-                        height: LEFT_CARD_FIXED_HEIGHT,
+                        minHeight: LEFT_CARD_MIN_HEIGHT,
                         width: '100%',
                         opacity: leftItemOpacities[i],
                         x: leftItemXs[i],
@@ -500,7 +500,7 @@ const Home = () => {
                         }}
                         transition={{ duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] }}
                       />
-                      <div className="flex flex-col justify-center py-2 w-full max-w-full min-h-0 h-full">
+                      <div className="flex flex-col justify-start py-2 w-full max-w-full">
                         {/* Title: word stagger with fade + slide; lighter blur for perf */}
                         <motion.h3
                           className="text-2xl font-bold mb-2 text-navy transition-colors duration-300"
@@ -534,7 +534,7 @@ const Home = () => {
                         </motion.h3>
                         {/* Description: word stagger; transform-only for smoothness */}
                         <motion.p
-                          className={`text-base leading-relaxed mb-3 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
+                          className={`text-base leading-relaxed mb-2 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
                           variants={{
                             hidden: {},
                             visible: {
@@ -561,43 +561,25 @@ const Home = () => {
                             </motion.span>
                           ))}
                         </motion.p>
-                        {/* Link: fade + slide; single ease for consistency */}
+                        {/* Link: visibility tied to card opacity; gold theme; arrow animates when link hovered */}
                         <motion.span
-                          className="inline-block overflow-hidden"
-                          initial={{ opacity: 0, x: -6 }}
-                          animate={
-                            leftItemTextRevealed[i]
-                              ? { opacity: 1, x: 0 }
-                              : { opacity: 0, x: -6 }
-                          }
-                          transition={{
-                            duration: 0.28,
-                            delay: leftItemTextRevealed[i] ? 0.18 : 0,
-                            ease: [0.22, 0.5, 0.35, 0.98],
-                          }}
+                          className="inline-block mt-2"
+                          style={{ opacity: leftItemOpacities[i] }}
+                          initial="rest"
+                          whileHover="hover"
                         >
-                          <Link
-                            to={f.link}
-                            className={`inline-flex items-center gap-2 font-semibold transition-all duration-300 group/link ${i === activeFeature ? 'text-gold hover:text-gold-bright' : 'text-navy hover:text-gold'}`}
-                          >
-                            <motion.span
-                              className="inline-block relative underline decoration-gold/60 decoration-2 underline-offset-2 hover:decoration-gold-bright"
-                              whileHover={{ x: 4 }}
-                              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                            >
+                          <Link to={f.link} className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer">
+                            <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
                               {f.linkText}
-                              <motion.span
-                                className="absolute left-0 bottom-0 w-full h-0.5 bg-current origin-left will-change-transform"
-                                initial={{ scaleX: 0 }}
-                                animate={
-                                  leftItemTextRevealed[i] ? { scaleX: 1 } : { scaleX: 0 }
-                                }
-                                transition={{ duration: 0.32, delay: 0.28, ease: [0.22, 0.5, 0.35, 0.98] }}
-                              />
-                            </motion.span>
+                            </span>
                             <motion.span
-                              className="transition-transform inline-block"
-                              whileHover={{ x: 4 }}
+                              className="inline-block no-underline"
+                              aria-hidden
+                              variants={{
+                                rest: { x: 0, scale: 1 },
+                                hover: { x: 16, scale: 1.35 },
+                              }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                             >
                               →
                             </motion.span>
