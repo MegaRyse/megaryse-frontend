@@ -60,86 +60,179 @@ const Contact = () => {
   const intakes = ['Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026', 'Not Sure Yet']
 
   return (
-    <div className="w-full bg-white">
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-hero overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-gold-bright/5"></div>
-        <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">Get In Touch!</h1>
-            <p className="text-xl text-gray-600">
-              Let's take your career to the next level!
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
+    <div className="w-full bg-offwhite">
       {/* Contact Section */}
-      <section className="py-20 bg-white">
+      <section className="pt-16 pb-20 sm:pt-20 sm:pb-24 md:pt-24 md:pb-28 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-start">
             {/* Contact Info */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col justify-start w-full"
             >
-              <h2 className="text-4xl font-bold text-gray-900 mb-8">Contact Information</h2>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-gold rounded-lg flex items-center justify-center text-white text-xl">
-                    📍
+              <motion.div
+                initial={{ opacity: 0, x: -100 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ 
+                  duration: 0.7,
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 20
+                }}
+                className="mb-12 w-full"
+              >
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+                  Get In Touch!
+                </h1>
+                <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-lg">
+                  Let's take your career to the next level!
+                </p>
+              </motion.div>
+              <div className="space-y-6 w-full">
+                <motion.div
+                  initial={{ opacity: 0, x: -100 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ 
+                    duration: 0.7,
+                    delay: 0.2,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 20
+                  }}
+                  className="flex items-start gap-5"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ 
+                      duration: 0.5,
+                      delay: 0.3,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15
+                    }}
+                    className="w-2 h-14 rounded-full flex-shrink-0 mt-1"
+                    style={{
+                      background: 'linear-gradient(180deg, #FFD447 0%, #E8C547 50%, #C9A978 100%)',
+                    }}
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1.5 text-lg">Location</h3>
+                    <p className="text-gray-600 text-base leading-relaxed">Bangalore, India</p>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Location</h3>
-                    <p className="text-gray-600">Bangalore, India</p>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -100 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ 
+                    duration: 0.7,
+                    delay: 0.5,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 20
+                  }}
+                  className="flex items-start gap-5"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ 
+                      duration: 0.5,
+                      delay: 0.6,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15
+                    }}
+                    className="w-2 h-14 rounded-full flex-shrink-0 mt-1"
+                    style={{
+                      background: 'linear-gradient(180deg, #FFD447 0%, #E8C547 50%, #C9A978 100%)',
+                    }}
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1.5 text-lg">Email</h3>
+                    <p className="text-gray-600 text-base leading-relaxed">info@megaryse.com</p>
                   </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-gold rounded-lg flex items-center justify-center text-white text-xl">
-                    📧
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -100 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ 
+                    duration: 0.7,
+                    delay: 0.8,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 20
+                  }}
+                  className="flex items-start gap-5"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ 
+                      duration: 0.5,
+                      delay: 0.9,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15
+                    }}
+                    className="w-2 h-14 rounded-full flex-shrink-0 mt-1"
+                    style={{
+                      background: 'linear-gradient(180deg, #FFD447 0%, #E8C547 50%, #C9A978 100%)',
+                    }}
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1.5 text-lg">Contact Number</h3>
+                    <p className="text-gray-600 text-base leading-relaxed">+1 (555) 123-4567</p>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">info@megaryse.com</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-gold rounded-lg flex items-center justify-center text-white text-xl">
-                    📞
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Contact Number</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
-                  </div>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
 
             {/* Contact Form */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: 100 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              transition={{ 
+                duration: 0.8,
+                type: "spring",
+                stiffness: 100,
+                damping: 20
+              }}
+              className="w-full"
             >
-              <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
+              <div className="bg-[#00275E] rounded-xl p-8 sm:p-10 shadow-xl border border-gray-100 w-full">
                 {submitted ? (
-                  <div className="text-center py-12">
-                    <div className="text-6xl mb-4">✅</div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h3>
-                    <p className="text-gray-600">We'll get back to you soon.</p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                    className="text-center py-16"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
+                      className="text-6xl mb-6"
+                    >
+                      ✅
+                    </motion.div>
+                    <h3 className="text-2xl font-bold text-white mb-3">Thank You!</h3>
+                    <p className="text-white/90 text-base">We'll get back to you soon.</p>
+                  </motion.div>
                 ) : (
                   <form onSubmit={handleSubmit} action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-semibold text-gray-900 mb-2">
+                        <label htmlFor="name" className="block text-sm font-semibold text-white mb-2.5">
                           Name
                         </label>
                         <input
@@ -148,15 +241,16 @@ const Contact = () => {
                           name="name"
                           value={formData.name}
                           onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
+                          className={`w-full px-4 py-3.5 rounded-lg border bg-white/95 text-gray-900 placeholder-gray-400 ${
                             errors.name ? 'border-red-500' : 'border-gray-300'
-                          } focus:outline-none focus:ring-2 focus:ring-gold`}
+                          } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
+                          placeholder="Enter your name"
                         />
-                        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                        {errors.name && <p className="text-red-400 text-sm mt-1.5">{errors.name}</p>}
                       </div>
 
                       <div>
-                        <label htmlFor="email" className="block text-sm font-semibold text-gray-900 mb-2">
+                        <label htmlFor="email" className="block text-sm font-semibold text-white mb-2.5">
                           Email *
                         </label>
                         <input
@@ -165,15 +259,16 @@ const Contact = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
+                          className={`w-full px-4 py-3.5 rounded-lg border bg-white/95 text-gray-900 placeholder-gray-400 ${
                             errors.email ? 'border-red-500' : 'border-gray-300'
-                          } focus:outline-none focus:ring-2 focus:ring-gold`}
+                          } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
+                          placeholder="Enter your email"
                         />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                        {errors.email && <p className="text-red-400 text-sm mt-1.5">{errors.email}</p>}
                       </div>
 
                       <div>
-                        <label htmlFor="phone" className="block text-sm font-semibold text-gray-900 mb-2">
+                        <label htmlFor="phone" className="block text-sm font-semibold text-white mb-2.5">
                           Mobile Number *
                         </label>
                         <input
@@ -182,16 +277,17 @@ const Contact = () => {
                           name="phone"
                           value={formData.phone}
                           onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
+                          className={`w-full px-4 py-3.5 rounded-lg border bg-white/95 text-gray-900 placeholder-gray-400 ${
                             errors.phone ? 'border-red-500' : 'border-gray-300'
-                          } focus:outline-none focus:ring-2 focus:ring-gold`}
+                          } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
+                          placeholder="Enter your mobile number"
                         />
-                        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                        {errors.phone && <p className="text-red-400 text-sm mt-1.5">{errors.phone}</p>}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                          <label htmlFor="country" className="block text-sm font-semibold text-gray-900 mb-2">
+                          <label htmlFor="country" className="block text-sm font-semibold text-white mb-2.5">
                             Preferred Country *
                           </label>
                           <select
@@ -199,9 +295,9 @@ const Contact = () => {
                             name="country"
                             value={formData.country}
                             onChange={handleChange}
-                            className={`w-full px-4 py-3 rounded-lg border ${
+                            className={`w-full px-4 py-3.5 rounded-lg border bg-white/95 text-gray-900 ${
                               errors.country ? 'border-red-500' : 'border-gray-300'
-                            } focus:outline-none focus:ring-2 focus:ring-gold`}
+                            } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
                           >
                             <option value="">Select Country</option>
                             {countries.map((country) => (
@@ -210,11 +306,11 @@ const Contact = () => {
                               </option>
                             ))}
                           </select>
-                          {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
+                          {errors.country && <p className="text-red-400 text-sm mt-1.5">{errors.country}</p>}
                         </div>
 
                         <div>
-                          <label htmlFor="intake" className="block text-sm font-semibold text-gray-900 mb-2">
+                          <label htmlFor="intake" className="block text-sm font-semibold text-white mb-2.5">
                             Preferred Intake *
                           </label>
                           <select
@@ -222,9 +318,9 @@ const Contact = () => {
                             name="intake"
                             value={formData.intake}
                             onChange={handleChange}
-                            className={`w-full px-4 py-3 rounded-lg border ${
+                            className={`w-full px-4 py-3.5 rounded-lg border bg-white/95 text-gray-900 ${
                               errors.intake ? 'border-red-500' : 'border-gray-300'
-                            } focus:outline-none focus:ring-2 focus:ring-gold`}
+                            } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
                           >
                             <option value="">Select Intake</option>
                             {intakes.map((intake) => (
@@ -233,12 +329,12 @@ const Contact = () => {
                               </option>
                             ))}
                           </select>
-                          {errors.intake && <p className="text-red-500 text-sm mt-1">{errors.intake}</p>}
+                          {errors.intake && <p className="text-red-400 text-sm mt-1.5">{errors.intake}</p>}
                         </div>
                       </div>
 
                       <div>
-                        <label htmlFor="message" className="block text-sm font-semibold text-gray-900 mb-2">
+                        <label htmlFor="message" className="block text-sm font-semibold text-white mb-2.5">
                           Message *
                         </label>
                         <textarea
@@ -247,19 +343,26 @@ const Contact = () => {
                           value={formData.message}
                           onChange={handleChange}
                           rows={5}
-                          className={`w-full px-4 py-3 rounded-lg border ${
+                          className={`w-full px-4 py-3.5 rounded-lg border bg-white/95 text-gray-900 placeholder-gray-400 ${
                             errors.message ? 'border-red-500' : 'border-gray-300'
-                          } focus:outline-none focus:ring-2 focus:ring-gold resize-none`}
+                          } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent resize-none transition-all`}
+                          placeholder="Enter your message"
                         />
-                        {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
+                        {errors.message && <p className="text-red-400 text-sm mt-1.5">{errors.message}</p>}
                       </div>
 
-                      <button
+                      <motion.button
                         type="submit"
-                        className="w-full bg-gradient-gold text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                        className="w-full bg-gradient-gold text-gray-900 px-8 py-4 rounded-lg font-semibold text-base shadow-md hover:shadow-xl transition-all duration-300"
+                        whileHover={{ 
+                          scale: 1.02,
+                          boxShadow: '0 20px 40px rgba(213, 173, 54, 0.3)'
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                       >
-                        Send
-                      </button>
+                        Send Message
+                      </motion.button>
                     </div>
                   </form>
                 )}

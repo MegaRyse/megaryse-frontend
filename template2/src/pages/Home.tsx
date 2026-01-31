@@ -1,31 +1,48 @@
 import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { useRef, useState, useEffect, useMemo } from 'react'
+import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
 import HeroImg2 from '../assets/images/Hero_Img2.png'
 
-// Component for animated stat card (unchanged)
-const AnimatedStatCard = ({
+// Shared transition configs (avoid new object refs every render)
+const TRANSITION_SMOOTH = { duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] as const }
+const STAT_CARD_HOVER = {
+  y: -10,
+  scale: 1.05,
+  backgroundColor: '#F5F2EA',
+  borderColor: '#000080',
+  borderWidth: '1px',
+  transition: { duration: 0.3 },
+}
+
+function parseStatNumber(numStr: string): { value: number; suffix: string } {
+  if (numStr.includes('k+')) {
+    const num = parseInt(numStr.replace('k+', ''), 10)
+    return { value: num * 1000, suffix: 'k+' }
+  }
+  if (numStr.includes('+')) {
+    const num = parseInt(numStr.replace('+', ''), 10)
+    return { value: num, suffix: '+' }
+  }
+  if (numStr.includes('%')) {
+    const num = parseInt(numStr.replace('%', ''), 10)
+    return { value: num, suffix: '%' }
+  }
+  return { value: 0, suffix: '' }
+}
+
+function formatStatNumber(num: number, suffix: string): string {
+  if (suffix === 'k+') return `${Math.floor(num / 1000)}${suffix}`
+  return `${num}${suffix}`
+}
+
+const AnimatedStatCard = memo(function AnimatedStatCard({
   stat,
   idx,
 }: {
   stat: { number: string; label: string; icon: string }
   idx: number
-}) => {
-  const parseNumber = (numStr: string) => {
-    if (numStr.includes('k+')) {
-      const num = parseInt(numStr.replace('k+', ''))
-      return { value: num * 1000, suffix: 'k+' }
-    } else if (numStr.includes('+')) {
-      const num = parseInt(numStr.replace('+', ''))
-      return { value: num, suffix: '+' }
-    } else if (numStr.includes('%')) {
-      const num = parseInt(numStr.replace('%', ''))
-      return { value: num, suffix: '%' }
-    }
-    return { value: 0, suffix: '' }
-  }
-
-  const { value, suffix } = parseNumber(stat.number)
+}) {
+  const { value, suffix } = useMemo(() => parseStatNumber(stat.number), [stat.number])
   const [count, setCount] = useState(0)
 
   useEffect(() => {
@@ -33,7 +50,6 @@ const AnimatedStatCard = ({
     const steps = 60
     const increment = value / steps
     const stepDuration = duration / steps
-
     let currentStep = 0
     let intervalId: ReturnType<typeof setInterval> | null = null
 
@@ -55,33 +71,19 @@ const AnimatedStatCard = ({
     }
   }, [value, idx])
 
-  const formatNumber = (num: number) => {
-    if (suffix === 'k+') {
-      return `${Math.floor(num / 1000)}${suffix}`
-    }
-    return `${num}${suffix}`
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: idx * 0.1 }}
-      whileHover={{
-        y: -10,
-        scale: 1.05,
-        backgroundColor: '#F5F2EA',
-        borderColor: '#000080',
-        borderWidth: '1px',
-        transition: { duration: 0.3 },
-      }}
+      whileHover={STAT_CARD_HOVER}
       style={{ backgroundColor: '#050B23' }}
       className="rounded-2xl p-6 shadow-lg text-center group relative overflow-hidden w-full max-w-xs"
     >
       <div className="relative">
         <div className="text-3xl mb-3">{stat.icon}</div>
         <div className="text-4xl font-bold mb-2 text-white group-hover:text-navy transition-colors duration-300">
-          {formatNumber(count)}
+          {formatStatNumber(count, suffix)}
         </div>
         <div className="font-medium text-sm text-white/90 group-hover:text-navy transition-colors duration-300">
           {stat.label}
@@ -89,7 +91,126 @@ const AnimatedStatCard = ({
       </div>
     </motion.div>
   )
+})
+
+// Static data outside component to avoid re-creating on every render
+const FEATURES_DATA = [
+  { title: 'Expert Career Counseling', description: 'Our experienced counselors provide personalized guidance tailored to your career aspirations and goals.', icon: '🎯', link: '/courses', linkText: 'Career Counseling Services' },
+  { title: 'Wide Range of Programs', description: 'Choose from hundreds of programs across management, technology, arts, and sciences from top universities.', icon: '📚', link: '/courses', linkText: 'Explore Programs' },
+  { title: 'Seamless Admission Process', description: 'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.', icon: '✅', link: '/contact', linkText: 'Get Started' },
+] as const
+
+const RIGHT_VISUALS_DATA = [
+  { icon: '🎓', title: 'Your Success Journey', subtitle: 'Transforming dreams into reality' },
+  { icon: '🎯', title: 'One-on-One Guidance', subtitle: 'Personalized roadmaps for your career goals' },
+  { icon: '📚', title: 'Programs That Fit You', subtitle: 'Management, tech, arts & sciences worldwide' },
+  { icon: '✅', title: 'Hassle-Free Admission', subtitle: 'We handle paperwork so you can focus on goals' },
+] as const
+
+const TESTIMONIALS_DATA = [
+  { name: 'Heena', role: 'MBA Graduate', text: "MegaRyse helped me choose the perfect MBA program that aligned with my career goals. The expert guidance and seamless admission process made everything so easy. Today, I'm in a leadership role, thanks to their support!", rating: 5 },
+  { name: 'Smirthi', role: 'BCA Student', text: 'I was confused about which course to pursue, but the counselors at MegaRyse made it simple. They guided me through the BCA program selection and enrollment process effortlessly. Highly recommended!', rating: 5 },
+  { name: 'Ashok', role: 'Executive MBA', text: 'As a working professional, I needed a course that fit my schedule and career goals. MegaRyse recommended an Executive MBA, and it has truly boosted my career. Thank you for making my upskilling journey smooth!', rating: 5 },
+] as const
+
+const DUPLICATED_TESTIMONIALS = [...TESTIMONIALS_DATA, ...TESTIMONIALS_DATA]
+
+const PROGRAMS_LIST = [
+  { title: 'MBA', desc: 'Master of Business Administration', icon: '💼' },
+  { title: 'MSC', desc: 'Master of Science', icon: '🔬' },
+  { title: 'MCA', desc: 'Master of Computer Applications', icon: '💻' },
+  { title: 'BBA', desc: 'Bachelor of Business Administration', icon: '📊' },
+  { title: 'B.Com', desc: 'Bachelor of Commerce', icon: '💰' },
+  { title: 'BCA', desc: 'Bachelor of Computer Applications', icon: '⌨️' },
+] as const
+
+// Feature section scroll constants (stable refs)
+const SHRINK_START = 0.2
+const SHRINK_END = 0.8
+const HIGHLIGHT_START = SHRINK_END
+const HOLD_EXTRA_VH = 50
+const VISUAL_MIN_WIDTH_RATIO = 0.6
+const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
+const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
+const FIXED_HEIGHT = '62vh'
+const LEFT_CARD_MIN_HEIGHT = '16vh'
+const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
+const WIDTH_SETTLE_END = SHRINK_START + 0.08
+const REVEAL_END = SHRINK_START + 0.32
+const CARD_SLIDE_START = 0.03
+const CARD_SLIDE_DURATION = 0.2
+const CARD_SLIDE_OFFSET = 0.1
+const FEATURES_SECTION_HEIGHT = `${(FEATURES_DATA.length + 1) * 75 + HOLD_EXTRA_VH}vh`
+
+// Reusable animation variants (stable refs for Features section)
+const TITLE_VARIANTS = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.032, delayChildren: 0.01 } },
 }
+const WORD_HIDDEN = { opacity: 0, y: 8, filter: 'blur(2px)' as const }
+const WORD_VISIBLE = { opacity: 1, y: 0, filter: 'blur(0px)' as const, transition: { duration: 0.28, ease: [0.22, 0.5, 0.35, 0.98] } }
+const DESC_VARIANTS = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.022, delayChildren: 0.08 } },
+}
+const DESC_WORD_HIDDEN = { opacity: 0, y: 5 }
+const DESC_WORD_VISIBLE = { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 0.5, 0.35, 0.98] } }
+const LINK_ARROW_VARIANTS = { rest: { x: 0, scale: 1 }, hover: { x: 16, scale: 1.35 } }
+
+// Testimonial card animation config (transform-only for smooth GPU animation; visual hover via CSS)
+const TESTIMONIAL_CARD_IN_VIEW = { opacity: 1, scale: 1 }
+const TESTIMONIAL_CARD_INITIAL = { opacity: 0, scale: 0.96 }
+const TESTIMONIAL_CARD_VIEWPORT = { once: true, margin: '-50px' }
+const TESTIMONIAL_CARD_TRANSITION = { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }
+const TESTIMONIAL_CARD_WHILE_HOVER = { y: -6, scale: 1.02, zIndex: 10 }
+const TESTIMONIAL_CARD_HOVER_TRANSITION = { type: 'spring' as const, stiffness: 400, damping: 28 }
+const STARS = [1, 2, 3, 4, 5] as const
+
+type TestimonialItem = (typeof TESTIMONIALS_DATA)[number]
+
+const TestimonialCard = memo(function TestimonialCard({
+  testimonial,
+  index,
+}: {
+  testimonial: TestimonialItem
+  index: number
+}) {
+  const delay = Math.min(index * 0.08, 0.24)
+  return (
+    <motion.div
+      initial={TESTIMONIAL_CARD_INITIAL}
+      whileInView={TESTIMONIAL_CARD_IN_VIEW}
+      viewport={TESTIMONIAL_CARD_VIEWPORT}
+      whileHover={TESTIMONIAL_CARD_WHILE_HOVER}
+      transition={{
+        opacity: { ...TESTIMONIAL_CARD_TRANSITION, delay },
+        scale: { ...TESTIMONIAL_CARD_TRANSITION, delay },
+        y: TESTIMONIAL_CARD_HOVER_TRANSITION,
+      }}
+      className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-8 flex-shrink-0 w-full max-w-sm transition-[transform,box-shadow,background-color,border-color] duration-300 ease-out hover:bg-gold/10 hover:border-gold/30 hover:shadow-xl"
+    >
+      <div className="flex items-center gap-1 mb-4">
+        {STARS.slice(0, testimonial.rating).map((_, i) => (
+          <span key={i} className="text-gold-bright text-xl">
+            ★
+          </span>
+        ))}
+      </div>
+      <p className="text-navy/95 mb-6 leading-relaxed italic text-sm drop-shadow-lg">
+        "{testimonial.text}"
+      </p>
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+          {testimonial.name[0]}
+        </div>
+        <div>
+          <div className="font-bold text-navy text-lg drop-shadow-md">{testimonial.name}</div>
+          <div className="text-sm text-yellow-500/80 drop-shadow-sm">{testimonial.role}</div>
+        </div>
+      </div>
+    </motion.div>
+  )
+})
 
 const Home = () => {
   const featuresRef = useRef<HTMLDivElement | null>(null)
@@ -106,28 +227,6 @@ const Home = () => {
     offset: ['start start', 'end end'],
   })
 
-  const SHRINK_START = 0.2
-  const SHRINK_END = 0.8
-  // Start highlighting as soon as shrink ends so first card + first right visual show immediately
-  const HIGHLIGHT_START = SHRINK_END
-  // Extra viewport height so the section stays pinned for a short hold after the last highlight
-  const HOLD_EXTRA_VH = 50
-
-  // After animation: right visual = 60%, left contents = 40%
-  const VISUAL_MIN_WIDTH_RATIO = 0.6
-  const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
-  const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
-
-  // 🎯 FIXED HEIGHT - Reduced for a shorter Feature section
-  const FIXED_HEIGHT = '60vh'
-  // Fixed height per left content card
-  const LEFT_CARD_FIXED_HEIGHT = '16vh'
-
-  // Left section uses max width (40%) as both initial and final: fixed at that width when visible
-  const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
-  // Right shrinks to 60% in sync with left appearing at 40%, then both stay fixed
-  const WIDTH_SETTLE_END = SHRINK_START + 0.08
-
   // Right visual: 100% until shrink, then shrink to 60% as left appears; then stay 60%
   const visualWidth = useTransform(
     scrollYProgress,
@@ -141,9 +240,6 @@ const Home = () => {
     [SHRINK_START, WIDTH_SETTLE_END],
     ['0%', LEFT_SECTION_WIDTH],
   )
-
-  // Left content reveal: slightly longer range for smoother scroll-linked motion
-  const REVEAL_END = SHRINK_START + 0.32
 
   // Left opacity: ease-out feel via midpoint (0 → 0.6 → 1) over longer scroll range
   const leftOpacity = useTransform(
@@ -172,11 +268,6 @@ const Home = () => {
     [SHRINK_START, REVEAL_END],
     [0.97, 1],
   )
-
-  // Per-item: wider scroll ranges = smoother card slide-in; slightly shorter travel (240px)
-  const CARD_SLIDE_START = 0.03
-  const CARD_SLIDE_DURATION = 0.2
-  const CARD_SLIDE_OFFSET = 0.1
 
   const leftItem0Opacity = useTransform(
     scrollYProgress,
@@ -221,13 +312,18 @@ const Home = () => {
   // Transform scroll progress (highlight phase) to feature index: 0 → first, 1 → second, 2 → third
   const highlightIndex = useTransform(scrollYProgress, [HIGHLIGHT_START, 1], [0, 3])
 
-  // Sync activeFeature (left highlight + right visual) with scroll; clamp 0–2 so all three steps work
+  // Sync activeFeature (left highlight + right visual) with scroll; only setState when index changes to reduce re-renders
+  const prevHighlightRef = useRef(-1)
   useEffect(() => {
     const updateFromScroll = (latest: number) => {
       const clamped = Math.min(2, Math.max(0, Math.floor(latest)))
-      setActiveFeature(clamped)
+      if (clamped !== prevHighlightRef.current) {
+        prevHighlightRef.current = clamped
+        setActiveFeature(clamped)
+      }
     }
-    updateFromScroll(highlightIndex.get())
+    prevHighlightRef.current = Math.min(2, Math.max(0, Math.floor(highlightIndex.get())))
+    setActiveFeature(prevHighlightRef.current)
     const unsubscribe = highlightIndex.on('change', updateFromScroll)
     return unsubscribe
   }, [highlightIndex])
@@ -252,77 +348,39 @@ const Home = () => {
     }
   }, [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity])
 
-  const features = [
-    {
-      title: 'Expert Career Counseling',
-      description:
-        'Our experienced counselors provide personalized guidance tailored to your career aspirations and goals.',
-      icon: '🎯',
-      link: '/courses',
-      linkText: 'Career Counseling Services',
-    },
-    {
-      title: 'Wide Range of Programs',
-      description:
-        'Choose from hundreds of programs across management, technology, arts, and sciences from top universities.',
-      icon: '📚',
-      link: '/courses',
-      linkText: 'Explore Programs',
-    },
-    {
-      title: 'Seamless Admission Process',
-      description:
-        'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.',
-      icon: '✅',
-      link: '/contact',
-      linkText: 'Get Started',
-    },
-  ]
-
-  // Right-side visual content in sync with left-side highlight (default + one per feature)
-  const rightVisuals = [
-    { icon: '🎓', title: 'Your Success Journey', subtitle: 'Transforming dreams into reality' },
-    { icon: '🎯', title: 'One-on-One Guidance', subtitle: 'Personalized roadmaps for your career goals' },
-    { icon: '📚', title: 'Programs That Fit You', subtitle: 'Management, tech, arts & sciences worldwide' },
-    { icon: '✅', title: 'Hassle-Free Admission', subtitle: 'We handle paperwork so you can focus on goals' },
-  ]
-
-  // Testimonial auto-scroll state
   const [isHovered, setIsHovered] = useState(false)
   const x = useMotionValue(0)
 
-  const testimonials = [
-    {
-      name: 'Heena',
-      role: 'MBA Graduate',
-      text: "MegaRyse helped me choose the perfect MBA program that aligned with my career goals. The expert guidance and seamless admission process made everything so easy. Today, I'm in a leadership role, thanks to their support!",
-      rating: 5,
-    },
-    {
-      name: 'Smirthi',
-      role: 'BCA Student',
-      text: 'I was confused about which course to pursue, but the counselors at MegaRyse made it simple. They guided me through the BCA program selection and enrollment process effortlessly. Highly recommended!',
-      rating: 5,
-    },
-    {
-      name: 'Ashok',
-      role: 'Executive MBA',
-      text: 'As a working professional, I needed a course that fit my schedule and career goals. MegaRyse recommended an Executive MBA, and it has truly boosted my career. Thank you for making my upskilling journey smooth!',
-      rating: 5,
-    },
-  ]
-
-  const duplicatedTestimonials = [...testimonials, ...testimonials]
-
-  useAnimationFrame((time, delta) => {
+  const TESTIMONIALS_LEN = TESTIMONIALS_DATA.length
+  const TESTIMONIALS_SCROLL_RESET = -(TESTIMONIALS_LEN * 400)
+  useAnimationFrame((_time, delta) => {
     if (!isHovered) {
       const speed = 0.1
       x.set(x.get() - delta * speed)
-      if (x.get() <= -(testimonials.length * 400)) {
-        x.set(0)
-      }
+      if (x.get() <= TESTIMONIALS_SCROLL_RESET) x.set(0)
     }
   })
+
+  const statsForSection = useMemo(() => {
+    const establishmentDate = new Date('2024-11-04')
+    const now = new Date()
+    let years = now.getFullYear() - establishmentDate.getFullYear()
+    const months = now.getMonth() - establishmentDate.getMonth()
+    const days = now.getDate() - establishmentDate.getDate()
+    if (months < 0 || (months === 0 && days < 0)) years -= 1
+    if (years < 0) years = 0
+    return [
+      { number: `${years}+`, label: 'Years Experience', icon: '📅' },
+      { number: '10k+', label: 'Students', icon: '👥' },
+      { number: '50+', label: 'Universities', icon: '🏛️' },
+      { number: '95%', label: 'Success Rate', icon: '⭐' },
+    ]
+  }, [])
+
+  const featuresSectionStyle = useMemo(() => ({ height: FEATURES_SECTION_HEIGHT }), [])
+  const testimonialTrackStyle = useMemo(() => ({ x, display: 'flex' as const }), [x])
+  const handleTestimonialMouseEnter = useCallback(() => setIsHovered(true), [])
+  const handleTestimonialMouseLeave = useCallback(() => setIsHovered(false), [])
 
   return (
     <div className="w-full bg-offwhite">
@@ -404,28 +462,7 @@ const Home = () => {
         <div className="w-full px-4 sm:px-6 lg:px-8 mt-20">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
-              {(() => {
-                const establishmentDate = new Date('2024-11-04')
-                const currentDate = new Date()
-                const yearsDiff = currentDate.getFullYear() - establishmentDate.getFullYear()
-                const monthsDiff = currentDate.getMonth() - establishmentDate.getMonth()
-                const daysDiff = currentDate.getDate() - establishmentDate.getDate()
-
-                let yearsOfExperience = yearsDiff
-                if (monthsDiff < 0 || (monthsDiff === 0 && daysDiff < 0)) {
-                  yearsOfExperience = yearsDiff - 1
-                }
-                if (yearsOfExperience < 0) {
-                  yearsOfExperience = 0
-                }
-
-                return [
-                  { number: `${yearsOfExperience}+`, label: 'Years Experience', icon: '📅' },
-                  { number: '10k+', label: 'Students', icon: '👥' },
-                  { number: '50+', label: 'Universities', icon: '🏛️' },
-                  { number: '95%', label: 'Success Rate', icon: '⭐' },
-                ]
-              })().map((stat, idx) => (
+              {statsForSection.map((stat, idx) => (
                 <AnimatedStatCard key={idx} stat={stat} idx={idx} />
               ))}
             </div>
@@ -436,10 +473,7 @@ const Home = () => {
       {/* ========== FEATURES SECTION - Full-width visual when initial; no section padding on row ========== */}
       <section ref={featuresRef} className="pb-32">
         <div className="max-w-container mx-auto w-full">
-          <div
-            className="relative"
-            style={{ height: `${(features.length + 1) * 75 + HOLD_EXTRA_VH}vh` }}
-          >
+          <div className="relative" style={featuresSectionStyle}>
             <motion.div
               style={{ position: 'sticky', top: 0, height: '100vh' }}
               className="relative flex flex-col gap-10 pt-32"
@@ -476,15 +510,15 @@ const Home = () => {
                     height: FIXED_HEIGHT,
                     minWidth: 0,
                   }}
-                  className="flex flex-col justify-between gap-8 h-full origin-left overflow-hidden transform-gpu flex-shrink-0"
+                  className="flex flex-col justify-start gap-6 h-full origin-left overflow-y-auto overflow-x-hidden transform-gpu flex-shrink-0"
                 >
-                  <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-between gap-8 h-full min-h-0 flex-1">
-                  {features.map((f, i) => (
+                  <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-start gap-6 flex-1 min-h-0">
+                  {FEATURES_DATA.map((f, i) => (
                     <motion.div
                       key={i}
-                      className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-hidden transform-gpu"
+                      className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-visible transform-gpu"
                       style={{
-                        height: LEFT_CARD_FIXED_HEIGHT,
+                        minHeight: LEFT_CARD_MIN_HEIGHT,
                         width: '100%',
                         opacity: leftItemOpacities[i],
                         x: leftItemXs[i],
@@ -498,18 +532,13 @@ const Home = () => {
                           scaleY: i === activeFeature ? 1 : 0.3,
                           opacity: i === activeFeature ? 1 : 0,
                         }}
-                        transition={{ duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] }}
+                        transition={TRANSITION_SMOOTH}
                       />
-                      <div className="flex flex-col justify-center py-2 w-full max-w-full min-h-0 h-full">
+                      <div className="flex flex-col justify-start py-2 w-full max-w-full">
                         {/* Title: word stagger with fade + slide; lighter blur for perf */}
                         <motion.h3
                           className="text-2xl font-bold mb-2 text-navy transition-colors duration-300"
-                          variants={{
-                            hidden: {},
-                            visible: {
-                              transition: { staggerChildren: 0.032, delayChildren: 0.01 },
-                            },
-                          }}
+                          variants={TITLE_VARIANTS}
                           initial="hidden"
                           animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
                           whileHover={{ x: 4 }}
@@ -518,15 +547,7 @@ const Home = () => {
                             <motion.span
                               key={wi}
                               className="inline-block mr-1.5 align-baseline will-change-transform"
-                              variants={{
-                                hidden: { opacity: 0, y: 8, filter: 'blur(2px)' },
-                                visible: {
-                                  opacity: 1,
-                                  y: 0,
-                                  filter: 'blur(0px)',
-                                  transition: { duration: 0.28, ease: [0.22, 0.5, 0.35, 0.98] },
-                                },
-                              }}
+                              variants={{ hidden: WORD_HIDDEN, visible: WORD_VISIBLE }}
                             >
                               {word}
                             </motion.span>
@@ -534,13 +555,8 @@ const Home = () => {
                         </motion.h3>
                         {/* Description: word stagger; transform-only for smoothness */}
                         <motion.p
-                          className={`text-base leading-relaxed mb-3 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
-                          variants={{
-                            hidden: {},
-                            visible: {
-                              transition: { staggerChildren: 0.022, delayChildren: 0.08 },
-                            },
-                          }}
+                          className={`text-base leading-relaxed mb-2 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
+                          variants={DESC_VARIANTS}
                           initial="hidden"
                           animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
                         >
@@ -548,56 +564,28 @@ const Home = () => {
                             <motion.span
                               key={wi}
                               className="inline-block mr-1.5 align-baseline will-change-transform"
-                              variants={{
-                                hidden: { opacity: 0, y: 5 },
-                                visible: {
-                                  opacity: 1,
-                                  y: 0,
-                                  transition: { duration: 0.24, ease: [0.22, 0.5, 0.35, 0.98] },
-                                },
-                              }}
+                              variants={{ hidden: DESC_WORD_HIDDEN, visible: DESC_WORD_VISIBLE }}
                             >
                               {word}{' '}
                             </motion.span>
                           ))}
                         </motion.p>
-                        {/* Link: fade + slide; single ease for consistency */}
+                        {/* Link: visibility tied to card opacity; gold theme; arrow animates when link hovered */}
                         <motion.span
-                          className="inline-block overflow-hidden"
-                          initial={{ opacity: 0, x: -6 }}
-                          animate={
-                            leftItemTextRevealed[i]
-                              ? { opacity: 1, x: 0 }
-                              : { opacity: 0, x: -6 }
-                          }
-                          transition={{
-                            duration: 0.28,
-                            delay: leftItemTextRevealed[i] ? 0.18 : 0,
-                            ease: [0.22, 0.5, 0.35, 0.98],
-                          }}
+                          className="inline-block mt-2"
+                          style={{ opacity: leftItemOpacities[i] }}
+                          initial="rest"
+                          whileHover="hover"
                         >
-                          <Link
-                            to={f.link}
-                            className={`inline-flex items-center gap-2 font-semibold transition-all duration-300 group/link ${i === activeFeature ? 'text-gold hover:text-gold-bright' : 'text-navy hover:text-gold'}`}
-                          >
-                            <motion.span
-                              className="inline-block relative underline decoration-gold/60 decoration-2 underline-offset-2 hover:decoration-gold-bright"
-                              whileHover={{ x: 4 }}
-                              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                            >
+                          <Link to={f.link} className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer">
+                            <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
                               {f.linkText}
-                              <motion.span
-                                className="absolute left-0 bottom-0 w-full h-0.5 bg-current origin-left will-change-transform"
-                                initial={{ scaleX: 0 }}
-                                animate={
-                                  leftItemTextRevealed[i] ? { scaleX: 1 } : { scaleX: 0 }
-                                }
-                                transition={{ duration: 0.32, delay: 0.28, ease: [0.22, 0.5, 0.35, 0.98] }}
-                              />
-                            </motion.span>
+                            </span>
                             <motion.span
-                              className="transition-transform inline-block"
-                              whileHover={{ x: 4 }}
+                              className="inline-block no-underline"
+                              aria-hidden
+                              variants={LINK_ARROW_VARIANTS}
+                              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                             >
                               →
                             </motion.span>
@@ -619,7 +607,7 @@ const Home = () => {
                   className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
                 >
                   <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
-                    {rightVisuals.map((visual, idx) => {
+                    {RIGHT_VISUALS_DATA.map((visual, idx) => {
                       const isActive = idx === activeFeature + 1
                       return (
                         <motion.div
@@ -630,7 +618,7 @@ const Home = () => {
                             opacity: isActive ? 1 : 0,
                             scale: isActive ? 1 : 0.97,
                           }}
-                          transition={{ duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] }}
+                          transition={TRANSITION_SMOOTH}
                         >
                           <div className="text-7xl mb-6">{visual.icon}</div>
                           <h3 className="text-3xl font-bold mb-2">{visual.title}</h3>
@@ -675,14 +663,7 @@ const Home = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { title: 'MBA', desc: 'Master of Business Administration', icon: '💼' },
-              { title: 'MSC', desc: 'Master of Science', icon: '🔬' },
-              { title: 'MCA', desc: 'Master of Computer Applications', icon: '💻' },
-              { title: 'BBA', desc: 'Bachelor of Business Administration', icon: '📊' },
-              { title: 'B.Com', desc: 'Bachelor of Commerce', icon: '💰' },
-              { title: 'BCA', desc: 'Bachelor of Computer Applications', icon: '⌨️' },
-            ].map((program, idx) => (
+            {PROGRAMS_LIST.map((program, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 30 }}
@@ -741,60 +722,15 @@ const Home = () => {
 
           <div
             className="overflow-hidden"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={handleTestimonialMouseEnter}
+            onMouseLeave={handleTestimonialMouseLeave}
           >
             <motion.div
-              className="flex gap-8 py-4"
-              style={{
-                x,
-                display: 'flex',
-              }}
+              className="flex gap-8 py-4 will-change-transform"
+              style={testimonialTrackStyle}
             >
-              {duplicatedTestimonials.map((testimonial, idx) => (
-                // Replace the testimonial card motion.div with this glassmorphic version:
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.2, delay: Math.min(idx * 0.1, 0.1) }}
-                  whileHover={{
-                    y: -5,
-                    scale: 1,
-                    zIndex: 10,
-                    backdropFilter: 'blur(20px)',
-                    background: 'rgb(209, 167, 27)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)'
-                  }}
-                  className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-8 transition-all duration-300 flex-shrink-0 w-full max-w-sm hover:scale-[1.02]"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                  }}
-                >
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <span key={i} className="text-gold-bright text-xl">
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-navy/95 mb-6 leading-relaxed italic text-sm drop-shadow-lg">
-                    "{testimonial.text}"
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                      {testimonial.name[0]}
-                    </div>
-                    <div>
-                      <div className="font-bold text-navy text-lg drop-shadow-md">{testimonial.name}</div>
-                      <div className="text-sm text-yellow-500/80 drop-shadow-sm">{testimonial.role}</div>
-                    </div>
-                  </div>
-                </motion.div>
-
+              {DUPLICATED_TESTIMONIALS.map((testimonial, idx) => (
+                <TestimonialCard key={idx} testimonial={testimonial} index={idx} />
               ))}
             </motion.div>
           </div>
