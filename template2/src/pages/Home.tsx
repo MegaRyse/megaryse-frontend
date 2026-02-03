@@ -81,7 +81,7 @@ const AnimatedStatCard = memo(function AnimatedStatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: idx * 0.1 }}
       whileHover={STAT_CARD_HOVER}
-      style={{ backgroundColor: '#050B23' }}
+      style={{ backgroundColor: '#00275E' }}
       className="rounded-2xl p-6 shadow-lg text-center group relative overflow-hidden w-full max-w-xs"
     >
       <div className="relative">
@@ -426,7 +426,7 @@ const Home = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="inline-block mb-6"
               >
-                <span className="bg-navy text-white px-6 py-2 rounded-full text-sm font-semibold">
+                <span className="bg-[#00275E] text-white px-6 py-2 rounded-full text-sm font-semibold">
                   Trusted by 10,000+ Students
                 </span>
               </motion.div>
@@ -455,7 +455,7 @@ const Home = () => {
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-block border-2 border-gold-bright text-black px-10 py-5 rounded-full font-semibold text-lg hover:bg-navy hover:text-white hover:border-navy transition-all duration-300"
+                  className="inline-block border-2 border-gold-bright text-black px-10 py-5 rounded-full font-semibold text-lg hover:bg-[#00275E] hover:text-white hover:border-navy transition-all duration-300"
                 >
                   Schedule Consultation
                 </Link>
@@ -679,7 +679,7 @@ const Home = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: idx * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-navy rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all relative overflow-hidden group"
+                className="bg-[#00275E] rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all relative overflow-hidden group"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gold-bright/20 to-transparent rounded-bl-full"></div>
                 <div className="relative">
@@ -753,9 +753,9 @@ const Home = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-navy rounded-3xl p-12 md:p-16 shadow-2xl text-center relative overflow-hidden"
+            className="bg-[#00275E] rounded-3xl p-12 md:p-16 shadow-2xl text-center relative overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy to-gold/10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00275E] via-[#00275E] to-gold/10"></div>
             <div className="relative">
               <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 Ready to Start Your Journey?
