@@ -138,7 +138,7 @@ const Courses = () => {
   return (
     <div className="w-full bg-offwhite">
       {/* Hero Section */}
-      <section className="relative pt-8 pb-6 sm:pt-10 sm:pb-8 md:pt-12 md:pb-10 bg-offwhite overflow-hidden">
+      <section className="relative pt-0 pb-0 sm:pt-0 sm:pb-0 md:pt-0 md:pb-0 bg-offwhite overflow-hidden">
         {/* Animated background elements - Responsive sizes */}
         <motion.div
           className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 bg-gold-bright/5 rounded-full blur-3xl"
@@ -198,7 +198,7 @@ const Courses = () => {
       </section>
 
       {/* Tabs Section */}
-      <section className="pt-6 pb-4 sm:pt-8 sm:pb-6 md:pt-10 md:pb-8 bg-offwhite border-b border-gray-200">
+      <section className="pt-6 pb-2 sm:pt-8 sm:pb-3 md:pt-10 md:pb-4 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="flex flex-wrap justify-center gap-3 sm:gap-4"
@@ -311,7 +311,7 @@ const Courses = () => {
       </section>
 
       {/* Courses Grid */}
-      <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 md:pt-10 md:pb-20 bg-offwhite">
+      <section className="pt-2 pb-12 sm:pt-3 sm:pb-16 md:pt-4 md:pb-20 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
             <motion.div
