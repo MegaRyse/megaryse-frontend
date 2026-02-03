@@ -2,6 +2,10 @@ import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } fr
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
 import HeroImg2 from '../assets/images/Hero_Img2.png'
+import careerCounsellingImg from '../assets/images/career_counselling.png'
+import admissionProcessImg from '../assets/images/admission_process.png'
+import programsImg from '../assets/images/programs.png'
+import WhatsAppFloat from '../components/WhatsAppFloat'
 
 // Shared transition configs (avoid new object refs every render)
 const TRANSITION_SMOOTH = { duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] as const }
@@ -100,11 +104,12 @@ const FEATURES_DATA = [
   { title: 'Seamless Admission Process', description: 'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.', icon: '✅', link: '/contact', linkText: 'Get Started' },
 ] as const
 
-const RIGHT_VISUALS_DATA = [
-  { icon: '🎓', title: 'Your Success Journey', subtitle: 'Transforming dreams into reality' },
-  { icon: '🎯', title: 'One-on-One Guidance', subtitle: 'Personalized roadmaps for your career goals' },
-  { icon: '📚', title: 'Programs That Fit You', subtitle: 'Management, tech, arts & sciences worldwide' },
-  { icon: '✅', title: 'Hassle-Free Admission', subtitle: 'We handle paperwork so you can focus on goals' },
+// Right visual images: [initial, feature0 career, feature1 programs, feature2 admission]
+const RIGHT_VISUAL_IMAGES = [
+  careerCounsellingImg,
+  careerCounsellingImg,
+  programsImg,
+  admissionProcessImg,
 ] as const
 
 const TESTIMONIALS_DATA = [
@@ -124,23 +129,24 @@ const PROGRAMS_LIST = [
   { title: 'BCA', desc: 'Bachelor of Computer Applications', icon: '⌨️' },
 ] as const
 
-// Feature section scroll constants (stable refs)
+// Feature section scroll constants (stable refs) — taller section + stretched ranges so user scrolls more
 const SHRINK_START = 0.2
 const SHRINK_END = 0.8
 const HIGHLIGHT_START = SHRINK_END
-const HOLD_EXTRA_VH = 50
+const HOLD_EXTRA_VH = 180
+const END_HOLD_VH = 140
 const VISUAL_MIN_WIDTH_RATIO = 0.6
 const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
 const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
 const FIXED_HEIGHT = '62vh'
 const LEFT_CARD_MIN_HEIGHT = '16vh'
 const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
-const WIDTH_SETTLE_END = SHRINK_START + 0.08
-const REVEAL_END = SHRINK_START + 0.32
+const WIDTH_SETTLE_END = SHRINK_START + 0.16
+const REVEAL_END = SHRINK_START + 0.52
 const CARD_SLIDE_START = 0.03
-const CARD_SLIDE_DURATION = 0.2
-const CARD_SLIDE_OFFSET = 0.1
-const FEATURES_SECTION_HEIGHT = `${(FEATURES_DATA.length + 1) * 75 + HOLD_EXTRA_VH}vh`
+const CARD_SLIDE_DURATION = 0.26
+const CARD_SLIDE_OFFSET = 0.13
+const FEATURES_SECTION_HEIGHT = `${(FEATURES_DATA.length + 1) * 95 + HOLD_EXTRA_VH + END_HOLD_VH}vh`
 
 // Reusable animation variants (stable refs for Features section)
 const TITLE_VARIANTS = {
@@ -244,21 +250,21 @@ const Home = () => {
   // Left opacity: ease-out feel via midpoint (0 → 0.6 → 1) over longer scroll range
   const leftOpacity = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.12, REVEAL_END],
+    [SHRINK_START, SHRINK_START + 0.24, REVEAL_END],
     [0, 0.65, 1],
   )
 
   // Left slide-in: same range, smoother over more scroll distance
   const leftX = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.12, REVEAL_END],
+    [SHRINK_START, SHRINK_START + 0.24, REVEAL_END],
     [-50, -20, 0],
   )
 
-  // Left blur: reduced max (12px) for better perf; shorter range so sharp sooner
+  // Left blur: reduced max (12px) for better perf; stretched range so sharp over more scroll
   const leftBlur = useTransform(
     scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.18],
+    [SHRINK_START, SHRINK_START + 0.28],
     [12, 0],
   )
 
@@ -606,13 +612,13 @@ const Home = () => {
                   }}
                   className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
                 >
-                  <div className="bg-navy rounded-3xl p-16 text-center text-white w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
-                    {RIGHT_VISUALS_DATA.map((visual, idx) => {
+                  <div className="bg-navy rounded-3xl w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
+                    {RIGHT_VISUAL_IMAGES.map((imgSrc, idx) => {
                       const isActive = idx === activeFeature + 1
                       return (
                         <motion.div
                           key={idx}
-                          className="absolute inset-0 flex flex-col items-center justify-center p-16 will-change-transform"
+                          className="absolute inset-0 flex items-center justify-center will-change-transform rounded-3xl overflow-hidden"
                           initial={false}
                           animate={{
                             opacity: isActive ? 1 : 0,
@@ -620,9 +626,11 @@ const Home = () => {
                           }}
                           transition={TRANSITION_SMOOTH}
                         >
-                          <div className="text-7xl mb-6">{visual.icon}</div>
-                          <h3 className="text-3xl font-bold mb-2">{visual.title}</h3>
-                          <p className="text-white/90">{visual.subtitle}</p>
+                          <img
+                            src={imgSrc}
+                            alt=""
+                            className="w-full h-full object-cover rounded-3xl"
+                          />
                         </motion.div>
                       )
                     })}
@@ -773,6 +781,8 @@ const Home = () => {
           </motion.div>
         </div>
       </section>
+
+      <WhatsAppFloat />
     </div>
   )
 }
