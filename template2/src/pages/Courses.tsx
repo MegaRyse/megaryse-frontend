@@ -1,12 +1,12 @@
-import { motion, useInView, AnimatePresence } from 'framer-motion'
-import { useState, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 
 const Courses = () => {
   const [activeTab, setActiveTab] = useState('undergraduate')
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const [hoveredTab, setHoveredTab] = useState<string | null>(null)
-  const coursesRef = useRef(null)
-  const isInView = useInView(coursesRef, { once: true, amount: 0.2 })
+  const [hoveredSpec, setHoveredSpec] = useState<string | null>(null)
+  const [hoveredTopic, setHoveredTopic] = useState<string | null>(null)
 
   const handleKnowMore = (courseTitle: string) => {
     // You can add navigation or modal logic here
@@ -134,19 +134,6 @@ const Courses = () => {
     },
   }
 
-  const tagVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: (i: number) => ({
-      opacity: 1,
-      scale: 1,
-      transition: {
-        delay: i * 0.05,
-        type: "spring",
-        stiffness: 200,
-        damping: 15,
-      },
-    }),
-  }
 
   return (
     <div className="w-full bg-offwhite">
@@ -324,12 +311,12 @@ const Courses = () => {
       </section>
 
       {/* Courses Grid */}
-      <section ref={coursesRef} className="pt-6 pb-12 sm:pt-8 sm:pb-16 md:pt-10 md:pb-20 bg-offwhite">
+      <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 md:pt-10 md:pb-20 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              className="space-y-6 sm:space-y-8 md:space-y-10"
+              className="relative"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -338,15 +325,15 @@ const Courses = () => {
             {currentCourses.map((course, idx) => (
               <motion.div
                   key={`${activeTab}-${idx}`}
-                  initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                  animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 40, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
                   transition={{ 
-                    duration: 0.5, 
-                    delay: idx * 0.08,
+                    duration: 0.6,
+                    delay: idx * 0.1,
                     type: "spring",
-                    stiffness: 150,
-                    damping: 25,
-                    mass: 0.8
+                    stiffness: 100,
+                    damping: 20
                   }}
                   whileHover={{ 
                     scale: 1.02, 
@@ -360,12 +347,7 @@ const Courses = () => {
                   }}
                   onHoverStart={() => setHoveredCard(idx)}
                   onHoverEnd={() => setHoveredCard(null)}
-                  className="bg-white rounded-xl p-4 sm:p-6 md:p-8 shadow-md hover:shadow-2xl transition-shadow duration-300 border border-gray-100 cursor-pointer relative overflow-hidden group"
-                  style={{ 
-                    willChange: hoveredCard === idx ? 'transform' : 'auto',
-                    transform: 'translateZ(0)',
-                    backfaceVisibility: 'hidden'
-                  }}
+                  className="bg-white rounded-xl p-4 sm:p-6 md:p-8 shadow-md hover:shadow-2xl transition-shadow duration-300 border border-gray-100 cursor-pointer relative overflow-hidden group mb-6"
                   onClick={() => handleKnowMore(course.title)}
                 >
                   {/* Animated background gradient on hover */}
@@ -419,170 +401,195 @@ const Courses = () => {
                       </p>
                       
                     {('specializations' in course) && (
-                        <motion.div 
-                          className="mb-3 sm:mb-4"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                          transition={{ delay: idx * 0.1 + 0.3 }}
-                        >
+                        <div className="mb-3 sm:mb-4">
                           <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">Specializations:</p>
-                          <motion.div 
-                            className="flex flex-wrap gap-1.5 sm:gap-2"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate={isInView ? "visible" : "hidden"}
-                          >
-                          {course.specializations.map((spec, i) => (
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {course.specializations.map((spec, i) => {
+                            const specKey = `${activeTab}-${idx}-spec-${i}`
+                            const isHovered = hoveredSpec === specKey
+                            return (
                               <motion.span
-                                key={`${activeTab}-spec-${i}`}
-                                custom={i}
-                                variants={tagVariants}
-                                className="text-gold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md text-[10px] sm:text-xs font-medium cursor-pointer relative"
-                                initial={{ 
-                                  scale: 1, 
-                                  y: 0,
-                                  color: '#C9A978',
-                                }}
-                                animate={{ 
-                                  scale: 1, 
-                                  y: 0,
-                                  color: '#C9A978',
-                                }}
+                                key={specKey}
+                                className="text-gold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md text-[10px] sm:text-xs font-medium cursor-pointer relative overflow-hidden"
                                 whileHover={{ 
-                                  scale: 1.15, 
-                                  y: -3,
-                                  color: '#ffffff',
+                                  scale: 1.12, 
+                                  y: -2,
                                 }}
+                                onHoverStart={() => setHoveredSpec(specKey)}
+                                onHoverEnd={() => setHoveredSpec(null)}
                                 transition={{ 
                                   type: "spring", 
-                                  stiffness: 500,
-                                  damping: 25,
-                                  mass: 0.5
+                                  stiffness: 400,
+                                  damping: 30,
+                                  mass: 0.6
                                 }}
                                 style={{ 
                                   willChange: 'transform',
+                                  transform: 'translateZ(0)',
+                                  backfaceVisibility: 'hidden',
+                                  WebkitBackfaceVisibility: 'hidden'
                                 }}
                               >
+                                {/* Base gradient background - always visible */}
                                 <motion.span
-                                  className="absolute inset-0 rounded-md bg-gradient-gold-soft -z-10"
-                                  initial={{ opacity: 1 }}
-                                  animate={{ opacity: 1 }}
-                                  whileHover={{ opacity: 0 }}
-                                  transition={{ duration: 0.2 }}
-                                />
-                                <motion.span
-                                  className="absolute inset-0 rounded-md -z-10"
-                                  initial={{ 
-                                    backgroundColor: 'transparent',
-                                    boxShadow: 'none',
-                                    opacity: 0
+                                  className="absolute inset-0 rounded-md bg-gradient-gold-soft pointer-events-none"
+                                  style={{
+                                    zIndex: 0,
+                                    transform: 'translateZ(0)',
+                                    backfaceVisibility: 'hidden',
+                                    WebkitBackfaceVisibility: 'hidden'
                                   }}
                                   animate={{ 
-                                    backgroundColor: 'transparent',
-                                    boxShadow: 'none',
-                                    opacity: 0
+                                    opacity: isHovered ? 0 : 1
                                   }}
-                                  whileHover={{ 
-                                    backgroundColor: '#00275E',
-                                    boxShadow: '0 4px 12px rgba(5, 11, 35, 0.3)',
-                                    opacity: 1
+                                  transition={{ 
+                                    duration: 0.3,
+                                    ease: [0.4, 0, 0.2, 1]
                                   }}
-                                  transition={{ duration: 0.2 }}
                                 />
-                                <span className="relative z-0">{spec}</span>
+                                {/* Hover blue background */}
+                                <motion.span
+                                  className="absolute inset-0 rounded-md pointer-events-none"
+                                  style={{
+                                    backgroundColor: '#00275E',
+                                    zIndex: 0,
+                                    transform: 'translateZ(0)',
+                                    backfaceVisibility: 'hidden',
+                                    WebkitBackfaceVisibility: 'hidden'
+                                  }}
+                                  animate={{ 
+                                    opacity: isHovered ? 1 : 0,
+                                    scale: isHovered ? 1 : 0.95,
+                                    boxShadow: isHovered ? '0 4px 12px rgba(5, 11, 35, 0.3)' : 'none'
+                                  }}
+                                  transition={{ 
+                                    duration: 0.3,
+                                    ease: [0.4, 0, 0.2, 1]
+                                  }}
+                                />
+                                {/* Text content */}
+                                <motion.span
+                                  className="relative z-10 block pointer-events-none"
+                                  animate={{ 
+                                    color: isHovered ? '#ffffff' : '#C9A978'
+                                  }}
+                                  transition={{ 
+                                    duration: 0.3,
+                                    ease: [0.4, 0, 0.2, 1]
+                                  }}
+                                  style={{
+                                    willChange: 'color',
+                                    transform: 'translateZ(0)',
+                                    backfaceVisibility: 'hidden',
+                                    WebkitBackfaceVisibility: 'hidden'
+                                  }}
+                                >
+                              {spec}
+                                </motion.span>
                               </motion.span>
-                          ))}
-                          </motion.div>
-                        </motion.div>
+                            )
+                          })}
+                        </div>
+                      </div>
                     )}
                       
                     {('topics' in course) && (
-                        <motion.div 
-                          className="mb-3 sm:mb-4"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                          transition={{ delay: idx * 0.1 + 0.3 }}
-                        >
+                        <div className="mb-3 sm:mb-4">
                           <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">Key Topics:</p>
-                          <motion.div 
-                            className="flex flex-wrap gap-1.5 sm:gap-2"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate={isInView ? "visible" : "hidden"}
-                          >
-                          {course.topics.map((topic, i) => (
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {course.topics.map((topic, i) => {
+                            const topicKey = `${activeTab}-${idx}-topic-${i}`
+                            const isHovered = hoveredTopic === topicKey
+                            return (
                               <motion.span
-                                key={`${activeTab}-topic-${i}`}
-                                custom={i}
-                                variants={tagVariants}
-                                className="text-gold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md text-[10px] sm:text-xs font-medium cursor-pointer relative"
-                                initial={{ 
-                                  scale: 1, 
-                                  y: 0,
-                                  color: '#C9A978',
-                                }}
-                                animate={{ 
-                                  scale: 1, 
-                                  y: 0,
-                                  color: '#C9A978',
-                                }}
+                                key={topicKey}
+                                className="text-gold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md text-[10px] sm:text-xs font-medium cursor-pointer relative overflow-hidden"
                                 whileHover={{ 
-                                  scale: 1.15, 
-                                  y: -3,
-                                  color: '#ffffff',
+                                  scale: 1.12, 
+                                  y: -2,
                                 }}
+                                onHoverStart={() => setHoveredTopic(topicKey)}
+                                onHoverEnd={() => setHoveredTopic(null)}
                                 transition={{ 
                                   type: "spring", 
-                                  stiffness: 500,
-                                  damping: 25,
-                                  mass: 0.5
+                                  stiffness: 400,
+                                  damping: 30,
+                                  mass: 0.6
                                 }}
                                 style={{ 
                                   willChange: 'transform',
+                                  transform: 'translateZ(0)',
+                                  backfaceVisibility: 'hidden',
+                                  WebkitBackfaceVisibility: 'hidden'
                                 }}
                               >
+                                {/* Base gradient background - always visible */}
                                 <motion.span
-                                  className="absolute inset-0 rounded-md bg-gradient-gold-soft -z-10"
-                                  initial={{ opacity: 1 }}
-                                  animate={{ opacity: 1 }}
-                                  whileHover={{ opacity: 0 }}
-                                  transition={{ duration: 0.2 }}
-                                />
-                                <motion.span
-                                  className="absolute inset-0 rounded-md -z-10"
-                                  initial={{ 
-                                    backgroundColor: 'transparent',
-                                    boxShadow: 'none',
-                                    opacity: 0
+                                  className="absolute inset-0 rounded-md bg-gradient-gold-soft pointer-events-none"
+                                  style={{
+                                    zIndex: 0,
+                                    transform: 'translateZ(0)',
+                                    backfaceVisibility: 'hidden',
+                                    WebkitBackfaceVisibility: 'hidden'
                                   }}
                                   animate={{ 
-                                    backgroundColor: 'transparent',
-                                    boxShadow: 'none',
-                                    opacity: 0
+                                    opacity: isHovered ? 0 : 1
                                   }}
-                                  whileHover={{ 
-                                    backgroundColor: '#00275E',
-                                    boxShadow: '0 4px 12px rgba(5, 11, 35, 0.3)',
-                                    opacity: 1
+                                  transition={{ 
+                                    duration: 0.3,
+                                    ease: [0.4, 0, 0.2, 1]
                                   }}
-                                  transition={{ duration: 0.2 }}
                                 />
-                                <span className="relative z-0">{topic}</span>
+                                {/* Hover blue background */}
+                                <motion.span
+                                  className="absolute inset-0 rounded-md pointer-events-none"
+                                  style={{
+                                    backgroundColor: '#00275E',
+                                    zIndex: 0,
+                                    transform: 'translateZ(0)',
+                                    backfaceVisibility: 'hidden',
+                                    WebkitBackfaceVisibility: 'hidden'
+                                  }}
+                                  animate={{ 
+                                    opacity: isHovered ? 1 : 0,
+                                    scale: isHovered ? 1 : 0.95,
+                                    boxShadow: isHovered ? '0 4px 12px rgba(5, 11, 35, 0.3)' : 'none'
+                                  }}
+                                  transition={{ 
+                                    duration: 0.3,
+                                    ease: [0.4, 0, 0.2, 1]
+                                  }}
+                                />
+                                {/* Text content */}
+                                <motion.span
+                                  className="relative z-10 block pointer-events-none"
+                                  animate={{ 
+                                    color: isHovered ? '#ffffff' : '#C9A978'
+                                  }}
+                                  transition={{ 
+                                    duration: 0.3,
+                                    ease: [0.4, 0, 0.2, 1]
+                                  }}
+                                  style={{
+                                    willChange: 'color',
+                                    transform: 'translateZ(0)',
+                                    backfaceVisibility: 'hidden',
+                                    WebkitBackfaceVisibility: 'hidden'
+                                  }}
+                                >
+                              {topic}
+                                </motion.span>
                               </motion.span>
-                            ))}
-                          </motion.div>
-                        </motion.div>
+                            )
+                          })}
+                          </div>
+                        </div>
                       )}
                       
-                      <motion.div 
-                        className="mb-4 sm:mb-6"
-                        initial={{ opacity: 0 }}
-                        animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-                        transition={{ delay: idx * 0.1 + 0.5 }}
-                      >
+                      <div className="mb-4 sm:mb-6">
                         <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">Career Paths:</p>
                         <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{course.careers.join(', ')}</p>
-                      </motion.div>
+                      </div>
                       
                       {/* Know More Button with Enhanced Animation */}
                       <motion.button
