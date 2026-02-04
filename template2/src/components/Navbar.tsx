@@ -186,7 +186,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50">
       {/* Main Navigation Bar Container */}
       <div className="w-full px-8">
-        <div className="relative flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch h-30 md:gap-8">
+        <div className="relative flex flex-row md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch h-30 md:gap-8">
           {/* LOGO SECTION */}
           <div className="flex-shrink-0 flex justify-start">
             <motion.div
@@ -212,7 +212,7 @@ const Navbar = () => {
             </motion.div>
           </div>
           {/* DESKTOP NAVIGATION ITEMS */}
-          <div className="hidden min-w-[800px] md:flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto relative -top-6">
+          <div className="hidden min-w-[800px] md:flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto">
             {renderDesktopNavItems()}
           </div>
 
