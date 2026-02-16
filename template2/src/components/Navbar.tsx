@@ -1,11 +1,138 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Logo from '../assets/images/logo_1.png'
 
+const MOBILE_BREAKPOINT = 768
+const TABLET_BREAKPOINT = 1024
+/** Scroll range: animation target reaches 1 when user has scrolled this fraction of viewport height */
+const SCROLL_RANGE_VH = 0.2
+/** Lerp factor for slow, visible animation (0.02–0.04 = slow catch-up even when scrolling fast) */
+const ANIM_LERP = 0.028
+const LEAVE_LERP = 0.06
+/** On mobile/tablet: show navbar gradient + blur only after user has scrolled past this (px) */
+const SCROLL_THRESHOLD_FOR_NAV_BG = 16
+
+function useMobileScrollCollapse() {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT)
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(() => typeof window !== 'undefined' && window.innerWidth < TABLET_BREAKPOINT)
+  const [scrolledForNavBg, setScrolledForNavBg] = useState(false)
+  const [animatedProgress, setAnimatedProgress] = useState(0)
+  const [animatedLeaveProgress, setAnimatedLeaveProgress] = useState(0)
+  const progressRef = useRef(0)
+  const leaveProgressRef = useRef(0)
+  const animatedRef = useRef(0)
+  const animatedLeaveRef = useRef(0)
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth
+      const mobile = w < MOBILE_BREAKPOINT
+      const mobileOrTablet = w < TABLET_BREAKPOINT
+      setIsMobile(mobile)
+      setIsMobileOrTablet(mobileOrTablet)
+
+      const H = window.innerHeight
+      const maxScroll = SCROLL_RANGE_VH * H
+      const scrollY = window.scrollY
+
+      if (mobileOrTablet) {
+        setScrolledForNavBg(scrollY > SCROLL_THRESHOLD_FOR_NAV_BG)
+        if (mobile) {
+          const p = maxScroll <= 0 ? 0 : Math.min(1, scrollY / maxScroll)
+          progressRef.current = p
+        } else {
+          progressRef.current = 0
+        }
+        leaveProgressRef.current = 0
+      } else {
+        setScrolledForNavBg(false)
+        progressRef.current = 0
+        leaveProgressRef.current = 0
+      }
+    }
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
+
+  useEffect(() => {
+    animatedRef.current = animatedProgress
+  }, [animatedProgress])
+  useEffect(() => {
+    animatedLeaveRef.current = animatedLeaveProgress
+  }, [animatedLeaveProgress])
+
+  useEffect(() => {
+    if (!isMobile) {
+      setAnimatedProgress(0)
+      animatedRef.current = 0
+    }
+    if (!isMobileOrTablet) {
+      setAnimatedLeaveProgress(0)
+      animatedLeaveRef.current = 0
+    }
+    let rafId: number
+    const tick = () => {
+      if (isMobile) {
+        const target = progressRef.current
+        const current = animatedRef.current
+        const diff = target - current
+        if (Math.abs(diff) < 0.001) {
+          if (current !== target) {
+            animatedRef.current = target
+            setAnimatedProgress(target)
+          }
+        } else {
+          const next = current + diff * ANIM_LERP
+          animatedRef.current = next
+          setAnimatedProgress(next)
+        }
+      }
+      if (isMobileOrTablet) {
+        const leaveTarget = leaveProgressRef.current
+        const leaveCurrent = animatedLeaveRef.current
+        const leaveDiff = leaveTarget - leaveCurrent
+        if (Math.abs(leaveDiff) < 0.002) {
+          if (leaveCurrent !== leaveTarget) {
+            animatedLeaveRef.current = leaveTarget
+            setAnimatedLeaveProgress(leaveTarget)
+          }
+        } else {
+          const nextLeave = leaveCurrent + leaveDiff * LEAVE_LERP
+          animatedLeaveRef.current = nextLeave
+          setAnimatedLeaveProgress(nextLeave)
+        }
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [isMobile, isMobileOrTablet])
+
+  // On mobile/tablet: no scroll animations (progress and leaveProgress stay 0). scrolledForNavBg = show gradient+blur after scroll.
+  return {
+    isMobile,
+    isMobileOrTablet,
+    progress: isMobileOrTablet ? 0 : animatedProgress,
+    leaveProgress: isMobileOrTablet ? 0 : animatedLeaveProgress,
+    scrolledForNavBg,
+  }
+}
+
+/** Final values when scroll progress = 1 (at 50vh) */
+const MENU_X_END = -32
+const PHONE_X_END = 32
+const LOGO_SCALE_END = 0.42
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  
+  const { isMobile, isMobileOrTablet, progress, leaveProgress, scrolledForNavBg } = useMobileScrollCollapse()
+
   // Hover state for navigation items
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   
@@ -181,24 +308,76 @@ const Navbar = () => {
     ))
   }
 
-  // MAIN RENDER  
   return (
-    <nav className="sticky top-0 z-50">
-      {/* Main Navigation Bar Container */}
-      <div className="w-full px-8">
-        <div className="relative flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch h-30 md:gap-8">
-          {/* LOGO SECTION */}
-          <div className="flex-shrink-0 flex justify-start">
+    <motion.nav
+      className={`sticky z-50 max-lg:-top-2 lg:top-0 transition-[background] duration-300 ${scrolledForNavBg ? 'max-lg:bg-gradient-to-b max-lg:from-offwhite max-lg:via-offwhite/80 max-lg:to-transparent' : ''}`}
+    >
+      {/* Small screens: blur layer with gradient mask — high blur at top, fully faded before bottom (no edge) */}
+      {scrolledForNavBg && (
+        <div
+          className="max-lg:absolute max-lg:inset-0 max-lg:pointer-events-none max-lg:z-0"
+          style={{
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
+            maskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 70%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 70%)',
+          }}
+          aria-hidden
+        />
+      )}
+      {/* Main Navigation Bar Container — mobile/tablet: reduced padding and height; desktop: default */}
+      {/* Navbar height on mobile/tablet: max-lg:min-h-[2.25rem] (edit both). Logo size: max-lg:w-10 max-lg:h-10 (40px). Desktop: full logo w-[10rem] h-[10rem]. */}
+      <div className="relative z-10 w-full max-lg:px-3 max-lg:pt-2 max-lg:pb-0.5 lg:px-8 lg:py-0">
+        <motion.div
+          className="max-lg:min-h-[4.25rem] min-h-[3.5rem] md:min-h-0 max-lg:-mt-5"
+          animate={{
+            opacity: isMobileOrTablet ? 1 - leaveProgress : 1,
+            y: isMobileOrTablet ? -20 * leaveProgress : 0,
+          }}
+          transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{ willChange: isMobileOrTablet ? 'opacity, transform' : 'auto' }}
+        >
+          <div className="relative flex flex-row md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch max-lg:min-h-[4.25rem] max-lg:h-auto md:h-30 md:gap-8 min-h-[3.5rem] md:min-h-0">
+            {/* MOBILE: menu icon (left) — animates toward left when user scrolls down */}
+          <button
+            onClick={toggleMobileMenu}
+            className="md:hidden order-1 flex-shrink-0 focus:outline-none z-50 p-2 -ml-1 transition-colors duration-300 text-navy"
+            aria-label="Toggle menu"
+            {...(isOpen && { 'aria-expanded': true })}
+          >
+            <motion.div
+              animate={{
+                rotate: isOpen ? 180 : 0,
+                x: isMobile ? progress * MENU_X_END : 0,
+              }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {isOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </motion.div>
+          </button>
+
+          {/* LOGO SECTION — mobile: center, shrinks when user scrolls; desktop: left */}
+          <div className="order-2 flex-1 flex justify-center md:order-none md:flex-initial md:justify-start flex-shrink-0 py-0 md:py-0">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-3"
+              animate={{
+                scale: isMobile ? 1 + (LOGO_SCALE_END - 1) * progress : 1,
+              }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="flex items-center justify-center md:justify-start gap-3 origin-center"
             >
               <Link to="/" className="relative inline-flex items-center gap-3" aria-label="Home">
                 <img 
                   src={Logo} 
                   alt="MegaRyse Logo" 
-                  className="w-[10rem] h-[10rem] object-contain"
+                  className="max-lg:w-18 max-lg:h-18 w-[10rem] h-[10rem] object-contain"
                   loading="lazy" 
                 />
                 {/* Logo glow effect on hover */}
@@ -211,13 +390,31 @@ const Navbar = () => {
               </Link>
             </motion.div>
           </div>
+
           {/* DESKTOP NAVIGATION ITEMS */}
           <div className="hidden min-w-[800px] md:flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto relative -top-6">
             {renderDesktopNavItems()}
           </div>
 
-          <div className="flex-shrink-0 flex justify-end">
+          {/* MOBILE: phone icon (right), animates toward right when user scrolls; DESKTOP: Enquire Now */}
+          <div className="order-3 flex-shrink-0 flex justify-end items-center gap-4 py-0 md:py-0">
             <motion.div
+              className="md:hidden"
+              animate={{ x: isMobile ? progress * PHONE_X_END : 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              <Link
+                to="/contact"
+                className="p-2 text-gold hover:text-gold-bright transition-colors duration-300 -mr-1 block"
+                aria-label="Contact us"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V21a2 2 0 01-2 2h-1C9.716 23 3 16.284 3 8V5z" />
+                </svg>
+              </Link>
+            </motion.div>
+            <motion.div
+              className="hidden md:block"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -227,7 +424,6 @@ const Navbar = () => {
                 aria-label="Contact us"
               >
                 <span className="relative z-10">ENQUIRE NOW</span>
-                {/* Gradient overlay on hover */}
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-gold to-gold-bright"
                   initial={{ x: '-100%' }}
@@ -237,28 +433,8 @@ const Navbar = () => {
               </Link>
             </motion.div>
           </div>
-
-          {/* MOBILE MENU TOGGLE BUTTON */}
-          <button
-            onClick={toggleMobileMenu}
-            className="md:hidden focus:outline-none absolute right-8 z-50 transition-colors duration-300 text-navy"
-            aria-label="Toggle menu"
-            {...(isOpen && { 'aria-expanded': true })}
-          >
-            <motion.div
-              animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </motion.div>
-          </button>
-        </div>
+          </div>
+        </motion.div>
       </div>
       
       {/* MOBILE MENU */}
@@ -295,7 +471,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   )
 }
 

@@ -1,6 +1,23 @@
 import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
+
+// Breakpoint for "tablet and up" — below this we show Feature section as list (no scroll animations)
+const FEATURE_ANIMATION_BREAKPOINT_PX = 768
+
+function useIsTabletOrDesktop() {
+  const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= FEATURE_ANIMATION_BREAKPOINT_PX : true
+  )
+  useEffect(() => {
+    const m = window.matchMedia(`(min-width: ${FEATURE_ANIMATION_BREAKPOINT_PX}px)`)
+    const update = () => setIsTabletOrDesktop(m.matches)
+    update()
+    m.addEventListener('change', update)
+    return () => m.removeEventListener('change', update)
+  }, [])
+  return isTabletOrDesktop
+}
 import HeroImg2 from '../assets/images/Hero_Img2.png'
 import careerCounsellingImg from '../assets/images/career_counselling.png'
 import admissionProcessImg from '../assets/images/admission_process.png'
@@ -82,14 +99,14 @@ const AnimatedStatCard = memo(function AnimatedStatCard({
       transition={{ duration: 0.6, delay: idx * 0.1 }}
       whileHover={STAT_CARD_HOVER}
       style={{ backgroundColor: '#00275E' }}
-      className="rounded-2xl p-6 shadow-lg text-center group relative overflow-hidden w-full max-w-xs"
+      className="rounded-2xl p-4 sm:p-6 shadow-lg text-center group relative overflow-hidden w-full max-w-xs"
     >
       <div className="relative">
-        <div className="text-3xl mb-3">{stat.icon}</div>
-        <div className="text-4xl font-bold mb-2 text-white group-hover:text-navy transition-colors duration-300">
+        <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">{stat.icon}</div>
+        <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-white group-hover:text-navy transition-colors duration-300">
           {formatStatNumber(count, suffix)}
         </div>
-        <div className="font-medium text-sm text-white/90 group-hover:text-navy transition-colors duration-300">
+        <div className="font-medium text-xs sm:text-sm text-white/90 group-hover:text-navy transition-colors duration-300">
           {stat.label}
         </div>
       </div>
@@ -193,7 +210,7 @@ const TestimonialCard = memo(function TestimonialCard({
         scale: { ...TESTIMONIAL_CARD_TRANSITION, delay },
         y: TESTIMONIAL_CARD_HOVER_TRANSITION,
       }}
-      className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-8 flex-shrink-0 w-full max-w-sm transition-[transform,box-shadow,background-color,border-color] duration-300 ease-out hover:bg-gold/10 hover:border-gold/30 hover:shadow-xl"
+      className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-6 sm:p-8 flex-shrink-0 w-[85vw] min-w-[280px] max-w-sm transition-[transform,box-shadow,background-color,border-color] duration-300 ease-out hover:bg-gold/10 hover:border-gold/30 hover:shadow-xl"
     >
       <div className="flex items-center gap-1 mb-4">
         {STARS.slice(0, testimonial.rating).map((_, i) => (
@@ -220,6 +237,7 @@ const TestimonialCard = memo(function TestimonialCard({
 
 const Home = () => {
   const featuresRef = useRef<HTMLDivElement | null>(null)
+  const isTabletOrDesktop = useIsTabletOrDesktop()
 
   // Active feature highlight state (-1 means "none highlighted yet")
   const [activeFeature, setActiveFeature] = useState<number>(-1)
@@ -390,49 +408,51 @@ const Home = () => {
 
   return (
     <div className="w-full bg-offwhite">
-      {/* Hero Section - unchanged */}
-      <section className="relative pt-0 md:pt-0  bg-offwhite overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative pt-0 bg-offwhite overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-offwhite via-offwhite/95 to-offwhite"></div>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
 
         <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 pt-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
+            {/* Image: on mobile only, show first (above text + buttons); tablet/desktop unchanged */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex justify-center lg:justify-start relative"
+              className="flex justify-center lg:justify-start relative order-1 lg:order-1"
             >
-              <div className="relative">
+              <div className="relative w-full max-w-md sm:max-w-lg">
                 <img
                   src={HeroImg2}
                   alt="Hero"
-                  className="w-full max-w-lg h-auto object-contain relative z-10"
+                  className="w-full h-auto object-contain relative z-10"
                 />
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/15 blur-xl rounded-4xl"></div>
               </div>
             </motion.div>
 
+            {/* Text + CTAs: on mobile only, show below image; tablet/desktop unchanged */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center max-w-4xl mx-auto"
+              className="text-center lg:text-left max-w-4xl mx-auto order-2 lg:order-2"
             >
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="inline-block mb-6"
+                className="inline-block mb-4 sm:mb-6"
               >
-                <span className="bg-[#00275E] text-white px-6 py-2 rounded-full text-sm font-semibold">
+                <span className="bg-[#00275E] text-white px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold">
                   Trusted by 10,000+ Students
                 </span>
               </motion.div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-8 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-6 sm:mb-8 leading-tight">
                 Transform Your Future with
-                <span className="block mt-4 relative">
+                <span className="block mt-3 sm:mt-4 relative">
                   <span className="text-black">World-Class Education</span>
                   <motion.span
                     className="absolute bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-transparent via-gold-bright/40 to-transparent"
@@ -442,20 +462,20 @@ const Home = () => {
                   />
                 </span>
               </h1>
-              <p className="text-xl text-black mb-12 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-black mb-8 sm:mb-12 leading-relaxed max-w-3xl mx-auto lg:mx-0">
                 Join thousands of successful professionals who chose MegaRyse for their career
                 transformation journey
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center lg:justify-start items-center">
                 <Link
                   to="/courses"
-                  className="inline-block bg-gold text-white px-10 py-5 rounded-full font-semibold text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
+                  className="w-full sm:w-auto inline-block text-center bg-gold text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
                 >
                   Explore Programs
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-block border-2 border-gold-bright text-black px-10 py-5 rounded-full font-semibold text-lg hover:bg-[#00275E] hover:text-white hover:border-navy transition-all duration-300"
+                  className="w-full sm:w-auto inline-block text-center border-2 border-gold-bright text-black px-8 sm:px-10 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:bg-[#00275E] hover:text-white hover:border-navy transition-all duration-300"
                 >
                   Schedule Consultation
                 </Link>
@@ -464,10 +484,10 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Stats - unchanged */}
-        <div className="w-full px-4 sm:px-6 lg:px-8 mt-20">
+        {/* Stats */}
+        <div className="w-full px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 md:mt-20">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 justify-items-center">
               {statsForSection.map((stat, idx) => (
                 <AnimatedStatCard key={idx} stat={stat} idx={idx} />
               ))}
@@ -476,183 +496,227 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ========== FEATURES SECTION - Full-width visual when initial; no section padding on row ========== */}
-      <section ref={featuresRef} className="pb-32">
-        <div className="max-w-container mx-auto w-full">
-          <div className="relative" style={featuresSectionStyle}>
-            <motion.div
-              style={{ position: 'sticky', top: 0, height: '100vh' }}
-              className="relative flex flex-col gap-10 pt-32"
-            >
-              <div className="px-6 sm:px-8 lg:px-10">
-                <h2 className="text-5xl font-bold text-center">
+      {/* ========== FEATURES SECTION — list on mobile, scroll animations from tablet up ========== */}
+      <section ref={featuresRef} className="pb-16 md:pb-32">
+        <div className="max-w-container mx-auto w-full px-4 sm:px-6 lg:px-8">
+          {!isTabletOrDesktop ? (
+            /* Mobile: simple list, no scroll animations */
+            <div className="relative pt-12 md:pt-16">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl sm:text-4xl font-bold text-center">
                   Why Choose{' '}
                   <span className="relative">
                     <span className="text-black">MegaRyse</span>
-                    <motion.span
-                      className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.8, delay: 0.3 }}
-                    />
+                    <span className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent" />
                   </span>
                   ?
                 </h2>
-                <p className="text-center text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
+                <p className="text-center text-base sm:text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
                   Your trusted partner in achieving academic and career excellence
                 </p>
               </div>
-
-              <div className="flex items-center relative flex-1 w-full min-w-0">
-                {/* LEFT CONTENT - No padding on wrapper so when width 0% it takes zero space (visual stays centered) */}
-                <motion.div
-                  style={{
-                    width: leftWidth,
-                    opacity: leftOpacity,
-                    x: leftX,
-                    scale: leftScale,
-                    filter: `blur(${leftBlur}px)`,
-                    height: FIXED_HEIGHT,
-                    minWidth: 0,
-                  }}
-                  className="flex flex-col justify-start gap-6 h-full origin-left overflow-y-auto overflow-x-hidden transform-gpu flex-shrink-0"
-                >
-                  <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-start gap-6 flex-1 min-h-0">
-                  {FEATURES_DATA.map((f, i) => (
-                    <motion.div
-                      key={i}
-                      className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-visible transform-gpu"
-                      style={{
-                        minHeight: LEFT_CARD_MIN_HEIGHT,
-                        width: '100%',
-                        opacity: leftItemOpacities[i],
-                        x: leftItemXs[i],
-                      }}
-                    >
-                      {/* Active accent: left border */}
-                      <motion.div
-                        className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${i === activeFeature ? 'bg-gold' : 'bg-transparent'}`}
-                        initial={false}
-                        animate={{
-                          scaleY: i === activeFeature ? 1 : 0.3,
-                          opacity: i === activeFeature ? 1 : 0,
-                        }}
-                        transition={TRANSITION_SMOOTH}
+              <ul className="space-y-6 max-w-2xl mx-auto">
+                {FEATURES_DATA.map((f, i) => (
+                  <li key={i} className="relative pl-6 border-l-2 border-gold/40 bg-white/60 rounded-2xl p-5 shadow-sm">
+                    <div className="flex flex-col gap-3">
+                      <h3 className="text-xl font-bold text-navy">
+                        {f.icon} {f.title}
+                      </h3>
+                      <p className="text-base leading-relaxed text-text">
+                        {f.description}
+                      </p>
+                      <Link
+                        to={f.link}
+                        className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300"
+                      >
+                        <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
+                          {f.linkText}
+                        </span>
+                        <span aria-hidden>→</span>
+                      </Link>
+                    </div>
+                    <div className="mt-4 rounded-xl overflow-hidden bg-navy aspect-video max-h-40">
+                      <img
+                        src={RIGHT_VISUAL_IMAGES[i + 1]}
+                        alt=""
+                        className="w-full h-full object-cover"
                       />
-                      <div className="flex flex-col justify-start py-2 w-full max-w-full">
-                        {/* Title: word stagger with fade + slide; lighter blur for perf */}
-                        <motion.h3
-                          className="text-2xl font-bold mb-2 text-navy transition-colors duration-300"
-                          variants={TITLE_VARIANTS}
-                          initial="hidden"
-                          animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
-                          whileHover={{ x: 4 }}
-                        >
-                          {`${f.icon} ${f.title}`.split(/\s+/).map((word, wi) => (
-                            <motion.span
-                              key={wi}
-                              className="inline-block mr-1.5 align-baseline will-change-transform"
-                              variants={{ hidden: WORD_HIDDEN, visible: WORD_VISIBLE }}
-                            >
-                              {word}
-                            </motion.span>
-                          ))}
-                        </motion.h3>
-                        {/* Description: word stagger; transform-only for smoothness */}
-                        <motion.p
-                          className={`text-base leading-relaxed mb-2 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
-                          variants={DESC_VARIANTS}
-                          initial="hidden"
-                          animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
-                        >
-                          {f.description.split(/\s+/).map((word, wi) => (
-                            <motion.span
-                              key={wi}
-                              className="inline-block mr-1.5 align-baseline will-change-transform"
-                              variants={{ hidden: DESC_WORD_HIDDEN, visible: DESC_WORD_VISIBLE }}
-                            >
-                              {word}{' '}
-                            </motion.span>
-                          ))}
-                        </motion.p>
-                        {/* Link: visibility tied to card opacity; gold theme; arrow animates when link hovered */}
-                        <motion.span
-                          className="inline-block mt-2"
-                          style={{ opacity: leftItemOpacities[i] }}
-                          initial="rest"
-                          whileHover="hover"
-                        >
-                          <Link to={f.link} className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer">
-                            <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
-                              {f.linkText}
-                            </span>
-                            <motion.span
-                              className="inline-block no-underline"
-                              aria-hidden
-                              variants={LINK_ARROW_VARIANTS}
-                              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-                            >
-                              →
-                            </motion.span>
-                          </Link>
-                        </motion.span>
-                      </div>
-                    </motion.div>
-                  ))}
-                  </div>
-                </motion.div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            /* Tablet and desktop: animated scroll section (unchanged logic) */
+            <div className="relative" style={featuresSectionStyle}>
+              <motion.div
+                style={{ position: 'sticky', top: 0, height: '100vh' }}
+                className="relative flex flex-col gap-10 pt-32"
+              >
+                <div className="px-6 sm:px-8 lg:px-10">
+                  <h2 className="text-4xl md:text-5xl font-bold text-center">
+                    Why Choose{' '}
+                    <span className="relative">
+                      <span className="text-black">MegaRyse</span>
+                      <motion.span
+                        className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                      />
+                    </span>
+                    ?
+                  </h2>
+                  <p className="text-center text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
+                    Your trusted partner in achieving academic and career excellence
+                  </p>
+                </div>
 
-                {/* RIGHT VISUAL - Full width of container when initial; equal space both sides = centered */}
-                <motion.div
-                  style={{
-                    width: visualWidth,
-                    height: FIXED_HEIGHT,
-                    minWidth: 0,
-                  }}
-                  className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
-                >
-                  <div className="bg-navy rounded-3xl w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
-                    {RIGHT_VISUAL_IMAGES.map((imgSrc, idx) => {
-                      const isActive = idx === activeFeature + 1
-                      return (
+                <div className="flex items-center relative flex-1 w-full min-w-0">
+                  <motion.div
+                    style={{
+                      width: leftWidth,
+                      opacity: leftOpacity,
+                      x: leftX,
+                      scale: leftScale,
+                      filter: `blur(${leftBlur}px)`,
+                      height: FIXED_HEIGHT,
+                      minWidth: 0,
+                    }}
+                    className="flex flex-col justify-start gap-6 h-full origin-left overflow-y-auto overflow-x-hidden transform-gpu flex-shrink-0"
+                  >
+                    <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-start gap-6 flex-1 min-h-0">
+                    {FEATURES_DATA.map((f, i) => (
+                      <motion.div
+                        key={i}
+                        className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-visible transform-gpu"
+                        style={{
+                          minHeight: LEFT_CARD_MIN_HEIGHT,
+                          width: '100%',
+                          opacity: leftItemOpacities[i],
+                          x: leftItemXs[i],
+                        }}
+                      >
                         <motion.div
-                          key={idx}
-                          className="absolute inset-0 flex items-center justify-center will-change-transform rounded-3xl overflow-hidden"
+                          className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${i === activeFeature ? 'bg-gold' : 'bg-transparent'}`}
                           initial={false}
                           animate={{
-                            opacity: isActive ? 1 : 0,
-                            scale: isActive ? 1 : 0.97,
+                            scaleY: i === activeFeature ? 1 : 0.3,
+                            opacity: i === activeFeature ? 1 : 0,
                           }}
                           transition={TRANSITION_SMOOTH}
-                        >
-                          <img
-                            src={imgSrc}
-                            alt=""
-                            className="w-full h-full object-cover rounded-3xl"
-                          />
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
+                        />
+                        <div className="flex flex-col justify-start py-2 w-full max-w-full">
+                          <motion.h3
+                            className="text-2xl font-bold mb-2 text-navy transition-colors duration-300"
+                            variants={TITLE_VARIANTS}
+                            initial="hidden"
+                            animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
+                            whileHover={{ x: 4 }}
+                          >
+                            {`${f.icon} ${f.title}`.split(/\s+/).map((word, wi) => (
+                              <motion.span
+                                key={wi}
+                                className="inline-block mr-1.5 align-baseline will-change-transform"
+                                variants={{ hidden: WORD_HIDDEN, visible: WORD_VISIBLE }}
+                              >
+                                {word}
+                              </motion.span>
+                            ))}
+                          </motion.h3>
+                          <motion.p
+                            className={`text-base leading-relaxed mb-2 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
+                            variants={DESC_VARIANTS}
+                            initial="hidden"
+                            animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
+                          >
+                            {f.description.split(/\s+/).map((word, wi) => (
+                              <motion.span
+                                key={wi}
+                                className="inline-block mr-1.5 align-baseline will-change-transform"
+                                variants={{ hidden: DESC_WORD_HIDDEN, visible: DESC_WORD_VISIBLE }}
+                              >
+                                {word}{' '}
+                              </motion.span>
+                            ))}
+                          </motion.p>
+                          <motion.span
+                            className="inline-block mt-2"
+                            style={{ opacity: leftItemOpacities[i] }}
+                            initial="rest"
+                            whileHover="hover"
+                          >
+                            <Link to={f.link} className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer">
+                              <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
+                                {f.linkText}
+                              </span>
+                              <motion.span
+                                className="inline-block no-underline"
+                                aria-hidden
+                                variants={LINK_ARROW_VARIANTS}
+                                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                              >
+                                →
+                              </motion.span>
+                            </Link>
+                          </motion.span>
+                        </div>
+                      </motion.div>
+                    ))}
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    style={{
+                      width: visualWidth,
+                      height: FIXED_HEIGHT,
+                      minWidth: 0,
+                    }}
+                    className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
+                  >
+                    <div className="bg-navy rounded-3xl w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
+                      {RIGHT_VISUAL_IMAGES.map((imgSrc, idx) => {
+                        const isActive = idx === activeFeature + 1
+                        return (
+                          <motion.div
+                            key={idx}
+                            className="absolute inset-0 flex items-center justify-center will-change-transform rounded-3xl overflow-hidden"
+                            initial={false}
+                            animate={{
+                              opacity: isActive ? 1 : 0,
+                              scale: isActive ? 1 : 0.97,
+                            }}
+                            transition={TRANSITION_SMOOTH}
+                          >
+                            <img
+                              src={imgSrc}
+                              alt=""
+                              className="w-full h-full object-cover rounded-3xl"
+                            />
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Programs Section - unchanged */}
-      <section className="py-24 bg-offwhite">
+      {/* Programs Section */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-12 md:mb-16"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-black mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 sm:mb-6">
               Discover Your{' '}
               <span className="relative">
                 <span className="text-black">Perfect Program</span>
@@ -665,12 +729,12 @@ const Home = () => {
                 />
               </span>
             </h2>
-            <p className="text-xl text-black max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-black max-w-2xl mx-auto px-2">
               Explore our comprehensive range of courses designed to boost your career
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {PROGRAMS_LIST.map((program, idx) => (
               <motion.div
                 key={idx}
@@ -679,13 +743,13 @@ const Home = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: idx * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-[#00275E] rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all relative overflow-hidden group"
+                className="bg-[#00275E] rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all relative overflow-hidden group"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gold-bright/20 to-transparent rounded-bl-full"></div>
                 <div className="relative">
-                  <div className="text-5xl mb-4">{program.icon}</div>
-                  <h3 className="text-3xl font-bold text-white mb-3">{program.title}</h3>
-                  <p className="text-white/90 mb-6">{program.desc}</p>
+                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">{program.icon}</div>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3">{program.title}</h3>
+                  <p className="text-white/90 mb-4 sm:mb-6 text-sm sm:text-base">{program.desc}</p>
                   <Link
                     to="/courses"
                     className="inline-flex items-center gap-2 text-gold-bright font-semibold hover:gap-4 transition-all group-hover:underline decoration-gold-bright"
@@ -700,17 +764,17 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials Section - unchanged */}
-      <section className="py-24 bg-offwhite">
+      {/* Testimonials Section */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-12 md:mb-16"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-black mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 sm:mb-6">
               Success{' '}
               <span className="relative">
                 <span className="text-black">Stories</span>
@@ -723,18 +787,18 @@ const Home = () => {
                 />
               </span>
             </h2>
-            <p className="text-xl text-black">
+            <p className="text-base sm:text-lg md:text-xl text-black px-2">
               Real experiences from our students and professionals
             </p>
           </motion.div>
 
           <div
-            className="overflow-hidden"
+            className="overflow-x-auto overflow-y-hidden md:overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 md:mx-0 md:px-0"
             onMouseEnter={handleTestimonialMouseEnter}
             onMouseLeave={handleTestimonialMouseLeave}
           >
             <motion.div
-              className="flex gap-8 py-4 will-change-transform"
+              className="flex gap-6 sm:gap-8 py-4 will-change-transform min-w-max md:min-w-0"
               style={testimonialTrackStyle}
             >
               {DUPLICATED_TESTIMONIALS.map((testimonial, idx) => (
@@ -745,34 +809,34 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section - unchanged */}
-      <section className="py-24 bg-gradient-to-r from-offwhite via-offwhite to-offwhite">
+      {/* CTA Section */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-r from-offwhite via-offwhite to-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-[#00275E] rounded-3xl p-12 md:p-16 shadow-2xl text-center relative overflow-hidden"
+            className="bg-[#00275E] rounded-2xl sm:rounded-3xl p-8 sm:p-10 md:p-12 lg:p-16 shadow-2xl text-center relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#00275E] via-[#00275E] to-gold/10"></div>
             <div className="relative">
-              <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
                 Ready to Start Your Journey?
               </h2>
-              <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
                 Join thousands of successful professionals. Let's build your future together!
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
                 <Link
                   to="/contact"
-                  className="inline-block bg-gold text-white px-12 py-5 rounded-full font-semibold text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
+                  className="w-full sm:w-auto inline-block text-center bg-gold text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
                 >
                   Get Started Today
                 </Link>
                 <Link
                   to="/courses"
-                  className="inline-block border-2 border-gold-bright text-white px-12 py-5 rounded-full font-semibold text-lg hover:bg-gold-bright hover:text-navy transition-all duration-300"
+                  className="w-full sm:w-auto inline-block text-center border-2 border-gold-bright text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:bg-gold-bright hover:text-navy transition-all duration-300"
                 >
                   Browse Programs
                 </Link>

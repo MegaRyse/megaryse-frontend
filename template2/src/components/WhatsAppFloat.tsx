@@ -24,8 +24,9 @@ export default function WhatsAppFloat({ phoneNumber = DEFAULT_WHATSAPP_NUMBER, m
       animate={SYNC_ANIMATE}
       transition={PULSE_TRANSITION}
     >
+      {/* Direct Enquiry tag: tablet and desktop only; hidden on mobile */}
       <motion.span
-        className="rounded-lg bg-gold px-3 py-1.5 text-xs font-medium text-white shadow-md"
+        className="hidden md:inline-block rounded-lg bg-gold px-3 py-1.5 text-xs font-medium text-white shadow-md"
       >
         Direct Enquiry
       </motion.span>
