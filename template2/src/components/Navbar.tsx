@@ -230,7 +230,7 @@ const Navbar = () => {
           
           {/* Navigation item text */}
           <span 
-            className={`relative z-10 text-sm font-bold transition-all duration-200 whitespace-nowrap inline-block ${
+            className={`relative z-10 text-sm font-bold transition-all duration-200 whitespace-nowrap inline-block md:text-xs lg:text-sm ${
               isItemActive
                 ? activeTextColorClass
                 : isItemHovered
@@ -327,9 +327,9 @@ const Navbar = () => {
       )}
       {/* Main Navigation Bar Container — mobile/tablet: reduced padding and height; desktop: default */}
       {/* Navbar height on mobile/tablet: max-lg:min-h-[2.25rem] (edit both). Logo size: max-lg:w-10 max-lg:h-10 (40px). Desktop: full logo w-[10rem] h-[10rem]. */}
-      <div className="relative z-10 w-full max-lg:px-3 max-lg:pt-2 max-lg:pb-0.5 lg:px-8 lg:py-0">
+      <div className="relative z-10 w-full px-3 max-md:pt-2 max-md:pb-0.5 md:px-4 md:py-0 lg:px-6 xl:px-8">
         <motion.div
-          className="max-lg:min-h-[4.25rem] min-h-[3.5rem] md:min-h-0 max-lg:-mt-5"
+          className="max-md:min-h-[4.25rem] max-md:-mt-5 min-h-[3.5rem] md:min-h-0"
           animate={{
             opacity: isMobileOrTablet ? 1 - leaveProgress : 1,
             y: isMobileOrTablet ? -20 * leaveProgress : 0,
@@ -337,7 +337,7 @@ const Navbar = () => {
           transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
           style={{ willChange: isMobileOrTablet ? 'opacity, transform' : 'auto' }}
         >
-          <div className="relative flex flex-row md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch max-lg:min-h-[4.25rem] max-lg:h-auto md:h-30 md:gap-8 min-h-[3.5rem] md:min-h-0">
+          <div className="relative flex flex-row md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch max-md:min-h-[4.25rem] max-md:h-auto min-h-[3.5rem] md:h-24 md:min-h-0 md:gap-4 lg:h-28 lg:gap-6 xl:h-30 xl:gap-8">
             {/* MOBILE: menu icon (left) — animates toward left when user scrolls down */}
           <button
             onClick={toggleMobileMenu}
@@ -377,7 +377,7 @@ const Navbar = () => {
                 <img 
                   src={Logo} 
                   alt="MegaRyse Logo" 
-                  className="max-lg:w-18 max-lg:h-18 w-[10rem] h-[10rem] object-contain"
+                  className="max-md:w-10 max-md:h-10 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
                   loading="lazy" 
                 />
                 {/* Logo glow effect on hover */}
@@ -391,13 +391,13 @@ const Navbar = () => {
             </motion.div>
           </div>
 
-          {/* DESKTOP NAVIGATION ITEMS */}
-          <div className="hidden min-w-[800px] md:flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto relative -top-6">
+          {/* DESKTOP NAVIGATION ITEMS — visible from 768px, proportional scaling */}
+          <div className="hidden md:flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto relative flex-1 min-w-0 max-w-2xl md:px-2 md:py-1.5 md:-top-4 lg:px-4 lg:py-2 lg:-top-5 xl:-top-6">
             {renderDesktopNavItems()}
           </div>
 
-          {/* MOBILE: phone icon (right), animates toward right when user scrolls; DESKTOP: Enquire Now */}
-          <div className="order-3 flex-shrink-0 flex justify-end items-center gap-4 py-0 md:py-0">
+          {/* Until 767px: phone icon; from 768px: Enquire Now button only */}
+          <div className="order-3 flex-shrink-0 flex justify-end items-center gap-2 md:gap-4 py-0 md:py-0">
             <motion.div
               className="md:hidden"
               animate={{ x: isMobile ? progress * PHONE_X_END : 0 }}
@@ -420,7 +420,7 @@ const Navbar = () => {
             >
               <Link
                 to="/contact"
-                className="relative inline-block bg-gold text-white px-6 py-2.5 rounded-lg font-semibold text-sm overflow-hidden group"
+                className="relative inline-block bg-gold text-white whitespace-nowrap rounded-lg font-semibold overflow-hidden group md:px-4 md:py-2 md:text-xs lg:px-5 lg:py-2.5 lg:text-sm xl:px-6 xl:text-sm"
                 aria-label="Contact us"
               >
                 <span className="relative z-10">ENQUIRE NOW</span>
