@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { CareersFormModal } from '../components/careersFormModal'
 
 interface Benefit {
   title: string
@@ -43,6 +43,15 @@ const BenefitCard = ({ benefit, idx }: { benefit: Benefit; idx: number }) => {
 }
 
 const Careers = () => {
+  const [applyModalOpen, setApplyModalOpen] = useState(false)
+  const [applyPositionTitle, setApplyPositionTitle] = useState<string | undefined>(undefined)
+
+  const openApplyModal = useCallback((positionTitle?: string) => {
+    setApplyPositionTitle(positionTitle)
+    setApplyModalOpen(true)
+  }, [])
+  const closeApplyModal = useCallback(() => setApplyModalOpen(false), [])
+
   const positions = [
     {
       title: 'Education Counselor',
@@ -278,12 +287,13 @@ const Careers = () => {
                     <span>{position.type}</span>
                   </div>
                 </div>
-                <Link
-                  to="/contact"
-                  className="inline-block bg-gradient-gold text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+                <button
+                  type="button"
+                  onClick={() => openApplyModal(position.title)}
+                  className="inline-block bg-gradient-gold text-black px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
                 >
                   Apply Now
-                </Link>
+                </button>
               </motion.div>
             ))}
           </div>
@@ -303,12 +313,18 @@ const Careers = () => {
               Send us your resume, and we'll get in touch.
             </p>
             <div className="space-y-2 text-gray-700">
-              <p><strong>Apply Now:</strong> careers@megaryse.com</p>
-              <p><strong>Call Us:</strong> +1 (555) 123-4567</p>
+              <p><strong>Apply Now:</strong> hr@megaryse.com</p>
+              <p><strong>Call Us:</strong> +918431867374</p>
             </div>
           </motion.div>
         </div>
       </section>
+
+      <CareersFormModal
+        isOpen={applyModalOpen}
+        onClose={closeApplyModal}
+        positionTitle={applyPositionTitle}
+      />
     </div>
   )
 }
