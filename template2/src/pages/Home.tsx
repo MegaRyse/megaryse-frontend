@@ -2,8 +2,9 @@ import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } fr
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
 
-// Breakpoint for "tablet and up" — below this we show Feature section as list (no scroll animations)
-const FEATURE_ANIMATION_BREAKPOINT_PX = 768
+// Feature section: list layout for mobile + tablet (< 1024px); scroll animations only on desktop (>= 1024px).
+// Screens > 767px are unchanged for the animated section — we only switch which layout is shown.
+const FEATURE_ANIMATION_BREAKPOINT_PX = 1024
 
 function useIsTabletOrDesktop() {
   const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(() =>
@@ -156,7 +157,7 @@ const VISUAL_MIN_WIDTH_RATIO = 0.6
 const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
 const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
 const FIXED_HEIGHT = '62vh'
-const LEFT_CARD_MIN_HEIGHT = '16vh'
+const LEFT_CARD_MIN_HEIGHT = '18vh'
 const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
 const WIDTH_SETTLE_END = SHRINK_START + 0.16
 const REVEAL_END = SHRINK_START + 0.52
@@ -373,12 +374,13 @@ const Home = () => {
   }, [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity])
 
   const [isHovered, setIsHovered] = useState(false)
+  const [isPausedByClick, setIsPausedByClick] = useState(false)
   const x = useMotionValue(0)
 
   const TESTIMONIALS_LEN = TESTIMONIALS_DATA.length
   const TESTIMONIALS_SCROLL_RESET = -(TESTIMONIALS_LEN * 400)
   useAnimationFrame((_time, delta) => {
-    if (!isHovered) {
+    if (!isHovered && !isPausedByClick) {
       const speed = 0.1
       x.set(x.get() - delta * speed)
       if (x.get() <= TESTIMONIALS_SCROLL_RESET) x.set(0)
@@ -405,6 +407,7 @@ const Home = () => {
   const testimonialTrackStyle = useMemo(() => ({ x, display: 'flex' as const }), [x])
   const handleTestimonialMouseEnter = useCallback(() => setIsHovered(true), [])
   const handleTestimonialMouseLeave = useCallback(() => setIsHovered(false), [])
+  const handleTestimonialClick = useCallback(() => setIsPausedByClick((prev) => !prev), [])
 
   return (
     <div className="w-full bg-offwhite">
@@ -500,51 +503,55 @@ const Home = () => {
       <section ref={featuresRef} className="pb-16 md:pb-32">
         <div className="max-w-container mx-auto w-full px-4 sm:px-6 lg:px-8">
           {!isTabletOrDesktop ? (
-            /* Mobile: simple list, no scroll animations */
-            <div className="relative pt-12 md:pt-16">
-              <div className="text-center mb-10">
-                <h2 className="text-3xl sm:text-4xl font-bold text-center">
-                  Why Choose{' '}
-                  <span className="relative">
-                    <span className="text-black">MegaRyse</span>
-                    <span className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent" />
-                  </span>
-                  ?
-                </h2>
-                <p className="text-center text-base sm:text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
-                  Your trusted partner in achieving academic and career excellence
-                </p>
+            /* Mobile + tablet (< 1024px): list layout — centered and aligned for a clean UI */
+            <div className="relative pt-12 sm:pt-14 md:pt-16 flex flex-col items-center">
+              <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8">
+                <div className="text-center mb-10 sm:mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-navy">
+                    Why Choose{' '}
+                    <span className="relative inline-block">
+                      <span className="text-black">MegaRyse</span>
+                      <span className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent" />
+                    </span>
+                    ?
+                  </h2>
+                  <p className="text-base sm:text-lg text-gray-600 mt-3 max-w-xl mx-auto">
+                    Your trusted partner in achieving academic and career excellence
+                  </p>
+                </div>
+                <ul className="space-y-6 sm:space-y-8 w-full list-none p-0 m-0">
+                  {FEATURES_DATA.map((f, i) => (
+                    <li key={i} className="w-full flex flex-col items-stretch">
+                      <div className="relative pl-5 sm:pl-6 border-l-2 border-gold/40 bg-white/60 rounded-2xl p-4 sm:p-5 shadow-sm w-full box-border">
+                        <div className="flex flex-col gap-3 w-full min-w-0">
+                          <h3 className="text-xl sm:text-2xl font-bold text-navy">
+                            {f.icon} {f.title}
+                          </h3>
+                          <p className="text-base sm:text-lg leading-relaxed text-text">
+                            {f.description}
+                          </p>
+                          <Link
+                            to={f.link}
+                            className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 w-fit"
+                          >
+                            <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
+                              {f.linkText}
+                            </span>
+                            <span aria-hidden>→</span>
+                          </Link>
+                        </div>
+                        <div className="mt-4 rounded-xl overflow-hidden bg-navy aspect-video max-h-40 sm:max-h-48 w-full">
+                          <img
+                            src={RIGHT_VISUAL_IMAGES[i + 1]}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-6 max-w-2xl mx-auto">
-                {FEATURES_DATA.map((f, i) => (
-                  <li key={i} className="relative pl-6 border-l-2 border-gold/40 bg-white/60 rounded-2xl p-5 shadow-sm">
-                    <div className="flex flex-col gap-3">
-                      <h3 className="text-xl font-bold text-navy">
-                        {f.icon} {f.title}
-                      </h3>
-                      <p className="text-base leading-relaxed text-text">
-                        {f.description}
-                      </p>
-                      <Link
-                        to={f.link}
-                        className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300"
-                      >
-                        <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
-                          {f.linkText}
-                        </span>
-                        <span aria-hidden>→</span>
-                      </Link>
-                    </div>
-                    <div className="mt-4 rounded-xl overflow-hidden bg-navy aspect-video max-h-40">
-                      <img
-                        src={RIGHT_VISUAL_IMAGES[i + 1]}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
             </div>
           ) : (
             /* Tablet and desktop: animated scroll section (unchanged logic) */
@@ -607,9 +614,9 @@ const Home = () => {
                           }}
                           transition={TRANSITION_SMOOTH}
                         />
-                        <div className="flex flex-col justify-start py-2 w-full max-w-full">
+                        <div className="flex flex-col justify-start py-2 w-full max-w-full min-w-0">
                           <motion.h3
-                            className="text-2xl font-bold mb-2 text-navy transition-colors duration-300"
+                            className="text-xl font-bold mb-1.5 text-navy transition-colors duration-300 break-words"
                             variants={TITLE_VARIANTS}
                             initial="hidden"
                             animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
@@ -626,7 +633,7 @@ const Home = () => {
                             ))}
                           </motion.h3>
                           <motion.p
-                            className={`text-base leading-relaxed mb-2 transition-colors duration-300 ${i === activeFeature ? 'text-navy' : 'text-text'}`}
+                            className={`text-sm leading-relaxed mb-1.5 transition-colors duration-300 break-words ${i === activeFeature ? 'text-navy' : 'text-text'}`}
                             variants={DESC_VARIANTS}
                             initial="hidden"
                             animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
@@ -642,7 +649,7 @@ const Home = () => {
                             ))}
                           </motion.p>
                           <motion.span
-                            className="inline-block mt-2"
+                            className="inline-block mt-1.5 text-sm"
                             style={{ opacity: leftItemOpacities[i] }}
                             initial="rest"
                             whileHover="hover"
@@ -764,7 +771,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section — small screens: horizontal auto-scroll, no full-bleed; md+: unchanged */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -792,13 +799,15 @@ const Home = () => {
             </p>
           </motion.div>
 
+          {/* Small screens (< 768px): inset container, horizontal auto-scroll, no negative margin */}
           <div
-            className="overflow-x-auto overflow-y-hidden md:overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 md:mx-0 md:px-0"
+            className="max-md:overflow-hidden max-md:rounded-2xl max-md:bg-offwhite md:overflow-x-auto md:overflow-y-hidden md:-mx-4 lg:-mx-8 md:px-4 lg:px-8"
             onMouseEnter={handleTestimonialMouseEnter}
             onMouseLeave={handleTestimonialMouseLeave}
+            onClick={handleTestimonialClick}
           >
             <motion.div
-              className="flex gap-6 sm:gap-8 py-4 will-change-transform min-w-max md:min-w-0"
+              className="flex gap-4 max-md:gap-5 sm:max-md:gap-6 md:gap-6 lg:gap-8 py-4 max-md:py-5 will-change-transform min-w-max md:min-w-0 max-md:pl-4 max-md:sm:pl-6"
               style={testimonialTrackStyle}
             >
               {DUPLICATED_TESTIMONIALS.map((testimonial, idx) => (

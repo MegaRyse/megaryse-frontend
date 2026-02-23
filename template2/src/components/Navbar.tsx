@@ -5,6 +5,18 @@ import Logo from '../assets/images/logo_1.png'
 
 const MOBILE_BREAKPOINT = 768
 const TABLET_BREAKPOINT = 1024
+
+/** === Control mobile navbar (screens < 768px) === */
+/** Logo size in pixels (width and height). */
+const MOBILE_LOGO_SIZE_PX = 150
+/** Navbar bar min-height in rem (1rem = 16px). e.g. 4.25 = 68px. */
+const MOBILE_NAVBAR_MIN_HEIGHT_REM = 5.25
+/** Top/bottom padding of navbar container in rem. */
+const MOBILE_NAVBAR_PADDING_TOP_REM = 0.5
+const MOBILE_NAVBAR_PADDING_BOTTOM_REM = 0.125
+/** Horizontal padding of navbar container in rem. */
+const MOBILE_NAVBAR_PADDING_X_REM = 0.75
+
 /** Scroll range: animation target reaches 1 when user has scrolled this fraction of viewport height */
 const SCROLL_RANGE_VH = 0.2
 /** Lerp factor for slow, visible animation (0.02–0.04 = slow catch-up even when scrolling fast) */
@@ -131,7 +143,7 @@ const LOGO_SCALE_END = 0.42
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { isMobile, isMobileOrTablet, progress, leaveProgress, scrolledForNavBg } = useMobileScrollCollapse()
+  const { isMobile, progress, scrolledForNavBg } = useMobileScrollCollapse()
 
   // Hover state for navigation items
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
@@ -287,10 +299,10 @@ const Navbar = () => {
         <Link
           to={item.path}
           onClick={closeMobileMenu}
-          className={`block relative px-4 py-3 rounded-lg text-base font-medium transition-all ${
+          className={`block relative px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
             isActive(item.path)
-              ? 'text-navy font-bold bg-gradient-to-r from-gold/20 to-gold-bright/20'
-              : 'text-navy hover:bg-gradient-to-r hover:from-gold/10 hover:to-gold-bright/10'
+              ? 'text-navy font-bold bg-gradient-to-r from-gold/25 to-gold-bright/25 shadow-sm'
+              : 'text-navy hover:bg-white/60 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
           }`}
           aria-label={`Navigate to ${item.label}`}
         >
@@ -310,34 +322,49 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      className={`sticky z-50 max-lg:-top-2 lg:top-0 transition-[background] duration-300 ${scrolledForNavBg ? 'max-lg:bg-gradient-to-b max-lg:from-offwhite max-lg:via-offwhite/80 max-lg:to-transparent' : ''}`}
+      className={`sticky z-50 top-0 transition-[background] duration-300 ${scrolledForNavBg ? 'max-lg:bg-gradient-to-b max-lg:from-offwhite max-lg:via-offwhite/80 max-lg:to-transparent' : ''}`}
     >
-      {/* Small screens: blur layer with gradient mask — high blur at top, fully faded before bottom (no edge) */}
+      {/* Small screens: blur layer when scrolled — uniform blur (no top mask) to avoid "moving up" effect */}
       {scrolledForNavBg && (
         <div
           className="max-lg:absolute max-lg:inset-0 max-lg:pointer-events-none max-lg:z-0"
           style={{
             backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
-            maskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 70%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 70%)',
           }}
           aria-hidden
         />
       )}
-      {/* Main Navigation Bar Container — mobile/tablet: reduced padding and height; desktop: default */}
-      {/* Navbar height on mobile/tablet: max-lg:min-h-[2.25rem] (edit both). Logo size: max-lg:w-10 max-lg:h-10 (40px). Desktop: full logo w-[10rem] h-[10rem]. */}
-      <div className="relative z-10 w-full px-3 max-md:pt-2 max-md:pb-0.5 md:px-4 md:py-0 lg:px-6 xl:px-8">
+      {/* Main Navigation Bar Container — mobile padding/height controlled by MOBILE_* constants at top */}
+      <div
+        className="relative z-10 w-full md:px-4 md:py-0 lg:px-6 xl:px-8"
+        style={
+          isMobile
+            ? {
+                paddingLeft: `${MOBILE_NAVBAR_PADDING_X_REM}rem`,
+                paddingRight: `${MOBILE_NAVBAR_PADDING_X_REM}rem`,
+                paddingTop: `${MOBILE_NAVBAR_PADDING_TOP_REM}rem`,
+                paddingBottom: `${MOBILE_NAVBAR_PADDING_BOTTOM_REM}rem`,
+              }
+            : undefined
+        }
+      >
         <motion.div
-          className="max-md:min-h-[4.25rem] max-md:-mt-5 min-h-[3.5rem] md:min-h-0"
-          animate={{
-            opacity: isMobileOrTablet ? 1 - leaveProgress : 1,
-            y: isMobileOrTablet ? -20 * leaveProgress : 0,
+          className="min-h-[3.5rem] md:min-h-0"
+          style={{
+            ...(isMobile ? { minHeight: `${MOBILE_NAVBAR_MIN_HEIGHT_REM}rem` } : {}),
           }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
-          style={{ willChange: isMobileOrTablet ? 'opacity, transform' : 'auto' }}
         >
-          <div className="relative flex flex-row md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch max-md:min-h-[4.25rem] max-md:h-auto min-h-[3.5rem] md:h-24 md:min-h-0 md:gap-4 lg:h-28 lg:gap-6 xl:h-30 xl:gap-8">
+          <div
+            className="relative flex flex-row md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-items-stretch max-md:h-auto min-h-[3.5rem] md:h-24 md:min-h-0 md:gap-4 lg:h-28 lg:gap-6 xl:h-30 xl:gap-8"
+            style={
+              isMobile
+                ? { minHeight: `${MOBILE_NAVBAR_MIN_HEIGHT_REM}rem` }
+                : undefined
+            }
+          >
             {/* MOBILE: menu icon (left) — animates toward left when user scrolls down */}
           <button
             onClick={toggleMobileMenu}
@@ -374,11 +401,19 @@ const Navbar = () => {
               className="flex items-center justify-center md:justify-start gap-3 origin-center"
             >
               <Link to="/" className="relative inline-flex items-center gap-3" aria-label="Home">
-                <img 
-                  src={Logo} 
-                  alt="MegaRyse Logo" 
-                  className="max-md:w-10 max-md:h-10 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
-                  loading="lazy" 
+                <img
+                  src={Logo}
+                  alt="MegaRyse Logo"
+                  className="md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
+                  style={
+                    isMobile
+                      ? {
+                          width: MOBILE_LOGO_SIZE_PX,
+                          height: MOBILE_LOGO_SIZE_PX,
+                        }
+                      : undefined
+                  }
+                  loading="lazy"
                 />
                 {/* Logo glow effect on hover */}
                 <motion.span
@@ -391,8 +426,8 @@ const Navbar = () => {
             </motion.div>
           </div>
 
-          {/* DESKTOP NAVIGATION ITEMS — visible from 768px, proportional scaling */}
-          <div className="hidden md:flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto relative flex-1 min-w-0 max-w-2xl md:px-2 md:py-1.5 md:-top-4 lg:px-4 lg:py-2 lg:-top-5 xl:-top-6">
+          {/* DESKTOP NAVIGATION ITEMS — visible from 768px; more gap between items on large screens */}
+          <div className="hidden md:flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto relative flex-1 min-w-0 max-w-2xl md:px-2 md:py-1.5 md:-top-4 md:gap-2 lg:px-4 lg:py-2 lg:-top-5 lg:gap-4 xl:-top-6 xl:gap-6">
             {renderDesktopNavItems()}
           </div>
 
@@ -437,7 +472,7 @@ const Navbar = () => {
         </motion.div>
       </div>
       
-      {/* MOBILE MENU */}
+      {/* MOBILE MENU — glassmorphism background, no Enquire Now */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -447,26 +482,16 @@ const Navbar = () => {
             transition={{ duration: 0.3 }}
             className="md:hidden overflow-hidden"
           >
-            <div className="px-8 py-6 space-y-2">
+            <div
+              className="px-6 py-6 space-y-1.5 rounded-b-2xl border-b border-x border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.72)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+              }}
+            >
               {/* Mobile navigation items */}
               {renderMobileNavItems()}
-              
-              {/* Mobile CTA button */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navItems.length * 0.1 }}
-                className="pt-4"
-              >
-                <Link
-                  to="/contact"
-                  onClick={closeMobileMenu}
-                  className="block w-full text-center bg-gold text-white px-6 py-3 rounded-lg font-semibold text-base"
-                  aria-label="Contact us"
-                >
-                  ENQUIRE NOW
-                </Link>
-              </motion.div>
             </div>
           </motion.div>
         )}
