@@ -1,37 +1,18 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getUniversitiesByTab, type University } from '../data/universities'
+
+const LOGOS = ['🏛️', '🎓', '📚', '🌟', '💎', '🏆', '💻', '🌍']
 
 const Universities = () => {
-  const [activeTab, setActiveTab] = useState('undergraduate')
+  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState<'undergraduate' | 'postgraduate' | 'professional'>('undergraduate')
   const [hoveredTab, setHoveredTab] = useState<string | null>(null)
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const [hoveredButton, setHoveredButton] = useState<number | null>(null)
 
-  const universities = {
-    undergraduate: [
-      { name: 'Amity University', desc: 'One of India\'s leading private institutions, renowned for world-class education', logo: '🏛️' },
-      { name: 'Manipal University Jaipur', desc: 'NAAC \'A+\' accredited institution offering top-tier UG & PG programs', logo: '🎓' },
-      { name: 'Sikkim Manipal University', desc: 'Leading private university offering UGC-recognized programs', logo: '📚' },
-      { name: 'NMIMS University', desc: 'Wide range of undergraduate and postgraduate courses', logo: '🌟' },
-      { name: 'Jain University', desc: 'Renowned for academic excellence and industry-driven curriculum', logo: '💎' },
-      { name: 'Chandigarh University', desc: 'Prestigious institution known for excellence in education', logo: '🏆' },
-    ],
-    postgraduate: [
-      { name: 'Amity University', desc: 'World-class education with cutting-edge research', logo: '🏛️' },
-      { name: 'Manipal University Jaipur', desc: 'Top-tier programs in Management and Technology', logo: '🎓' },
-      { name: 'Sikkim Manipal University', desc: 'UGC-recognized programs in Management, IT, Engineering', logo: '📚' },
-      { name: 'Jain University', desc: 'Innovative programs and industry-driven curriculum', logo: '💎' },
-      { name: 'NMIMS University', desc: 'Comprehensive courses designed for career success', logo: '🌟' },
-      { name: 'VIT Online', desc: 'Flexible, high-quality online programs for professionals', logo: '💻' },
-      { name: 'Chandigarh University', desc: 'Excellence in education, research, and innovation', logo: '🏆' },
-    ],
-    professional: [
-      { name: 'NMIMS University', desc: 'Professional certification courses for career advancement', logo: '🌟' },
-      { name: 'VIT Online', desc: 'Industry-relevant certification programs', logo: '💻' },
-    ],
-  }
-
-  const currentUniversities = universities[activeTab as keyof typeof universities]
+  const currentUniversities = getUniversitiesByTab(activeTab)
 
   // Animation variants matching Courses.tsx
   const containerVariants = {
@@ -81,8 +62,10 @@ const Universities = () => {
     })
   }
 
-  const handleKnowMore = (universityName: string) => {
-    console.log(`Know more about: ${universityName}`)
+  const handleUniversitySelect = (uni: University) => {
+    navigate('/courses', {
+      state: { universityName: uni.name, universitySlug: uni.slug },
+    })
   }
 
   return (
@@ -128,7 +111,7 @@ const Universities = () => {
             className="text-center"
           >
             <motion.h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 px-2"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
@@ -136,7 +119,7 @@ const Universities = () => {
               Our Associated Universities
             </motion.h1>
             <motion.p
-              className="text-base sm:text-lg md:text-xl text-gray-600 px-2"
+              className="text-base sm:text-lg text-gray-600 px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
@@ -243,7 +226,7 @@ const Universities = () => {
                   </>
                 )}
                 <motion.button
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setActiveTab(tab.id as 'undergraduate' | 'postgraduate' | 'professional')}
                   className={`relative w-full px-4 py-2.5 sm:px-6 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 z-10 ${
                     activeTab === tab.id
                       ? 'bg-gradient-gold text-black shadow-lg'
@@ -275,7 +258,7 @@ const Universities = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {currentUniversities.map((uni, idx) => (
               <motion.div
-                    key={`${activeTab}-${idx}`}
+                    key={`${activeTab}-${uni.id}`}
                     custom={idx}
                     variants={cardVariants}
                     initial="hidden"
@@ -291,7 +274,7 @@ const Universities = () => {
                     }}
                     onHoverStart={() => setHoveredCard(idx)}
                     onHoverEnd={() => setHoveredCard(null)}
-                    className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100 cursor-pointer relative overflow-hidden group"
+                    className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100 relative overflow-hidden group"
                     style={{
                       transformStyle: 'preserve-3d',
                       perspective: '1000px'
@@ -315,24 +298,25 @@ const Universities = () => {
 
                     {/* Logo */}
                     <div className="text-5xl mb-4 text-center">
-                      {uni.logo}
+                      {LOGOS[uni.id % LOGOS.length]}
                     </div>
 
                     {/* University Name */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 text-center">
                       {uni.name}
                     </h3>
 
-                    {/* Description */}
+                    {/* Description - from data (location + program count) */}
                     <p className="text-gray-600 text-sm leading-relaxed mb-4 text-center">
-                      {uni.desc}
+                      Based in {uni.location}. Offering {uni.courseIds.length} programs
+                      across undergraduate, postgraduate and professional streams.
                     </p>
 
                     {/* Unique Know More Button Animation - Different from Courses */}
                     <motion.button
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleKnowMore(uni.name)
+                        handleUniversitySelect(uni)
                       }}
                       onHoverStart={() => setHoveredButton(idx)}
                       onHoverEnd={() => setHoveredButton(null)}

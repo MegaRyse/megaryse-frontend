@@ -320,17 +320,18 @@ const Navbar = () => {
     ))
   }
 
+  // Theme-based linear gradient for mobile (< 768px): solid at top, transparent at bottom so content appears to disappear under the navbar on scroll. Uses project theme offwhite (#F5F2EA).
+  const mobileNavGradient =
+    'linear-gradient(to bottom, #F5F2EA 0%, #F5F2EA 30%, rgba(245,242,234,0.97) 55%, rgba(245,242,234,0.5) 80%, transparent 100%)'
+
   return (
-    <motion.nav
-      className={`sticky z-50 top-0 transition-[background] duration-300 ${scrolledForNavBg ? 'max-lg:bg-gradient-to-b max-lg:from-offwhite max-lg:via-offwhite/80 max-lg:to-transparent' : ''}`}
-    >
-      {/* Small screens: blur layer when scrolled — uniform blur (no top mask) to avoid "moving up" effect */}
+    <motion.nav className="sticky z-50 top-0 transition-[background] duration-300">
+      {/* Mobile (< 768px) when scrolled: linear gradient only — opaque at top, transparent at bottom (no blur) */}
       {scrolledForNavBg && (
         <div
-          className="max-lg:absolute max-lg:inset-0 max-lg:pointer-events-none max-lg:z-0"
+          className="max-md:absolute max-md:inset-0 max-md:pointer-events-none max-md:z-0"
           style={{
-            backdropFilter: 'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
+            background: mobileNavGradient,
           }}
           aria-hidden
         />
@@ -472,20 +473,20 @@ const Navbar = () => {
         </motion.div>
       </div>
       
-      {/* MOBILE MENU — glassmorphism background, no Enquire Now */}
+      {/* MOBILE MENU — overlay on top of screen (screens < 768px), does not push content */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="md:hidden fixed left-0 right-0 top-[5.875rem] bottom-0 z-40 overflow-y-auto"
           >
             <div
-              className="px-6 py-6 space-y-1.5 rounded-b-2xl border-b border-x border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
+              className="min-h-full px-6 py-6 space-y-1.5 rounded-b-2xl border-b border-x border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
               style={{
-                background: 'rgba(255, 255, 255, 0.72)',
+                background: 'rgba(255, 255, 255, 0.92)',
                 backdropFilter: 'blur(16px)',
                 WebkitBackdropFilter: 'blur(16px)',
               }}

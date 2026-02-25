@@ -64,7 +64,7 @@ const Contact = () => {
       {/* Contact Section */}
       <section className="pt-16 pb-20 sm:pt-20 sm:pb-24 md:pt-24 md:pb-28 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-start">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -83,10 +83,10 @@ const Contact = () => {
                 }}
                 className="mb-12 w-full"
               >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
                   Get In Touch!
                 </h1>
-                <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-lg">
+                <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-lg">
                   Let's take your career to the next level!
                 </p>
               </motion.div>
@@ -225,7 +225,7 @@ const Contact = () => {
                     >
                       ✅
                     </motion.div>
-                    <h3 className="text-2xl font-bold text-white mb-3">Thank You!</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Thank You!</h3>
                     <p className="text-white/90 text-base">We'll get back to you soon.</p>
                   </motion.div>
                 ) : (
