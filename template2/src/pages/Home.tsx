@@ -24,6 +24,8 @@ import careerCounsellingImg from '../assets/images/career_counselling.png'
 import admissionProcessImg from '../assets/images/admission_process.png'
 import programsImg from '../assets/images/programs.png'
 import WhatsAppFloat from '../components/WhatsAppFloat'
+import { coursesMasterData } from '../data/courses'
+import { universitiesData } from '../data/universities'
 
 // Shared transition configs (avoid new object refs every render)
 const TRANSITION_SMOOTH = { duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] as const }
@@ -138,15 +140,6 @@ const TESTIMONIALS_DATA = [
 
 const DUPLICATED_TESTIMONIALS = [...TESTIMONIALS_DATA, ...TESTIMONIALS_DATA]
 
-const PROGRAMS_LIST = [
-  { title: 'MBA', desc: 'Master of Business Administration', icon: '💼' },
-  { title: 'MSC', desc: 'Master of Science', icon: '🔬' },
-  { title: 'MCA', desc: 'Master of Computer Applications', icon: '💻' },
-  { title: 'BBA', desc: 'Bachelor of Business Administration', icon: '📊' },
-  { title: 'B.Com', desc: 'Bachelor of Commerce', icon: '💰' },
-  { title: 'BCA', desc: 'Bachelor of Computer Applications', icon: '⌨️' },
-] as const
-
 // Feature section scroll constants (stable refs) — taller section + stretched ranges so user scrolls more
 const SHRINK_START = 0.2
 const SHRINK_END = 0.8
@@ -211,7 +204,7 @@ const TestimonialCard = memo(function TestimonialCard({
         scale: { ...TESTIMONIAL_CARD_TRANSITION, delay },
         y: TESTIMONIAL_CARD_HOVER_TRANSITION,
       }}
-      className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-6 sm:p-8 flex-shrink-0 w-[85vw] min-w-[280px] max-w-sm transition-[transform,box-shadow,background-color,border-color] duration-300 ease-out hover:bg-gold/10 hover:border-gold/30 hover:shadow-xl"
+      className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-4 sm:p-6 md:p-8 flex-shrink-0 w-[85vw] max-md:min-w-[240px] min-w-[280px] max-w-sm transition-[transform,box-shadow,background-color,border-color] duration-300 ease-out hover:bg-gold/10 hover:border-gold/30 hover:shadow-xl"
     >
       <div className="flex items-center gap-1 mb-4">
         {STARS.slice(0, testimonial.rating).map((_, i) => (
@@ -453,7 +446,7 @@ const Home = () => {
                   Trusted by 10,000+ Students
                 </span>
               </motion.div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-6 sm:mb-8 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-6 sm:mb-8 leading-tight">
                 Transform Your Future with
                 <span className="block mt-3 sm:mt-4 relative">
                   <span className="text-black">World-Class Education</span>
@@ -465,7 +458,7 @@ const Home = () => {
                   />
                 </span>
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-black mb-8 sm:mb-12 leading-relaxed max-w-3xl mx-auto lg:mx-0">
+              <p className="text-base sm:text-lg text-black mb-8 sm:mb-12 leading-relaxed max-w-3xl mx-auto lg:mx-0">
                 Join thousands of successful professionals who chose MegaRyse for their career
                 transformation journey
               </p>
@@ -491,9 +484,20 @@ const Home = () => {
         <div className="w-full px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 md:mt-20">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 justify-items-center">
-              {statsForSection.map((stat, idx) => (
-                <AnimatedStatCard key={idx} stat={stat} idx={idx} />
-              ))}
+              {statsForSection.map((stat, idx) =>
+                stat.label === 'Universities' ? (
+                  <Link
+                    key={idx}
+                    to="/universities"
+                    state={{ from: 'home' }}
+                    className="block w-full max-w-xs"
+                  >
+                    <AnimatedStatCard stat={stat} idx={idx} />
+                  </Link>
+                ) : (
+                  <AnimatedStatCard key={idx} stat={stat} idx={idx} />
+                )
+              )}
             </div>
           </div>
         </div>
@@ -507,7 +511,7 @@ const Home = () => {
             <div className="relative pt-12 sm:pt-14 md:pt-16 flex flex-col items-center">
               <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8">
                 <div className="text-center mb-10 sm:mb-12">
-                  <h2 className="text-3xl sm:text-4xl font-bold text-navy">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-navy">
                     Why Choose{' '}
                     <span className="relative inline-block">
                       <span className="text-black">MegaRyse</span>
@@ -561,7 +565,7 @@ const Home = () => {
                 className="relative flex flex-col gap-10 pt-32"
               >
                 <div className="px-6 sm:px-8 lg:px-10">
-                  <h2 className="text-4xl md:text-5xl font-bold text-center">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
                     Why Choose{' '}
                     <span className="relative">
                       <span className="text-black">MegaRyse</span>
@@ -723,7 +727,7 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-10 sm:mb-12 md:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 sm:mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-4 sm:mb-6">
               Discover Your{' '}
               <span className="relative">
                 <span className="text-black">Perfect Program</span>
@@ -736,38 +740,93 @@ const Home = () => {
                 />
               </span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-black max-w-2xl mx-auto px-2">
+            <p className="text-base sm:text-lg text-black max-w-2xl mx-auto px-2">
               Explore our comprehensive range of courses designed to boost your career
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {PROGRAMS_LIST.map((program, idx) => (
+          {/* Programs from coursesMasterData - show 6 courses + View All */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {coursesMasterData.slice(0, 6).map((course, idx) => (
               <motion.div
-                key={idx}
+                key={course.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-[#00275E] rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all relative overflow-hidden group"
+                transition={{ duration: 0.6, delay: idx * 0.05 }}
+                whileHover={{
+                  y: -6,
+                  scale: 1.02,
+                  boxShadow: '0 20px 40px -12px rgba(0, 39, 94, 0.35), 0 0 0 1px rgba(255, 212, 71, 0.2)',
+                  transition: { duration: 0.25, ease: [0.22, 0.5, 0.35, 0.98] },
+                }}
+                className="bg-[#00275E] rounded-xl p-4 sm:p-5 shadow-md hover:shadow-xl transition-shadow relative overflow-hidden group cursor-default"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gold-bright/20 to-transparent rounded-bl-full"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-gold-bright/15 to-transparent rounded-bl-full" />
                 <div className="relative">
-                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">{program.icon}</div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3">{program.title}</h3>
-                  <p className="text-white/90 mb-4 sm:mb-6 text-sm sm:text-base">{program.desc}</p>
-                  <Link
-                    to="/courses"
-                    className="inline-flex items-center gap-2 text-gold-bright font-semibold hover:gap-4 transition-all group-hover:underline decoration-gold-bright"
-                  >
-                    Learn More
-                    <span>→</span>
-                  </Link>
+                  <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{course.icon}</div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-0.5 sm:mb-1 leading-tight">
+                    {course.fullName}
+                  </h3>
+                  <p className="text-white/70 text-sm mb-2 sm:mb-3">({course.shortName})</p>
+                  <p className="text-white/90 text-sm line-clamp-2 leading-snug">
+                    {course.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mt-8 sm:mt-10 text-center"
+          >
+            <Link
+              to="/courses"
+              className="group inline-flex items-center gap-1.5 text-gold font-semibold hover:text-gold-bright transition-colors"
+            >
+              View All Courses
+              <span className="transition-colors group-hover:text-gold-bright">→</span>
+            </Link>
+          </motion.div>
+
+          {/* Partner Universities - reduced width + auto-scroll */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mt-16 sm:mt-20 max-w-4xl mx-auto"
+          >
+            <h3 className="text-xl sm:text-2xl font-bold text-black mb-6 sm:mb-8 text-center">
+              Our Universities
+            </h3>
+            <div className="overflow-hidden">
+              <div className="flex gap-8 sm:gap-10 w-max animate-partner-scroll">
+                {[...universitiesData, ...universitiesData].map((uni, idx) => (
+                  <Link
+                    key={`${uni.id}-${idx}`}
+                    to="/courses"
+                    state={{ universityName: uni.name, universitySlug: uni.slug }}
+                    className="flex flex-col items-center text-center group flex-shrink-0 w-24 sm:w-28"
+                  >
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-white border border-gray-100 shadow-sm group-hover:shadow-md group-hover:border-gold/30 transition-all flex-shrink-0 mb-2">
+                      <img
+                        src={uni.logo}
+                        alt={uni.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-[#00275E] transition-colors line-clamp-2">
+                      {uni.name}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -781,7 +840,7 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-10 sm:mb-12 md:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 sm:mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-4 sm:mb-6">
               Success{' '}
               <span className="relative">
                 <span className="text-black">Stories</span>
@@ -794,7 +853,7 @@ const Home = () => {
                 />
               </span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-black px-2">
+            <p className="text-base sm:text-lg text-black px-2">
               Real experiences from our students and professionals
             </p>
           </motion.div>
@@ -826,14 +885,14 @@ const Home = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-[#00275E] rounded-2xl sm:rounded-3xl p-8 sm:p-10 md:p-12 lg:p-16 shadow-2xl text-center relative overflow-hidden"
+            className="bg-[#00275E] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 lg:p-16 shadow-2xl text-center relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#00275E] via-[#00275E] to-gold/10"></div>
             <div className="relative">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">
                 Ready to Start Your Journey?
               </h2>
-              <p className="text-base sm:text-lg md:text-xl text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
                 Join thousands of successful professionals. Let's build your future together!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">

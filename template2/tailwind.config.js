@@ -25,6 +25,15 @@ export default {
         'gradient-gold-soft': 'linear-gradient(135deg, rgba(201,169,120,0.08) 0%, rgba(213,173,54,0.12) 100%)',
         'gradient-hero': 'linear-gradient(135deg, rgba(201, 169, 120, 0.05) 0%, rgba(24, 31, 101, 0.8) 50%, rgba(201, 169, 120, 0.04) 100%)',
       },
+      keyframes: {
+        'partner-scroll': {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+      },
+      animation: {
+        'partner-scroll': 'partner-scroll 25s linear infinite',
+      },
     },
   },
   plugins: [],

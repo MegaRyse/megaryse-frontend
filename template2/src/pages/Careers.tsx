@@ -20,14 +20,14 @@ const BenefitCard = ({ benefit, idx }: { benefit: Benefit; idx: number }) => {
       whileHover={{ y: -5 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer"
+      className="rounded-xl p-5 sm:p-6 md:p-8 shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer"
       style={{
         backgroundColor: isHovered ? '#00275E' : '#ffffff'
       }}
     >
       <div className="text-5xl mb-4">{benefit.icon}</div>
       <h3 
-        className="text-2xl font-bold mb-3 transition-colors duration-300"
+        className="text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300"
         style={{ color: isHovered ? '#ffffff' : '#111827' }}
       >
         {benefit.title}
@@ -144,7 +144,7 @@ const Careers = () => {
             className="text-center"
           >
             <motion.h1
-              className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 whitespace-nowrap"
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 max-md:whitespace-normal md:whitespace-nowrap"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
@@ -209,7 +209,7 @@ const Careers = () => {
               </motion.span>
             </span></motion.h1>
             <motion.p
-              className="text-base sm:text-lg md:text-xl text-gray-600 px-2"
+              className="text-base sm:text-lg text-gray-600 px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
@@ -230,8 +230,8 @@ const Careers = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-8 sm:mb-10 md:mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Why Work With Us?</h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Why Work With Us?</h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
               Join a team that's making a difference in education
             </p>
           </motion.div>
@@ -254,8 +254,8 @@ const Careers = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-8 sm:mb-10 md:mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Current Openings</h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Current Openings</h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
               Explore opportunities to join our growing team
             </p>
           </motion.div>
@@ -271,7 +271,7 @@ const Careers = () => {
                 whileHover={{ y: -5 }}
                 className="bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all border border-gray-100"
               >
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">{position.title}</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">{position.title}</h3>
                 <p className="text-gray-600 mb-4 leading-relaxed">{position.description}</p>
                 <div className="space-y-2 mb-6 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
