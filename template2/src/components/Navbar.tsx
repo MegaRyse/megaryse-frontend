@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Logo from '../assets/images/logo_1.png'
+import { useEnquireModal } from '../context/EnquireModalContext'
 
 const MOBILE_BREAKPOINT = 768
 const TABLET_BREAKPOINT = 1024
@@ -144,6 +145,7 @@ const LOGO_SCALE_END = 0.42
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { isMobile, progress, scrolledForNavBg } = useMobileScrollCollapse()
+  const { openEnquireModal } = useEnquireModal()
 
   // Hover state for navigation items
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
@@ -439,25 +441,27 @@ const Navbar = () => {
               animate={{ x: isMobile ? progress * PHONE_X_END : 0 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-              <Link
-                to="/contact"
+              <button
+                type="button"
+                onClick={() => openEnquireModal()}
                 className="p-2 text-gold hover:text-gold-bright transition-colors duration-300 -mr-1 block"
-                aria-label="Contact us"
+                aria-label="Enquire now"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V21a2 2 0 01-2 2h-1C9.716 23 3 16.284 3 8V5z" />
                 </svg>
-              </Link>
+              </button>
             </motion.div>
             <motion.div
               className="hidden md:block"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Link
-                to="/contact"
+              <button
+                type="button"
+                onClick={() => openEnquireModal()}
                 className="relative inline-block bg-gold text-white whitespace-nowrap rounded-lg font-semibold overflow-hidden group md:px-4 md:py-2 md:text-xs lg:px-5 lg:py-2.5 lg:text-sm xl:px-6 xl:text-sm"
-                aria-label="Contact us"
+                aria-label="Enquire now"
               >
                 <span className="relative z-10">ENQUIRE NOW</span>
                 <motion.div
@@ -466,7 +470,7 @@ const Navbar = () => {
                   whileHover={{ x: 0 }}
                   transition={{ duration: 0.3 }}
                 />
-              </Link>
+              </button>
             </motion.div>
           </div>
           </div>
