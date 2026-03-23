@@ -26,6 +26,9 @@ import programsImg from '../assets/images/programs.png'
 import WhatsAppFloat from '../components/WhatsAppFloat'
 import { coursesMasterData } from '../data/courses'
 import { universitiesData } from '../data/universities'
+import VariableProximity from '../animatedComponents/VariableProximity'
+import ShinyText from '../animatedComponents/ShinyText'
+import { useEnquireModal } from '../context/EnquireModalContext'
 
 // Shared transition configs (avoid new object refs every render)
 const TRANSITION_SMOOTH = { duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] as const }
@@ -231,7 +234,9 @@ const TestimonialCard = memo(function TestimonialCard({
 
 const Home = () => {
   const featuresRef = useRef<HTMLDivElement | null>(null)
+  const heroProximityRef = useRef<HTMLDivElement | null>(null)
   const isTabletOrDesktop = useIsTabletOrDesktop()
+  const { openEnquireModal } = useEnquireModal()
 
   // Active feature highlight state (-1 means "none highlighted yet")
   const [activeFeature, setActiveFeature] = useState<number>(-1)
@@ -434,7 +439,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center lg:text-left max-w-4xl mx-auto order-2 lg:order-2"
+              className="text-center lg:text-center max-w-4xl mx-auto order-2 lg:order-2"
             >
               <motion.div
                 initial={{ scale: 0.9 }}
@@ -446,18 +451,20 @@ const Home = () => {
                   Trusted by 10,000+ Students
                 </span>
               </motion.div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-6 sm:mb-8 leading-tight">
-                Transform Your Future with
-                <span className="block mt-3 sm:mt-4 relative">
-                  <span className="text-black">World-Class Education</span>
-                  <motion.span
-                    className="absolute bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-transparent via-gold-bright/40 to-transparent"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                  />
-                </span>
-              </h1>
+              <div
+                ref={heroProximityRef}
+                className="relative text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-6 sm:mb-8 leading-tight text-center"
+              >
+                <VariableProximity
+                  label="Transform Your Future with World-Class Education"
+                  className="variable-proximity-demo"
+                  fromFontVariationSettings="'wght' 650, 'opsz' 12"
+                  toFontVariationSettings="'wght' 1000, 'opsz' 40"
+                  containerRef={heroProximityRef}
+                  radius={300}
+                  falloff="exponential"
+                />
+              </div>
               <p className="text-base sm:text-lg text-black mb-8 sm:mb-12 leading-relaxed max-w-3xl mx-auto lg:mx-0">
                 Join thousands of successful professionals who chose MegaRyse for their career
                 transformation journey
@@ -469,12 +476,13 @@ const Home = () => {
                 >
                   Explore Programs
                 </Link>
-                <Link
-                  to="/contact"
+                <button
+                  type="button"
+                  onClick={() => openEnquireModal()}
                   className="w-full sm:w-auto inline-block text-center border-2 border-gold-bright text-black px-8 sm:px-10 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:bg-[#00275E] hover:text-white hover:border-navy transition-all duration-300"
                 >
                   Schedule Consultation
-                </Link>
+                </button>
               </div>
             </motion.div>
           </div>
@@ -514,8 +522,18 @@ const Home = () => {
                   <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-navy">
                     Why Choose{' '}
                     <span className="relative inline-block">
-                      <span className="text-black">MegaRyse</span>
-                      <span className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent" />
+                      <ShinyText
+                        text="MegaRyse"
+                        speed={2}
+                        delay={0}
+                        color="#D9B23A"
+                        shineColor="#E8C547"
+                        spread={35}
+                        direction="right"
+                        yoyo
+                        pauseOnHover={false}
+                        disabled={false}
+                      />
                     </span>
                     ?
                   </h2>
@@ -534,15 +552,28 @@ const Home = () => {
                           <p className="text-base sm:text-lg leading-relaxed text-text">
                             {f.description}
                           </p>
-                          <Link
-                            to={f.link}
-                            className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 w-fit"
-                          >
-                            <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
-                              {f.linkText}
-                            </span>
-                            <span aria-hidden>→</span>
-                          </Link>
+                          {f.link === '/contact' ? (
+                            <button
+                              type="button"
+                              onClick={() => openEnquireModal()}
+                              className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 w-fit"
+                            >
+                              <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
+                                {f.linkText}
+                              </span>
+                              <span aria-hidden>→</span>
+                            </button>
+                          ) : (
+                            <Link
+                              to={f.link}
+                              className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 w-fit"
+                            >
+                              <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
+                                {f.linkText}
+                              </span>
+                              <span aria-hidden>→</span>
+                            </Link>
+                          )}
                         </div>
                         <div className="mt-4 rounded-xl overflow-hidden bg-navy aspect-video max-h-40 sm:max-h-48 w-full">
                           <img
@@ -567,14 +598,18 @@ const Home = () => {
                 <div className="px-6 sm:px-8 lg:px-10">
                   <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
                     Why Choose{' '}
-                    <span className="relative">
-                      <span className="text-black">MegaRyse</span>
-                      <motion.span
-                        className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
-                        initial={{ scaleX: 0 }}
-                        whileInView={{ scaleX: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.3 }}
+                    <span className="relative inline-block">
+                      <ShinyText
+                        text="MegaRyse"
+                        speed={2}
+                        delay={0}
+                        color="#D9B23A"
+                        shineColor="#E8C547"
+                        spread={35}
+                        direction="right"
+                        yoyo
+                        pauseOnHover={false}
+                        disabled={false}
                       />
                     </span>
                     ?
@@ -658,19 +693,39 @@ const Home = () => {
                             initial="rest"
                             whileHover="hover"
                           >
-                            <Link to={f.link} className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer">
-                              <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
-                                {f.linkText}
-                              </span>
-                              <motion.span
-                                className="inline-block no-underline"
-                                aria-hidden
-                                variants={LINK_ARROW_VARIANTS}
-                                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                            {f.link === '/contact' ? (
+                              <button
+                                type="button"
+                                onClick={() => openEnquireModal()}
+                                className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer"
                               >
-                                →
-                              </motion.span>
-                            </Link>
+                                <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
+                                  {f.linkText}
+                                </span>
+                                <motion.span
+                                  className="inline-block no-underline"
+                                  aria-hidden
+                                  variants={LINK_ARROW_VARIANTS}
+                                  transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                                >
+                                  →
+                                </motion.span>
+                              </button>
+                            ) : (
+                              <Link to={f.link} className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer">
+                                <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
+                                  {f.linkText}
+                                </span>
+                                <motion.span
+                                  className="inline-block no-underline"
+                                  aria-hidden
+                                  variants={LINK_ARROW_VARIANTS}
+                                  transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                                >
+                                  →
+                                </motion.span>
+                              </Link>
+                            )}
                           </motion.span>
                         </div>
                       </motion.div>
@@ -896,12 +951,13 @@ const Home = () => {
                 Join thousands of successful professionals. Let's build your future together!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-                <Link
-                  to="/contact"
+                <button
+                  type="button"
+                  onClick={() => openEnquireModal()}
                   className="w-full sm:w-auto inline-block text-center bg-gold text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
                 >
                   Get Started Today
-                </Link>
+                </button>
                 <Link
                   to="/courses"
                   className="w-full sm:w-auto inline-block text-center border-2 border-gold-bright text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:bg-gold-bright hover:text-navy transition-all duration-300"

@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@hcaptcha/react-hcaptcha": "^1.14.0",
+    "framer-motion": "^10.16.16",
+    "motion": "^12.34.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
-    "framer-motion": "^10.16.16"
+    "three": "^0.167.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
@@ -26,4 +28,3 @@
     "vite": "^5.0.8"
   }
 }
-

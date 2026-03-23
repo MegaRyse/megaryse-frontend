@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useState, useCallback } from 'react'
 import { CareersFormModal } from '../components/careersFormModal'
+import ShinyText from '../animatedComponents/ShinyText'
 
 interface Benefit {
   title: string
@@ -149,64 +150,18 @@ const Careers = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
             >Build Your Career with <span className="relative inline-block">
-              {/* Base solid gold color text */}
-              <span className="relative z-10 inline-block text-[#D9B23A]">
-                MegaRyse EduCntr
-              </span>
-              {/* White shimmer overlay - diagonal animation, only visible on text */}
-              <motion.span
-                className="absolute top-0 left-0 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(135deg, transparent 25%, rgba(255, 255, 255, 0.4) 50%, transparent 75%)',
-                  backgroundSize: '250% 250%',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  zIndex: 11,
-                  whiteSpace: 'nowrap',
-                  lineHeight: '1em',
-                  fontSize: 'inherit',
-                  fontFamily: 'inherit',
-                  fontWeight: 'inherit',
-                  letterSpacing: 'inherit'
-                }}
-                animate={{
-                  backgroundPosition: ['-250% -250%', '250% 250%']
-                }}
-                transition={{
-                  duration: 12,
-                  repeat: Infinity,
-                  ease: "linear",
-                  repeatDelay: 2
-                }}
-              >
-                MegaRyse EduCntr
-              </motion.span>
-              {/* White glow shadow effect */}
-              <motion.span
-                className="absolute top-0 left-0 pointer-events-none inline-block text-[#D9B23A]"
-                style={{
-                  zIndex: 9,
-                  filter: 'blur(1.5px)',
-                  whiteSpace: 'nowrap',
-                  lineHeight: '1em',
-                  fontSize: 'inherit',
-                  fontFamily: 'inherit',
-                  fontWeight: 'inherit',
-                  letterSpacing: 'inherit',
-                  textShadow: '0 0 8px rgba(255, 255, 255, 0.3), 0 0 16px rgba(255, 255, 255, 0.2)'
-                }}
-                animate={{
-                  opacity: [0.4, 0.6, 0.4]
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                MegaRyse EduCntr
-              </motion.span>
+              <ShinyText
+                text="MegaRyse EduCntr"
+                speed={2}
+                delay={0}
+                color="#D9B23A"
+                shineColor="#E8C547"
+                spread={35}
+                direction="right"
+                yoyo
+                pauseOnHover={false}
+                disabled={false}
+              />
             </span></motion.h1>
             <motion.p
               className="text-base sm:text-lg text-gray-600 px-2"
