@@ -1,9 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
+import { useEnquireModal } from '../context/EnquireModalContext'
 
 const GMAIL_SUFFIX = '@gmail.com'
-const IDLE_SECONDS = 25
+const IDLE_SECONDS = 60000
+
+const PAGES_NO_ENQUIRE_MODAL = ['/careers', '/contact']
 
 // Web3Forms
 const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
@@ -53,10 +57,12 @@ interface EnquireErrors {
   captcha?: string
 }
 
-const SESSION_KEY_ENQUIRE_SHOWN = 'megaryse_enquire_modal_shown'
+// Throttle: reset idle timer at most once per second so rapid events (mousemove/scroll) don't prevent timer from ever firing
+const IDLE_RESET_THROTTLE_MS = 1000
 
 export const EnquireNowFormModal = () => {
-  const [isOpen, setIsOpen] = useState(false)
+  const location = useLocation()
+  const { isOpen, openEnquireModal, closeEnquireModal } = useEnquireModal()
   const [form, setForm] = useState<EnquireFormState>({
     fullName: '',
     mobile: '',
@@ -73,18 +79,31 @@ export const EnquireNowFormModal = () => {
   const [submitMessage, setSubmitMessage] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastResetRef = useRef<number>(0)
 
-  // Idle detection: show modal after 25s of no activity (once per session)
+  // Idle detection: show modal after 12s of no activity. Do not open on Careers or Contact.
+  const isExcludedPage = PAGES_NO_ENQUIRE_MODAL.some((path) => location.pathname === path || location.pathname.startsWith(path + '/'))
+
   useEffect(() => {
-    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SESSION_KEY_ENQUIRE_SHOWN) === '1') {
+    if (isExcludedPage) {
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current)
+        idleTimerRef.current = null
+      }
       return
     }
 
     const resetTimer = () => {
+      const now = Date.now()
+      if (now - lastResetRef.current < IDLE_RESET_THROTTLE_MS) return
+      lastResetRef.current = now
+
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
       idleTimerRef.current = setTimeout(() => {
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(SESSION_KEY_ENQUIRE_SHOWN, '1')
-        setIsOpen(true)
+        const currentPath = window.location.pathname
+        const excluded = PAGES_NO_ENQUIRE_MODAL.some((path) => currentPath === path || currentPath.startsWith(path + '/'))
+        if (excluded) return
+        openEnquireModal()
       }, IDLE_SECONDS * 1000)
     }
 
@@ -95,7 +114,7 @@ export const EnquireNowFormModal = () => {
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
       events.forEach((ev) => window.removeEventListener(ev, resetTimer))
     }
-  }, [])
+  }, [isExcludedPage, openEnquireModal])
 
   const validateFullName = useCallback((value: string): string | undefined => {
     if (!value.trim()) return 'Full name is required'
@@ -194,7 +213,7 @@ export const EnquireNowFormModal = () => {
           hCaptchaRef.current?.resetCaptcha()
           setErrors({})
           setSubmitTried(false)
-          setTimeout(() => setIsOpen(false), 2000)
+          setTimeout(() => closeEnquireModal(), 2000)
         } else {
           setSubmitStatus('error')
           setSubmitMessage(result.message || 'Something went wrong. Please try again or contact us directly.')
@@ -217,8 +236,8 @@ export const EnquireNowFormModal = () => {
     setSubmitMessage('')
     setHCaptchaToken(null)
     hCaptchaRef.current?.resetCaptcha()
-    setIsOpen(false)
-  }, [])
+    closeEnquireModal()
+  }, [closeEnquireModal])
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) handleClose()

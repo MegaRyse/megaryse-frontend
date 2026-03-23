@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useEnquireModal } from '../context/EnquireModalContext'
 
 const Footer = () => {
+  const { openEnquireModal } = useEnquireModal()
   return (
     <footer className="bg-[#00275E] border-t border-gold-bright/20 mt-auto">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
@@ -23,7 +25,11 @@ const Footer = () => {
             <h4 className="text-white font-semibold mb-4">Resources</h4>
             <ul className="space-y-2 text-white/80 text-sm">
               <li><Link to="/careers" className="hover:text-gold-bright transition-colors">Careers</Link></li>
-              <li><Link to="/contact" className="hover:text-gold-bright transition-colors">Contact</Link></li>
+              <li>
+              <button type="button" onClick={() => openEnquireModal()} className="text-white/80 text-sm hover:text-gold-bright transition-colors text-left bg-transparent border-0 p-0 cursor-pointer">
+                Contact
+              </button>
+            </li>
             </ul>
           </div>
           <div>

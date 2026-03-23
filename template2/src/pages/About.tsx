@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
+import ShinyText from '../animatedComponents/ShinyText'
 import trustedEducationImg from '../assets/images/trustededucation.png'
 import careerFocusedImg from '../assets/images/careerfocused.png'
 import successImg from '../assets/images/sucess.png'
@@ -46,34 +47,49 @@ const About = () => {
   }, [])
 
   return (
-    <div className="w-full min-h-full bg-offwhite overflow-x-hidden">
-      {/* Hero — same structure as Universities/Courses: relative, overflow-hidden, constrained container */}
-      <section className="relative bg-offwhite pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-20 md:pb-24 overflow-hidden">
-        <div className="relative max-w-container mx-auto w-full px-4 sm:px-6 lg:px-8">
+    <div className="w-full bg-offwhite">
+      {/* Hero — off-white background */}
+      <section className="relative pt-0 pb-0 sm:pt-0 sm:pb-0 md:pt-0 md:pb-0 bg-offwhite overflow-visible">
+        <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px', amount: 0.2 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center max-w-3xl mx-auto"
+            className="text-center overflow-visible py-0"
           >
             <motion.h1
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-1 px-4 sm:px-6 pt-0 pb-1 tracking-tight leading-[1.6] [word-spacing:0.08em] overflow-visible"
+              style={{ minHeight: '1.6em' }}
             >
-              About <span className="bg-gradient-gold bg-clip-text text-transparent">MegaRyse</span>
+              <span className="inline-block overflow-visible pb-[0.15em]">
+                About{' '}
+                <ShinyText
+                text="MegaRyse EduCntr"
+                speed={2}
+                delay={0}
+                color="#D9B23A"
+                shineColor="#E8C547"
+                spread={35}
+                direction="right"
+                yoyo
+                pauseOnHover={false}
+                disabled={false}
+              />
+              </span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-base sm:text-lg text-gray-600 px-2"
+              className="text-base sm:text-lg md:text-xl text-gray-600 px-2 mb-0 pb-0"
             >
-              Leading MBA education consultancy dedicated to transforming careers through world-class business education.
+              Igniting MBA careers with elite global programs.
             </motion.p>
           </motion.div>
         </div>
