@@ -1,6 +1,21 @@
 import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
+import {
+  Landmark,
+  Briefcase,
+  Code2,
+  BookOpenText,
+  GraduationCap,
+  Terminal,
+  Microscope,
+  FileText,
+  Stethoscope,
+  Cpu,
+  CloudCog,
+  BarChart3,
+  Database,
+} from 'lucide-react'
 
 // Feature section: list layout for mobile + tablet (< 1024px); scroll animations only on desktop (>= 1024px).
 // Screens > 767px are unchanged for the animated section — we only switch which layout is shown.
@@ -26,6 +41,30 @@ import programsImg from '../assets/images/programs.png'
 import WhatsAppFloat from '../components/WhatsAppFloat'
 import { coursesMasterData } from '../data/courses'
 import { universitiesData } from '../data/universities'
+
+const COURSE_ICON_CLASS = 'w-8 h-8 sm:w-10 sm:h-10'
+
+const COURSE_ICONS: Record<number, JSX.Element> = {
+  1: <Landmark className={COURSE_ICON_CLASS} />,
+  2: <Briefcase className={COURSE_ICON_CLASS} />,
+  3: <Code2 className={COURSE_ICON_CLASS} />,
+  4: <BookOpenText className={COURSE_ICON_CLASS} />,
+  5: <GraduationCap className={COURSE_ICON_CLASS} />,
+  6: <Terminal className={COURSE_ICON_CLASS} />,
+  7: <Microscope className={COURSE_ICON_CLASS} />,
+  8: <FileText className={COURSE_ICON_CLASS} />,
+  9: <Stethoscope className={COURSE_ICON_CLASS} />,
+  10: <Cpu className={COURSE_ICON_CLASS} />,
+  11: <CloudCog className={COURSE_ICON_CLASS} />,
+  12: <BarChart3 className={COURSE_ICON_CLASS} />,
+  13: <Database className={COURSE_ICON_CLASS} />,
+}
+
+function renderCourseIcon(courseId: number, fallback: string) {
+  const icon = COURSE_ICONS[courseId]
+  if (icon) return icon
+  return <span className="text-3xl sm:text-4xl">{fallback}</span>
+}
 
 // Shared transition configs (avoid new object refs every render)
 const TRANSITION_SMOOTH = { duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] as const }
@@ -764,7 +803,9 @@ const Home = () => {
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-gold-bright/15 to-transparent rounded-bl-full" />
                 <div className="relative">
-                  <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{course.icon}</div>
+                  <div className="mb-2 sm:mb-3 text-gold-bright flex items-center">
+                    {renderCourseIcon(course.id, course.icon)}
+                  </div>
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-0.5 sm:mb-1 leading-tight">
                     {course.fullName}
                   </h3>

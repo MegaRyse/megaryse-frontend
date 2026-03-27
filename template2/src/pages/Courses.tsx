@@ -1,10 +1,29 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { getUniversityBySlug, getUniversitiesOfferingCourse, TAB_TO_CATEGORY_TYPES } from '../data/universities'
+import {
+  getUniversityBySlug,
+  getUniversitiesOfferingCourse,
+  TAB_TO_CATEGORY_TYPES,
+} from '../data/universities'
 import type { University } from '../data/universities'
 import { coursesMasterData, getCoursesByIds, TAB_TO_CATEGORIES } from '../data/courses'
 import type { CourseMaster } from '../data/courses'
+import {
+  Landmark,
+  Briefcase,
+  Code2,
+  BookOpenText,
+  GraduationCap,
+  Terminal,
+  Microscope,
+  FileText,
+  Stethoscope,
+  Cpu,
+  CloudCog,
+  BarChart3,
+  Database,
+} from 'lucide-react'
 
 /** Map CourseMaster to the shape UniversityDetail expects */
 function toCourseState(c: CourseMaster) {
@@ -15,6 +34,30 @@ function toCourseState(c: CourseMaster) {
     icon: c.icon,
     specializations: c.specializations,
   }
+}
+
+const COURSE_ICON_CLASS = 'w-10 h-10 sm:w-12 sm:h-12'
+
+const COURSE_ICONS: Record<number, JSX.Element> = {
+  1: <Landmark className={COURSE_ICON_CLASS} />,
+  2: <Briefcase className={COURSE_ICON_CLASS} />,
+  3: <Code2 className={COURSE_ICON_CLASS} />,
+  4: <BookOpenText className={COURSE_ICON_CLASS} />,
+  5: <GraduationCap className={COURSE_ICON_CLASS} />,
+  6: <Terminal className={COURSE_ICON_CLASS} />,
+  7: <Microscope className={COURSE_ICON_CLASS} />,
+  8: <FileText className={COURSE_ICON_CLASS} />,
+  9: <Stethoscope className={COURSE_ICON_CLASS} />,
+  10: <Cpu className={COURSE_ICON_CLASS} />,
+  11: <CloudCog className={COURSE_ICON_CLASS} />,
+  12: <BarChart3 className={COURSE_ICON_CLASS} />,
+  13: <Database className={COURSE_ICON_CLASS} />,
+}
+
+function renderCourseIcon(courseId: number, fallback: string) {
+  const icon = COURSE_ICONS[courseId]
+  if (icon) return icon
+  return <span className="text-4xl sm:text-5xl md:text-6xl">{fallback}</span>
 }
 
 const Courses = () => {
@@ -327,8 +370,11 @@ const Courses = () => {
 
                   {/* Card layout: icon left, content right (match screenshot) */}
                   <div className="flex flex-row items-start gap-4 sm:gap-6 relative z-10">
-                    <div className="text-4xl sm:text-5xl md:text-6xl flex-shrink-0" aria-hidden>
-                      {course.icon}
+                    <div
+                      className="flex-shrink-0 text-navy flex items-center justify-center"
+                      aria-hidden
+                    >
+                      {renderCourseIcon(course.id, course.icon)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
