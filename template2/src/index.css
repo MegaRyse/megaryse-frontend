@@ -14,6 +14,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* Prevent cursor from changing to text (I-beam) when hovering over text */
+  cursor: default;
+}
+a, button, [role="button"], [type="button"], [type="submit"], input[type="submit"], input[type="button"], input[type="reset"], [type="reset"],
+label[for], .cursor-pointer {
+  cursor: pointer;
+}
+input:not([type="button"]):not([type="submit"]):not([type="reset"]), textarea {
+  cursor: text;
 }
 
 body {

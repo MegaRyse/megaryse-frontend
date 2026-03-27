@@ -389,7 +389,7 @@ const Courses = () => {
                           {course.specializations.map((spec) => (
                             <span
                               key={spec}
-                              className="px-3 py-1 rounded-md text-xs font-medium bg-gold/10 text-gold border border-gold/20"
+                              className="px-3 py-1 rounded-md text-xs font-medium bg-gold/10 text-gold border border-gold/20 transition-colors duration-200 hover:bg-blue-custom hover:text-white"
                             >
                               {spec}
                             </span>
@@ -407,12 +407,30 @@ const Courses = () => {
                           e.stopPropagation()
                           handleKnowMore(course)
                         }}
-                        className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-gold hover:text-gold-bright transition-colors"
-                        whileHover={{ x: 2 }}
+                        className="text-sm sm:text-base font-semibold text-gold"
                         whileTap={{ scale: 0.98 }}
                       >
-                        Know More
-                        <span className="inline-block">→</span>
+                        <motion.span
+                          className="inline-flex items-center"
+                          animate={hoveredCard === idx ? { scale: 1.08 } : { scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        >
+                          <span>Know More</span>
+                          <motion.span
+                            className="inline-block ml-2"
+                            animate={{
+                              x: hoveredCard === idx ? [0, 5, 0] : 0,
+                              scale: hoveredCard === idx ? 1.08 : 1,
+                            }}
+                            transition={{
+                              duration: 0.6,
+                              repeat: hoveredCard === idx ? Infinity : 0,
+                              ease: 'easeInOut',
+                            }}
+                          >
+                            →
+                          </motion.span>
+                        </motion.span>
                       </motion.button>
                     </div>
                   </div>
