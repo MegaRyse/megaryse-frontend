@@ -439,12 +439,18 @@ const Home = () => {
       { number: '95%', label: 'Success Rate', icon: '⭐' },
     ]
   }, [])
+  const homepageCourses = useMemo(() => coursesMasterData.slice(0, 6), [])
+  const partnerUniversitiesMarquee = useMemo(
+    () => [...universitiesData, ...universitiesData],
+    []
+  )
 
   const featuresSectionStyle = useMemo(() => ({ height: FEATURES_SECTION_HEIGHT }), [])
   const testimonialTrackStyle = useMemo(() => ({ x, display: 'flex' as const }), [x])
   const handleTestimonialMouseEnter = useCallback(() => setIsHovered(true), [])
   const handleTestimonialMouseLeave = useCallback(() => setIsHovered(false), [])
   const handleTestimonialClick = useCallback(() => setIsPausedByClick((prev) => !prev), [])
+  const handleOpenEnquireModal = useCallback(() => openEnquireModal(), [openEnquireModal])
 
   return (
     <div className="w-full bg-offwhite">
@@ -517,7 +523,7 @@ const Home = () => {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => openEnquireModal()}
+                  onClick={handleOpenEnquireModal}
                   className="w-full sm:w-auto inline-block text-center border-2 border-gold-bright text-black px-8 sm:px-10 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:bg-[#00275E] hover:text-white hover:border-navy transition-all duration-300"
                 >
                   Schedule Consultation
@@ -594,7 +600,7 @@ const Home = () => {
                           {f.link === '/contact' ? (
                             <button
                               type="button"
-                              onClick={() => openEnquireModal()}
+                              onClick={handleOpenEnquireModal}
                               className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 w-fit"
                             >
                               <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
@@ -735,7 +741,7 @@ const Home = () => {
                             {f.link === '/contact' ? (
                               <button
                                 type="button"
-                                onClick={() => openEnquireModal()}
+                                onClick={handleOpenEnquireModal}
                                 className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer"
                               >
                                 <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
@@ -841,7 +847,7 @@ const Home = () => {
 
           {/* Programs from coursesMasterData - show 6 courses + View All */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {coursesMasterData.slice(0, 6).map((course, idx) => (
+            {homepageCourses.map((course, idx) => (
               <motion.div
                 key={course.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -901,7 +907,7 @@ const Home = () => {
             </h3>
             <div className="overflow-hidden">
               <div className="flex gap-8 sm:gap-10 w-max animate-partner-scroll">
-                {[...universitiesData, ...universitiesData].map((uni, idx) => (
+                {partnerUniversitiesMarquee.map((uni, idx) => (
                   <Link
                     key={`${uni.id}-${idx}`}
                     to="/courses"
@@ -994,7 +1000,7 @@ const Home = () => {
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
                 <button
                   type="button"
-                  onClick={() => openEnquireModal()}
+                  onClick={handleOpenEnquireModal}
                   className="w-full sm:w-auto inline-block text-center bg-gold text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
                 >
                   Get Started Today

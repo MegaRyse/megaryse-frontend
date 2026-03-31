@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   getUniversityBySlug,
@@ -24,6 +24,36 @@ import {
   BarChart3,
   Database,
 } from 'lucide-react'
+
+const COURSE_TABS = [
+  { id: 'undergraduate', label: 'Undergraduate Programs' },
+  { id: 'postgraduate', label: 'Postgraduate Programs' },
+  { id: 'professional', label: 'Professional & Certification Courses' },
+] as const
+
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+}
 
 /** Map CourseMaster to the shape UniversityDetail expects */
 function toCourseState(c: CourseMaster) {
@@ -74,13 +104,24 @@ const Courses = () => {
   const [courseForUniversitiesModal, setCourseForUniversitiesModal] = useState<CourseMaster | null>(null)
 
   const categoriesForTab = TAB_TO_CATEGORIES[activeTab] ?? []
-  const currentCourses: CourseMaster[] = selectedUniversity
-    ? getCoursesByIds(selectedUniversity.courseIds).filter((c) =>
-        categoriesForTab.includes(c.category)
-      )
-    : coursesMasterData.filter((c) => categoriesForTab.includes(c.category))
+  const currentCourses: CourseMaster[] = useMemo(
+    () =>
+      selectedUniversity
+        ? getCoursesByIds(selectedUniversity.courseIds).filter((c) =>
+            categoriesForTab.includes(c.category)
+          )
+        : coursesMasterData.filter((c) => categoriesForTab.includes(c.category)),
+    [selectedUniversity, categoriesForTab]
+  )
+  const universitiesForSelectedCourse = useMemo(
+    () =>
+      courseForUniversitiesModal
+        ? getUniversitiesOfferingCourse(courseForUniversitiesModal.id)
+        : [],
+    [courseForUniversitiesModal]
+  )
 
-  const handleKnowMore = (course: CourseMaster) => {
+  const handleKnowMore = useCallback((course: CourseMaster) => {
     if (selectedUniversity && universityName && universitySlug) {
       navigate(`/universities/${universitySlug}`, {
         state: { name: universityName, course: toCourseState(course) },
@@ -88,40 +129,14 @@ const Courses = () => {
     } else {
       setCourseForUniversitiesModal(course)
     }
-  }
+  }, [selectedUniversity, universityName, universitySlug, navigate])
 
-  const handleSelectUniversityForCourse = (uni: University, course: CourseMaster) => {
+  const handleSelectUniversityForCourse = useCallback((uni: University, course: CourseMaster) => {
     setCourseForUniversitiesModal(null)
     navigate(`/universities/${uni.slug}`, {
       state: { name: uni.name, course: toCourseState(course) },
     })
-  }
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  }
-
+  }, [navigate])
 
   return (
     <div className="w-full bg-offwhite">
@@ -194,18 +209,14 @@ const Courses = () => {
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="flex flex-wrap justify-center gap-3 sm:gap-4"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             animate="visible"
           >
-            {[
-              { id: 'undergraduate', label: 'Undergraduate Programs' },
-              { id: 'postgraduate', label: 'Postgraduate Programs' },
-              { id: 'professional', label: 'Professional & Certification Courses' },
-            ].map((tab) => (
+            {COURSE_TABS.map((tab) => (
               <motion.div
                 key={tab.id}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className={`relative rounded-lg p-[2px] overflow-hidden w-full sm:w-auto ${
                   activeTab === tab.id ? 'bg-gradient-gold' : ''
                 }`}
@@ -469,11 +480,11 @@ const Courses = () => {
                 </p>
               </div>
               <div className="p-4 overflow-y-auto flex-1">
-                {getUniversitiesOfferingCourse(courseForUniversitiesModal.id).length === 0 ? (
+                {universitiesForSelectedCourse.length === 0 ? (
                   <p className="text-gray-500 text-sm">No universities found for this course.</p>
                 ) : (
                   <ul className="space-y-2">
-                    {getUniversitiesOfferingCourse(courseForUniversitiesModal.id).map((uni) => (
+                    {universitiesForSelectedCourse.map((uni) => (
                       <li key={uni.id}>
                         <motion.button
                           type="button"

@@ -1,27 +1,42 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
+const COUNTRIES = [
+  'United States',
+  'United Kingdom',
+  'Canada',
+  'Australia',
+  'Germany',
+  'France',
+  'Singapore',
+  'India',
+  'Other',
+]
+const INTAKES = ['Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026', 'Not Sure Yet']
+const RESET_DELAY_MS = 3000
+const INITIAL_FORM_DATA = {
+  name: '',
+  email: '',
+  phone: '',
+  country: '',
+  intake: '',
+  message: '',
+}
+
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    country: '',
-    intake: '',
-    message: '',
-  })
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }))
     }
-  }
+  }, [errors])
 
-  const validate = () => {
+  const validate = useCallback(() => {
     const newErrors: Record<string, string> = {}
     if (!formData.name.trim()) newErrors.name = 'Name is required'
     if (!formData.email.trim()) {
@@ -36,28 +51,18 @@ const Contact = () => {
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault()
     if (validate()) {
       setSubmitted(true)
       setTimeout(() => {
         setSubmitted(false)
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          country: '',
-          intake: '',
-          message: '',
-        })
-      }, 3000)
+        setFormData(INITIAL_FORM_DATA)
+      }, RESET_DELAY_MS)
     }
-  }
-
-  const countries = ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Singapore', 'India', 'Other']
-  const intakes = ['Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026', 'Not Sure Yet']
+  }, [validate])
 
   return (
     <div className="w-full bg-offwhite">
@@ -300,7 +305,7 @@ const Contact = () => {
                             } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
                           >
                             <option value="">Select Country</option>
-                            {countries.map((country) => (
+                            {COUNTRIES.map((country) => (
                               <option key={country} value={country}>
                                 {country}
                               </option>
@@ -323,7 +328,7 @@ const Contact = () => {
                             } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
                           >
                             <option value="">Select Intake</option>
-                            {intakes.map((intake) => (
+                            {INTAKES.map((intake) => (
                               <option key={intake} value={intake}>
                                 {intake}
                               </option>

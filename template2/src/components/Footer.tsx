@@ -26,7 +26,7 @@ const Footer = () => {
             <ul className="space-y-2 text-white/80 text-sm">
               <li><Link to="/careers" className="hover:text-gold-bright transition-colors">Careers</Link></li>
               <li>
-              <button type="button" onClick={() => openEnquireModal()} className="text-white/80 text-sm hover:text-gold-bright transition-colors text-left bg-transparent border-0 p-0 cursor-pointer">
+              <button type="button" onClick={openEnquireModal} className="text-white/80 text-sm hover:text-gold-bright transition-colors text-left bg-transparent border-0 p-0 cursor-pointer">
                 Contact
               </button>
             </li>

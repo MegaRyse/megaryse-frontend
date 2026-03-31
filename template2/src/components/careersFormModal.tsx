@@ -36,6 +36,7 @@ const MONTHS_OPTIONS = Array.from({ length: 13 }, (_, i) => i.toString())
 
 // Web3Forms free plan hCaptcha site key (https://docs.web3forms.com)
 const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
+const WEB3_FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || 'a0955c11-3794-4c9b-a972-65db4935ade2'
 
 export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersFormModalProps) => {
   const [form, setForm] = useState<FormState>({
@@ -126,9 +127,6 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [submitMessage, setSubmitMessage] = useState('')
 
-  // Web3Forms access key: set VITE_WEB3FORMS_ACCESS_KEY in .env or replace below
-  const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || 'a0955c11-3794-4c9b-a972-65db4935ade2'
-
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
@@ -142,7 +140,7 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
       try {
         // Web3Forms expects JSON body (see https://docs.web3forms.com)
         const payload: Record<string, string> = {
-          access_key: web3FormsAccessKey,
+          access_key: WEB3_FORMS_ACCESS_KEY,
           subject: positionTitle ? `Application: ${positionTitle}` : 'Career Application',
           from_name: form.fullName,
           email: form.email,
@@ -198,7 +196,7 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
         setIsSubmitting(false)
       }
     },
-    [form, positionTitle, runValidation, onClose, web3FormsAccessKey, hCaptchaToken]
+    [form, positionTitle, runValidation, onClose, hCaptchaToken]
   )
 
   const handleClose = useCallback(() => {

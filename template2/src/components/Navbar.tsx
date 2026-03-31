@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Logo from '../assets/images/logo_1.png'
@@ -8,8 +8,6 @@ const MOBILE_BREAKPOINT = 768
 const TABLET_BREAKPOINT = 1024
 
 /** === Control mobile navbar (screens < 768px) === */
-/** Logo size in pixels (width and height). */
-const MOBILE_LOGO_SIZE_PX = 150
 /** Navbar bar min-height in rem (1rem = 16px). e.g. 4.25 = 68px. */
 const MOBILE_NAVBAR_MIN_HEIGHT_REM = 5.25
 /** Top/bottom padding of navbar container in rem. */
@@ -25,6 +23,16 @@ const ANIM_LERP = 0.028
 const LEAVE_LERP = 0.06
 /** On mobile/tablet: show navbar gradient + blur only after user has scrolled past this (px) */
 const SCROLL_THRESHOLD_FOR_NAV_BG = 16
+const NAV_ITEMS = [
+  { path: '/', label: 'Home' },
+  { path: '/about', label: 'About' },
+  { path: '/universities', label: 'Universities' },
+  { path: '/courses', label: 'Courses' },
+  { path: '/careers', label: 'Careers' },
+  { path: '/contact', label: 'Contact' },
+]
+const MOBILE_NAV_GRADIENT =
+  'linear-gradient(to bottom, #F5F2EA 0%, #F5F2EA 30%, rgba(245,242,234,0.97) 55%, rgba(245,242,234,0.5) 80%, transparent 100%)'
 
 function useMobileScrollCollapse() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT)
@@ -156,16 +164,6 @@ const Navbar = () => {
   // Get current route location for active state detection
   const location = useLocation()
 
-  // NAVIGATION DATA
-  const navItems = useMemo(() => [
-    { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
-    { path: '/universities', label: 'Universities' },
-    { path: '/courses', label: 'Courses' },
-    { path: '/careers', label: 'Careers' },
-    { path: '/contact', label: 'Contact' },
-  ], [])
-
   // DEBOUNCED HOVER EFFECT
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -204,7 +202,7 @@ const Navbar = () => {
 
   // RENDER FUNCTIONS
   const renderDesktopNavItems = () => {
-    return navItems.map((item) => {
+    return NAV_ITEMS.map((item) => {
       const isItemHovered = debouncedHoveredItem === item.path
       const isItemActive = isActive(item.path)
       
@@ -291,7 +289,7 @@ const Navbar = () => {
   }
 
   const renderMobileNavItems = () => {
-    return navItems.map((item, idx) => (
+    return NAV_ITEMS.map((item, idx) => (
       <motion.div
         key={item.path}
         initial={{ opacity: 0, x: -20 }}
@@ -322,10 +320,6 @@ const Navbar = () => {
     ))
   }
 
-  // Theme-based linear gradient for mobile (< 768px): solid at top, transparent at bottom so content appears to disappear under the navbar on scroll. Uses project theme offwhite (#F5F2EA).
-  const mobileNavGradient =
-    'linear-gradient(to bottom, #F5F2EA 0%, #F5F2EA 30%, rgba(245,242,234,0.97) 55%, rgba(245,242,234,0.5) 80%, transparent 100%)'
-
   return (
     <motion.nav className="sticky z-50 top-0 transition-[background] duration-300">
       {/* Mobile (< 768px) when scrolled: linear gradient only — opaque at top, transparent at bottom (no blur) */}
@@ -333,7 +327,7 @@ const Navbar = () => {
         <div
           className="max-md:absolute max-md:inset-0 max-md:pointer-events-none max-md:z-0"
           style={{
-            background: mobileNavGradient,
+            background: MOBILE_NAV_GRADIENT,
           }}
           aria-hidden
         />
@@ -407,15 +401,7 @@ const Navbar = () => {
                 <img
                   src={Logo}
                   alt="MegaRyse Logo"
-                  className="md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
-                  style={
-                    isMobile
-                      ? {
-                          width: MOBILE_LOGO_SIZE_PX,
-                          height: MOBILE_LOGO_SIZE_PX,
-                        }
-                      : undefined
-                  }
+                  className="w-[150px] h-[150px] md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
                   loading="lazy"
                 />
                 {/* Logo glow effect on hover */}

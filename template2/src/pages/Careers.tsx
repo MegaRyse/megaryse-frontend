@@ -9,6 +9,63 @@ interface Benefit {
   icon: string
 }
 
+interface Position {
+  title: string
+  description: string
+  department: string
+  location: string
+  type: string
+}
+
+const POSITIONS: Position[] = [
+  {
+    title: 'Education Counselor',
+    description: 'Help learners choose the right career paths and programs',
+    department: 'Student Services',
+    location: 'Remote / Hybrid',
+    type: 'Full-time',
+  },
+  {
+    title: 'Digital Marketing Executive',
+    description: 'Plan and execute impactful digital campaigns.',
+    department: 'Marketing',
+    location: 'Bangalore',
+    type: 'Full-time',
+  },
+  {
+    title: 'Business Development Manager',
+    description: 'Build partnerships and drive business growth.',
+    department: 'Business Development',
+    location: 'Mumbai',
+    type: 'Full-time',
+  },
+  {
+    title: 'Student Support Executive',
+    description: 'Assist students with admissions and ongoing support.',
+    department: 'Student Services',
+    location: 'Remote',
+    type: 'Full-time',
+  },
+]
+
+const BENEFITS: Benefit[] = [
+  {
+    title: 'Innovative Work Culture',
+    description: 'Be part of a team that is transforming education and making a real impact.',
+    icon: '💡',
+  },
+  {
+    title: 'Career Growth & Learning',
+    description: 'Upskill, evolve, and grow with every opportunity.',
+    icon: '📈',
+  },
+  {
+    title: 'Collaborative Environment',
+    description: 'Work alongside motivated, passionate professionals who support each other.',
+    icon: '🤝',
+  },
+]
+
 const BenefitCard = ({ benefit, idx }: { benefit: Benefit; idx: number }) => {
   const [isHovered, setIsHovered] = useState(false)
 
@@ -52,55 +109,6 @@ const Careers = () => {
     setApplyModalOpen(true)
   }, [])
   const closeApplyModal = useCallback(() => setApplyModalOpen(false), [])
-
-  const positions = [
-    {
-      title: 'Education Counselor',
-      description: 'Help learners choose the right career paths and programs',
-      department: 'Student Services',
-      location: 'Remote / Hybrid',
-      type: 'Full-time',
-    },
-    {
-      title: 'Digital Marketing Executive',
-      description: 'Plan and execute impactful digital campaigns.',
-      department: 'Marketing',
-      location: 'Bangalore',
-      type: 'Full-time',
-    },
-    {
-      title: 'Business Development Manager',
-      description: 'Build partnerships and drive business growth.',
-      department: 'Business Development',
-      location: 'Mumbai',
-      type: 'Full-time',
-    },
-    {
-      title: 'Student Support Executive',
-      description: 'Assist students with admissions and ongoing support.',
-      department: 'Student Services',
-      location: 'Remote',
-      type: 'Full-time',
-    },
-  ]
-
-  const benefits = [
-    {
-      title: 'Innovative Work Culture',
-      description: 'Be part of a team that is transforming education and making a real impact.',
-      icon: '💡',
-    },
-    {
-      title: 'Career Growth & Learning',
-      description: 'Upskill, evolve, and grow with every opportunity.',
-      icon: '📈',
-    },
-    {
-      title: 'Collaborative Environment',
-      description: 'Work alongside motivated, passionate professionals who support each other.',
-      icon: '🤝',
-    },
-  ]
 
   return (
     <div className="w-full bg-offwhite">
@@ -192,7 +200,7 @@ const Careers = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-10 md:mb-12">
-            {benefits.map((benefit, idx) => (
+            {BENEFITS.map((benefit, idx) => (
               <BenefitCard key={idx} benefit={benefit} idx={idx} />
             ))}
           </div>
@@ -216,7 +224,7 @@ const Careers = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {positions.map((position, idx) => (
+            {POSITIONS.map((position, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 30 }}

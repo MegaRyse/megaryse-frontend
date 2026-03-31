@@ -1,9 +1,62 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUniversitiesByTab, type University } from '../data/universities'
 
 const LOGOS = ['🏛️', '🎓', '📚', '🌟', '💎', '🏆', '💻', '🌍']
+const UNIVERSITY_TABS = [
+  { id: 'undergraduate', label: 'Undergraduate Programs' },
+  { id: 'postgraduate', label: 'Postgraduate Programs' },
+  { id: 'professional', label: 'Professional & Certification Courses' },
+] as const
+
+// Animation variants matching Courses.tsx
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+}
+
+// Unique card entrance animation - stacking effect
+const CARD_VARIANTS = {
+  hidden: {
+    opacity: 0,
+    y: 60,
+    scale: 0.8,
+    rotateX: -15
+  },
+  visible: (idx: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    rotateX: 0,
+    transition: {
+      duration: 0.6,
+      delay: idx * 0.15,
+      type: "spring",
+      stiffness: 100,
+      damping: 20
+    }
+  })
+}
 
 const Universities = () => {
   const navigate = useNavigate()
@@ -12,61 +65,13 @@ const Universities = () => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const [hoveredButton, setHoveredButton] = useState<number | null>(null)
 
-  const currentUniversities = getUniversitiesByTab(activeTab)
+  const currentUniversities = useMemo(() => getUniversitiesByTab(activeTab), [activeTab])
 
-  // Animation variants matching Courses.tsx
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  }
-
-  // Unique card entrance animation - stacking effect
-  const cardVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 60,
-      scale: 0.8,
-      rotateX: -15
-    },
-    visible: (idx: number) => ({
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      rotateX: 0,
-      transition: {
-        duration: 0.6,
-        delay: idx * 0.15,
-        type: "spring",
-        stiffness: 100,
-        damping: 20
-      }
-    })
-  }
-
-  const handleUniversitySelect = (uni: University) => {
+  const handleUniversitySelect = useCallback((uni: University) => {
     navigate('/courses', {
       state: { universityName: uni.name, universitySlug: uni.slug },
     })
-  }
+  }, [navigate])
 
   return (
     <div className="w-full bg-offwhite">
@@ -135,18 +140,14 @@ const Universities = () => {
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="flex flex-wrap justify-center gap-3 sm:gap-4"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             animate="visible"
           >
-            {[
-              { id: 'undergraduate', label: 'Undergraduate Programs' },
-              { id: 'postgraduate', label: 'Postgraduate Programs' },
-              { id: 'professional', label: 'Professional & Certification Courses' },
-            ].map((tab) => (
+            {UNIVERSITY_TABS.map((tab) => (
               <motion.div
                 key={tab.id}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className={`relative rounded-lg p-[2px] overflow-hidden w-full sm:w-auto ${
                   activeTab === tab.id ? 'bg-gradient-gold' : ''
                 }`}
@@ -260,7 +261,7 @@ const Universities = () => {
               <motion.div
                     key={`${activeTab}-${uni.id}`}
                     custom={idx}
-                    variants={cardVariants}
+                    variants={CARD_VARIANTS}
                     initial="hidden"
                     animate="visible"
                     whileHover={{ 

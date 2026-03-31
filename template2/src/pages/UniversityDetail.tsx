@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { getUniversityBySlug } from '../data/universities'
@@ -80,12 +80,23 @@ const UniversityDetail = () => {
   const universityName =
     state?.name ?? universityFromData?.name ?? (slug ? slugToName(slug) : 'University')
   const course = state?.course
+  const highlightRows = useMemo(() => getHighlightRows(PROGRAMME_HIGHLIGHTS), [])
+  const programsByCategory = useMemo(() => {
+    if (!universityFromData) return []
+    const courses = getCoursesByIds(universityFromData.courseIds)
+    const grouped = courses.reduce<Record<string, typeof courses>>((acc, c) => {
+      if (!acc[c.category]) acc[c.category] = []
+      acc[c.category].push(c)
+      return acc
+    }, {})
+    return Object.entries(grouped)
+  }, [universityFromData])
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [slug])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (course && slug) {
       navigate('/courses', {
         state: { universityName, universitySlug: slug },
@@ -93,12 +104,22 @@ const UniversityDetail = () => {
     } else {
       navigate('/universities')
     }
-  }
+  }, [course, slug, navigate, universityName])
+
+  const handleViewAllCourses = useCallback(() => {
+    if (!universityFromData) return
+    navigate('/courses', {
+      state: {
+        universityName: universityFromData.name,
+        universitySlug: universityFromData.slug,
+      },
+    })
+  }, [navigate, universityFromData])
 
   if (course) {
     return (
       <motion.div
-        className="w-full bg-offwhite min-h-screen"
+        className="w-full bg-offwhite min-h-screen overflow-x-hidden"
         variants={PAGE_VARIANTS}
         initial="hidden"
         animate="visible"
@@ -161,11 +182,11 @@ const UniversityDetail = () => {
             variants={SECTION_VARIANTS}
             className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-4">
-              Programme Overview
+            <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-4 text-center">
+              Programe Overview
             </h2>
-            <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-start">
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+            <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-start min-w-0 max-md:items-center max-md:justify-items-center">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-md:text-center max-md:mx-auto">
                 {course.desc}{' '}
                 This specialised programme at {universityName} is designed to strengthen your
                 managerial foundation while sharpening analytical, leadership, and communication
@@ -209,9 +230,26 @@ const UniversityDetail = () => {
               Key reasons why this programme stands out and adds tangible value to your academic and career journey.
             </p>
 
-            <div className="relative max-w-4xl mx-auto">
+            <div className="md:hidden">
+              <ul className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
+                {PROGRAMME_HIGHLIGHTS.map((item, index) => (
+                  <li
+                    key={index}
+                    className="rounded-xl bg-offwhite/90 border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-gold" />
+                      <p className="text-sm sm:text-base font-medium text-gray-800 leading-relaxed break-words">
+                        {item}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="hidden md:block relative max-w-4xl mx-auto">
               <div className="space-y-8 sm:space-y-10">
-                {getHighlightRows(PROGRAMME_HIGHLIGHTS).map((row, rowIndex, allRows) => {
+                {highlightRows.map((row, rowIndex, allRows) => {
                   const [leftItem, rightItem] = row
                   const isLastRow = rowIndex === allRows.length - 1
                   const hasCards = Boolean(leftItem || rightItem)
@@ -236,7 +274,7 @@ const UniversityDetail = () => {
                       <div className="flex justify-end relative z-10">
                         {leftItem && (
                           <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
-                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed">
+                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {leftItem}
                             </p>
                           </div>
@@ -260,7 +298,7 @@ const UniversityDetail = () => {
                       <div className="flex justify-start relative z-10">
                         {rightItem && (
                           <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
-                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed">
+                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {rightItem}
                             </p>
                           </div>
@@ -422,7 +460,7 @@ const UniversityDetail = () => {
 
           <motion.section
             variants={SECTION_VARIANTS}
-            className="bg-gradient-to-br from-[#00275E] to-[#00275E]/90 rounded-2xl shadow-lg border border-gold-bright/20 p-6 sm:p-8 text-white mb-8"
+            className="bg-gradient-to-br from-[#00275E] to-[#00275E]/90 rounded-2xl shadow-lg border border-gold-bright/20 p-6 sm:p-8 text-white mt-8 mb-8"
           >
             <h2 className="text-xl sm:text-2xl font-bold text-gold-bright mb-4">
               Career Paths
@@ -506,42 +544,27 @@ const UniversityDetail = () => {
               {universityFromData.location}
             </p>
             <div className="space-y-6">
-              {(() => {
-                const courses = getCoursesByIds(universityFromData.courseIds)
-                const byCategory = courses.reduce<Record<string, typeof courses>>((acc, c) => {
-                  if (!acc[c.category]) acc[c.category] = []
-                  acc[c.category].push(c)
-                  return acc
-                }, {})
-                return Object.entries(byCategory).map(([category, list]) => (
-                  <div key={category}>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                      {category}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {list.map((course) => (
-                        <span
-                          key={course.id}
-                          className="px-3 py-1.5 rounded-lg bg-gold/10 text-gold font-medium text-sm"
-                          title={course.fullName}
-                        >
-                          {course.fullName} ({course.shortName})
-                        </span>
-                      ))}
-                    </div>
+              {programsByCategory.map(([category, list]) => (
+                <div key={category}>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    {category}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {list.map((course) => (
+                      <span
+                        key={course.id}
+                        className="px-3 py-1.5 rounded-lg bg-gold/10 text-gold font-medium text-sm"
+                        title={course.fullName}
+                      >
+                        {course.fullName} ({course.shortName})
+                      </span>
+                    ))}
                   </div>
-                ))
-              })()}
+                </div>
+              ))}
             </div>
             <motion.button
-              onClick={() =>
-                navigate('/courses', {
-                  state: {
-                    universityName: universityFromData.name,
-                    universitySlug: universityFromData.slug,
-                  },
-                })
-              }
+              onClick={handleViewAllCourses}
               className="mt-6 inline-block bg-[#00275E] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#00275E]/90 transition-colors"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -631,9 +654,26 @@ const UniversityDetail = () => {
             An at-a-glance summary of how this university delivers a structured, supportive and outcomes-focused learning experience for management aspirants.
           </p>
 
-          <div className="relative max-w-4xl mx-auto">
+          <div className="md:hidden">
+            <ul className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
+              {PROGRAMME_HIGHLIGHTS.map((item, index) => (
+                <li
+                  key={index}
+                  className="rounded-xl bg-offwhite/90 border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-gold" />
+                    <p className="text-sm sm:text-base font-medium text-gray-800 leading-relaxed break-words">
+                      {item}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="hidden md:block relative max-w-4xl mx-auto">
             <div className="space-y-8 sm:space-y-10">
-              {getHighlightRows(PROGRAMME_HIGHLIGHTS).map((row, rowIndex, allRows) => {
+              {highlightRows.map((row, rowIndex, allRows) => {
                 const [leftItem, rightItem] = row
                 const isLastRow = rowIndex === allRows.length - 1
                 const hasCards = Boolean(leftItem || rightItem)
@@ -658,7 +698,7 @@ const UniversityDetail = () => {
                     <div className="flex justify-end relative z-10">
                       {leftItem && (
                         <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
-                          <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed">
+                          <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                             {leftItem}
                           </p>
                         </div>
@@ -682,7 +722,7 @@ const UniversityDetail = () => {
                     <div className="flex justify-start relative z-10">
                       {rightItem && (
                         <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
-                          <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed">
+                          <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                             {rightItem}
                           </p>
                         </div>

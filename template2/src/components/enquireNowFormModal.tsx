@@ -11,7 +11,7 @@ const PAGES_NO_ENQUIRE_MODAL = ['/careers', '/contact']
 
 // Web3Forms
 const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
-const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '23fba237-4956-4562-a399-973a34a2bda1'
+const WEB3_FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '23fba237-4956-4562-a399-973a34a2bda1'
 
 const UNIVERSITIES = [
   'Amity University',
@@ -177,7 +177,7 @@ export const EnquireNowFormModal = () => {
 
       try {
         const payload: Record<string, string> = {
-          access_key: web3FormsAccessKey,
+          access_key: WEB3_FORMS_ACCESS_KEY,
           subject: 'Enquire Now – Course / University interest',
           from_name: form.fullName,
           email: form.email,
