@@ -15,38 +15,38 @@ export type University = {
 export const universitiesData: University[] = [
   {
     id: 1,
-    name: "VIT Online",
-    fullName: "Vellore Institute of Technology Online",
+    name: "Vellore Institute of Technology (VIT)",
+    fullName: "Vellore Institute of Technology (VIT)",
     slug: "vit-online",
     location: "India",
-    courseIds: [1, 2, 3, 5, 6, 7, 10, 11, 13],
+    courseIds: [5, 6, 21],
     logo: "https://ui-avatars.com/api/?name=VIT&size=128&background=00275E&color=fff&bold=true"
   },
   {
     id: 2,
-    name: "NMIMS University",
-    fullName: "Narsee Monjee Institute of Management Studies",
+    name: "NMIMS",
+    fullName: "Narsee Monjee Institute of Management Studies (NMIMS)",
     slug: "nmims-university",
     location: "India",
-    courseIds: [1, 2, 5, 8, 12, 13],
+    courseIds: [1, 17, 18, 5, 19, 20],
     logo: "https://ui-avatars.com/api/?name=NMIMS&size=128&background=00275E&color=fff&bold=true"
   },
   {
     id: 3,
-    name: "Manipal University Jaipur",
-    fullName: "Manipal University Jaipur (Online Programs)",
+    name: "Manipal University Jaipur (MUJ)",
+    fullName: "Manipal University Jaipur (MUJ)",
     slug: "manipal-university-jaipur",
     location: "India",
-    courseIds: [2, 3, 4, 5, 6, 10, 12],
+    courseIds: [1, 2, 3, 22, 5, 6, 23, 24, 25],
     logo: "https://ui-avatars.com/api/?name=MUJ&size=128&background=00275E&color=fff&bold=true"
   },
   {
     id: 4,
-    name: "Sikkim Manipal University",
-    fullName: "Sikkim Manipal University",
+    name: "Sikkim Manipal University (SMU)",
+    fullName: "Sikkim Manipal University (SMU)",
     slug: "sikkim-manipal-university",
     location: "India",
-    courseIds: [1, 4, 5, 6, 8],
+    courseIds: [4, 22, 5, 6, 26, 27, 28],
     logo: "https://ui-avatars.com/api/?name=SMU&size=128&background=00275E&color=fff&bold=true"
   },
   {
@@ -60,11 +60,11 @@ export const universitiesData: University[] = [
   },
   {
     id: 6,
-    name: "DY Patil Pune",
+    name: "Dr. D. Y. Patil Vidyapeeth, Pune",
     fullName: "Dr. D. Y. Patil Vidyapeeth, Pune",
     slug: "dy-patil-pune",
     location: "India",
-    courseIds: [1, 2, 5, 7, 9],
+    courseIds: [2, 5, 14, 6, 15, 16],
     logo: "https://ui-avatars.com/api/?name=DYP&size=128&background=00275E&color=fff&bold=true"
   },
   {
@@ -78,11 +78,11 @@ export const universitiesData: University[] = [
   },
   {
     id: 8,
-    name: "Jain University",
-    fullName: "Jain (Deemed-to-be University), Online Programs",
+    name: "JAIN (Deemed-to-be University)",
+    fullName: "JAIN (Deemed-to-be University)",
     slug: "jain-university",
     location: "India",
-    courseIds: [1, 2, 3, 5, 6, 7, 10, 12, 13],
+    courseIds: [2, 1, 3, 22, 5, 6],
     logo: "https://ui-avatars.com/api/?name=Jain&size=128&background=00275E&color=fff&bold=true"
   }
 ]

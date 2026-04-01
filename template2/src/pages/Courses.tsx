@@ -4,11 +4,11 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import {
   getUniversityBySlug,
   getUniversitiesOfferingCourse,
-  TAB_TO_CATEGORY_TYPES,
 } from '../data/universities'
 import type { University } from '../data/universities'
 import { coursesMasterData, getCoursesByIds, TAB_TO_CATEGORIES } from '../data/courses'
 import type { CourseMaster } from '../data/courses'
+import { toCourseSlug } from '../utils/courseSlug'
 import {
   Landmark,
   Briefcase,
@@ -82,6 +82,21 @@ const COURSE_ICONS: Record<number, JSX.Element> = {
   11: <CloudCog className={COURSE_ICON_CLASS} />,
   12: <BarChart3 className={COURSE_ICON_CLASS} />,
   13: <Database className={COURSE_ICON_CLASS} />,
+  14: <Briefcase className={COURSE_ICON_CLASS} />,
+  15: <BarChart3 className={COURSE_ICON_CLASS} />,
+  16: <Stethoscope className={COURSE_ICON_CLASS} />,
+  17: <Briefcase className={COURSE_ICON_CLASS} />,
+  18: <BarChart3 className={COURSE_ICON_CLASS} />,
+  19: <FileText className={COURSE_ICON_CLASS} />,
+  20: <BookOpenText className={COURSE_ICON_CLASS} />,
+  21: <Database className={COURSE_ICON_CLASS} />,
+  22: <BookOpenText className={COURSE_ICON_CLASS} />,
+  23: <Microscope className={COURSE_ICON_CLASS} />,
+  24: <BarChart3 className={COURSE_ICON_CLASS} />,
+  25: <FileText className={COURSE_ICON_CLASS} />,
+  26: <BookOpenText className={COURSE_ICON_CLASS} />,
+  27: <Landmark className={COURSE_ICON_CLASS} />,
+  28: <Database className={COURSE_ICON_CLASS} />,
 }
 
 function renderCourseIcon(courseId: number, fallback: string) {
@@ -123,7 +138,7 @@ const Courses = () => {
 
   const handleKnowMore = useCallback((course: CourseMaster) => {
     if (selectedUniversity && universityName && universitySlug) {
-      navigate(`/universities/${universitySlug}`, {
+      navigate(`/universities/${universitySlug}/courses/${toCourseSlug(course.shortName)}`, {
         state: { name: universityName, course: toCourseState(course) },
       })
     } else {
@@ -133,7 +148,7 @@ const Courses = () => {
 
   const handleSelectUniversityForCourse = useCallback((uni: University, course: CourseMaster) => {
     setCourseForUniversitiesModal(null)
-    navigate(`/universities/${uni.slug}`, {
+    navigate(`/universities/${uni.slug}/courses/${toCourseSlug(course.shortName)}`, {
       state: { name: uni.name, course: toCourseState(course) },
     })
   }, [navigate])
@@ -325,7 +340,22 @@ const Courses = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
             >
-            {currentCourses.map((course, idx) => (
+            {currentCourses.length === 0 && selectedUniversity ? (
+              <motion.div
+                className="bg-white rounded-xl p-6 sm:p-8 shadow-md border border-gray-100 text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+              >
+                <h3 className="text-lg sm:text-xl font-semibold text-[#00275E] mb-2">
+                  No courses available in this category
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600">
+                  {selectedUniversity.name} is currently not offering programs under this section.
+                </p>
+              </motion.div>
+            ) : (
+            currentCourses.map((course, idx) => (
               <motion.div
                   key={course.id}
                   initial={{ opacity: 0, y: 40 }}
@@ -446,7 +476,7 @@ const Courses = () => {
                     </div>
                   </div>
                 </motion.div>
-            ))}
+            )))}
             </motion.div>
           </AnimatePresence>
         </div>

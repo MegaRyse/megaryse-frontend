@@ -251,6 +251,224 @@ export const coursesMasterData: CourseMaster[] = [
       "Data Engineering"
     ],
     careerPaths: ["Data Scientist", "Data Engineer", "Analytics Consultant"]
+  },
+  {
+    id: 14,
+    shortName: "MBA WX",
+    fullName: "MBA for Working Professionals",
+    category: "Postgraduate Programs",
+    icon: "🧑‍💼",
+    description:
+      "Designed for working professionals with global exposure and leadership focus.",
+    specializations: [
+      "Marketing",
+      "HR",
+      "FinTech",
+      "AI & Machine Learning",
+      "Business Analytics",
+      "Digital Marketing",
+      "Supply Chain Management"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 15,
+    shortName: "CPDM",
+    fullName: "Certificate Programme in Digital Marketing",
+    category: "Professional & Certificate Courses",
+    icon: "📣",
+    description:
+      "Covers SEO, social media marketing, and digital strategies.",
+    specializations: ["SEO", "Social Media Marketing", "Digital Strategies"],
+    careerPaths: [
+      "Digital Marketing Executive",
+      "SEO Specialist",
+      "Social Media Manager",
+      "Performance Marketer"
+    ]
+  },
+  {
+    id: 16,
+    shortName: "CPHAHM",
+    fullName: "Certificate Programme in Hospital & Healthcare Management",
+    category: "Professional & Certificate Courses",
+    icon: "🏨",
+    description:
+      "Focus on hospital administration, healthcare operations, and management.",
+    specializations: [
+      "Hospital Administration",
+      "Healthcare Operations",
+      "Healthcare Management"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 17,
+    shortName: "BBA_MF",
+    fullName: "BBA (Marketing & Finance)",
+    category: "Undergraduate Programs",
+    icon: "📊",
+    description:
+      "Focused programme in marketing and financial management with strong business foundation.",
+    specializations: ["Marketing", "Finance"],
+    careerPaths: []
+  },
+  {
+    id: 18,
+    shortName: "BBA_BA",
+    fullName: "BBA (Business Analytics Elective)",
+    category: "Undergraduate Programs",
+    icon: "📈",
+    description:
+      "Business programme integrating marketing, finance, and analytics for data-driven decision making.",
+    specializations: ["Business Analytics"],
+    careerPaths: []
+  },
+  {
+    id: 19,
+    shortName: "DIPLOMA",
+    fullName: "Online Diploma Programmes",
+    category: "Diploma Programs",
+    icon: "📘",
+    description:
+      "Short-term diploma programmes for working professionals with industry-focused skills.",
+    specializations: [
+      "Finance Management",
+      "Marketing Management",
+      "Business Management",
+      "Operations Management",
+      "Human Resource Management"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 20,
+    shortName: "CERTIFICATION",
+    fullName: "Certificate in Business Management",
+    category: "Professional & Certificate Courses",
+    icon: "📜",
+    description:
+      "Short-term programme covering core business and management principles.",
+    specializations: ["Business Management"],
+    careerPaths: [
+      "Business Development Manager",
+      "Business Strategy Manager"
+    ]
+  },
+  {
+    id: 21,
+    shortName: "MSC_DS",
+    fullName: "M.Sc Data Science",
+    category: "Postgraduate Programs",
+    icon: "📊",
+    description:
+      "Programme designed to build expertise in data analytics, machine learning, and data-driven decision making.",
+    specializations: [
+      "Data Analytics",
+      "Machine Learning",
+      "Big Data Analytics",
+      "Statistical Analysis"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 22,
+    shortName: "MCOM",
+    fullName: "Master of Commerce",
+    category: "Postgraduate Programs",
+    icon: "📚",
+    description:
+      "Advanced commerce programme focusing on finance, accounting, and analytics.",
+    specializations: [],
+    careerPaths: []
+  },
+  {
+    id: 23,
+    shortName: "MSC_MATHS",
+    fullName: "M.Sc Mathematics",
+    category: "Postgraduate Programs",
+    icon: "🧮",
+    description:
+      "Advanced mathematics programme covering pure and applied mathematics with research focus.",
+    specializations: [
+      "Data Science",
+      "Computational Science",
+      "Econometrics"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 24,
+    shortName: "MA_ECONOMICS",
+    fullName: "Master of Arts in Economics",
+    category: "Postgraduate Programs",
+    icon: "📈",
+    description:
+      "Economics programme focusing on applied and financial economics with research and analytics.",
+    specializations: [
+      "Applied Economics",
+      "Financial Economics"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 25,
+    shortName: "MAJMC",
+    fullName: "MA Journalism & Mass Communication",
+    category: "Postgraduate Programs",
+    icon: "📰",
+    description:
+      "Media and communication programme focusing on journalism, digital media, and PR.",
+    specializations: [],
+    careerPaths: []
+  },
+  {
+    id: 26,
+    shortName: "MA_ENGLISH",
+    fullName: "Master of Arts in English",
+    category: "Postgraduate Programs",
+    icon: "📖",
+    description:
+      "Programme focused on literature, critical theory, and research.",
+    specializations: [
+      "American Literature",
+      "Indian Literature",
+      "Post-Colonial Literature",
+      "World Literature"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 27,
+    shortName: "MA_POLITICAL_SCIENCE",
+    fullName: "Master of Arts in Political Science",
+    category: "Postgraduate Programs",
+    icon: "🏛️",
+    description:
+      "Programme covering political theory, governance, and global politics.",
+    specializations: [
+      "Indian Politics",
+      "Western Political Thought",
+      "International Relations",
+      "Public Policy"
+    ],
+    careerPaths: []
+  },
+  {
+    id: 28,
+    shortName: "MA_SOCIOLOGY",
+    fullName: "Master of Arts in Sociology",
+    category: "Postgraduate Programs",
+    icon: "🌐",
+    description:
+      "Programme focusing on social structures, globalization, and societal issues.",
+    specializations: [
+      "Sociological Theories",
+      "Indian Society",
+      "Globalization",
+      "Social Movements"
+    ],
+    careerPaths: []
   }
 ]
 
