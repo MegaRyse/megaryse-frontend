@@ -267,13 +267,15 @@ const UniversityDetail = () => {
               <div className="space-y-8 sm:space-y-10">
                 {highlightRows.map((row, rowIndex, allRows) => {
                   const [leftItem, rightItem] = row
+                  const singleItem = leftItem ?? rightItem
                   const isLastRow = rowIndex === allRows.length - 1
-                  const hasCards = Boolean(leftItem || rightItem)
+                  const hasBothCards = Boolean(leftItem && rightItem)
+                  const hasSingleCard = Boolean(singleItem && !hasBothCards)
 
                   return (
                     <div
                       key={rowIndex}
-                      className="relative grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-12 sm:gap-16 items-stretch"
+                      className="relative grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-x-12 sm:gap-x-16 gap-y-0 items-stretch"
                     >
                       {!isLastRow && (
                         <div
@@ -281,14 +283,14 @@ const UniversityDetail = () => {
                           className="hidden sm:block absolute left-1/2 -translate-x-1/2 top-full h-8 sm:h-10 border-l-2 border-dotted border-blue-custom/50"
                         />
                       )}
-                      {hasCards && (
+                      {hasBothCards && (
                         <div
                           aria-hidden
                           className="absolute left-[6%] right-[6%] top-1/2 -translate-y-1/2 hidden sm:block border-t-2 border-dotted border-blue-custom/50 pointer-events-none z-0"
                         />
                       )}
                       <div className="flex justify-end relative z-10">
-                        {leftItem && (
+                        {hasBothCards && leftItem && (
                           <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {leftItem}
@@ -310,9 +312,15 @@ const UniversityDetail = () => {
                             className="hidden sm:block absolute left-1/2 -translate-x-1/2 bottom-0 h-[calc(50%-0.375rem)] border-l-2 border-dotted border-blue-custom/50"
                           />
                         )}
+                        {hasSingleCard && (
+                          <span
+                            aria-hidden
+                            className="hidden sm:block absolute left-1/2 -translate-x-1/2 top-[calc(50%+0.375rem)] h-[calc(50%+2.25rem)] border-l-2 border-dotted border-blue-custom/50"
+                          />
+                        )}
                       </div>
                       <div className="flex justify-start relative z-10">
-                        {rightItem && (
+                        {hasBothCards && rightItem && (
                           <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {rightItem}
@@ -320,6 +328,15 @@ const UniversityDetail = () => {
                           </div>
                         )}
                       </div>
+                      {hasSingleCard && (
+                        <div className="col-span-3 flex flex-col items-center relative z-30">
+                          <div className="w-full max-w-[26rem] rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
+                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words text-center">
+                              {singleItem}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -487,21 +504,7 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
-          {!!courseContent?.careers?.length && (
-            <motion.section
-              variants={SECTION_VARIANTS}
-              className="bg-gradient-to-br from-[#00275E] to-[#00275E]/90 rounded-2xl shadow-lg border border-gold-bright/20 p-6 sm:p-8 text-white mt-8"
-            >
-              <h2 className="text-xl sm:text-2xl font-bold text-gold-bright mb-4">
-                Career Paths
-              </h2>
-              <p className="text-white/90 leading-relaxed">
-                {courseContent.careers.join(', ')}
-              </p>
-            </motion.section>
-          )}
 
-          
         </div>
       </motion.div>
     )

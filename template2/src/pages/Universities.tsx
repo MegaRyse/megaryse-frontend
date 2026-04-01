@@ -69,9 +69,13 @@ const Universities = () => {
 
   const handleUniversitySelect = useCallback((uni: University) => {
     navigate('/courses', {
-      state: { universityName: uni.name, universitySlug: uni.slug },
+      state: {
+        universityName: uni.name,
+        universitySlug: uni.slug,
+        selectedTab: activeTab,
+      },
     })
-  }, [navigate])
+  }, [navigate, activeTab])
 
   return (
     <div className="w-full bg-offwhite">

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   getUniversityBySlug,
@@ -9,6 +9,7 @@ import type { University } from '../data/universities'
 import { coursesMasterData, getCoursesByIds, TAB_TO_CATEGORIES } from '../data/courses'
 import type { CourseMaster } from '../data/courses'
 import { toCourseSlug } from '../utils/courseSlug'
+import { getUniversityCourseContent } from '../content/universityCourseContent'
 import {
   Landmark,
   Briefcase,
@@ -30,6 +31,7 @@ const COURSE_TABS = [
   { id: 'postgraduate', label: 'Postgraduate Programs' },
   { id: 'professional', label: 'Professional & Certification Courses' },
 ] as const
+type CourseTabId = typeof COURSE_TABS[number]['id']
 
 const CONTAINER_VARIANTS = {
   hidden: { opacity: 0 },
@@ -108,15 +110,44 @@ function renderCourseIcon(courseId: number, fallback: string) {
 const Courses = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const universityState = location.state as { universityName?: string; universitySlug?: string } | null
+  const universityState = location.state as {
+    universityName?: string
+    universitySlug?: string
+    selectedTab?: CourseTabId
+  } | null
   const universityName = universityState?.universityName
   const universitySlug = universityState?.universitySlug
+  const selectedTabFromState = universityState?.selectedTab
   const selectedUniversity = universitySlug ? getUniversityBySlug(universitySlug) : undefined
 
-  const [activeTab, setActiveTab] = useState<'undergraduate' | 'postgraduate' | 'professional'>('undergraduate')
+  const [activeTab, setActiveTab] = useState<CourseTabId>(selectedTabFromState ?? 'undergraduate')
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const [hoveredTab, setHoveredTab] = useState<string | null>(null)
   const [courseForUniversitiesModal, setCourseForUniversitiesModal] = useState<CourseMaster | null>(null)
+
+  const availableTabs = useMemo(() => {
+    if (!selectedUniversity) return COURSE_TABS
+    const universityCourses = getCoursesByIds(selectedUniversity.courseIds)
+    const availableTabIds = new Set(
+      COURSE_TABS
+        .filter((tab) =>
+          universityCourses.some((course) =>
+            (TAB_TO_CATEGORIES[tab.id] ?? []).includes(course.category)
+          )
+        )
+        .map((tab) => tab.id)
+    )
+    return COURSE_TABS.filter((tab) => availableTabIds.has(tab.id))
+  }, [selectedUniversity])
+
+  useEffect(() => {
+    if (!availableTabs.some((tab) => tab.id === activeTab)) {
+      const fallbackTab = availableTabs[0]?.id
+      if (fallbackTab) {
+        setActiveTab(fallbackTab as CourseTabId)
+      }
+    }
+  }, [availableTabs, activeTab])
 
   const categoriesForTab = TAB_TO_CATEGORIES[activeTab] ?? []
   const currentCourses: CourseMaster[] = useMemo(
@@ -135,6 +166,11 @@ const Courses = () => {
         : [],
     [courseForUniversitiesModal]
   )
+  const getCourseCareerPaths = useCallback((course: CourseMaster) => {
+    if (!universitySlug) return course.careerPaths
+    const content = getUniversityCourseContent(universitySlug, toCourseSlug(course.shortName))
+    return content?.careers?.length ? content.careers : course.careerPaths
+  }, [universitySlug])
 
   const handleKnowMore = useCallback((course: CourseMaster) => {
     if (selectedUniversity && universityName && universitySlug) {
@@ -228,7 +264,7 @@ const Courses = () => {
             initial="hidden"
             animate="visible"
           >
-            {COURSE_TABS.map((tab) => (
+            {availableTabs.map((tab) => (
               <motion.div
                 key={tab.id}
                 variants={ITEM_VARIANTS}
@@ -437,12 +473,14 @@ const Courses = () => {
                           ))}
                         </div>
                       </div>
-                      <div className="mb-4">
-                        <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Career Paths:</p>
-                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                          {course.careerPaths.join(', ')}
-                        </p>
-                      </div>
+                      {getCourseCareerPaths(course).length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Career Paths:</p>
+                          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                            {getCourseCareerPaths(course).join(', ')}
+                          </p>
+                        </div>
+                      )}
                       <motion.button
                         onClick={(e) => {
                           e.stopPropagation()

@@ -328,18 +328,33 @@ export const coursesMasterData: CourseMaster[] = [
     id: 19,
     shortName: "DIPLOMA",
     fullName: "Online Diploma Programmes",
-    category: "Diploma Programs",
+    category: "Professional & Certificate Courses",
     icon: "📘",
     description:
       "Short-term diploma programmes for working professionals with industry-focused skills.",
     specializations: [
-      "Finance Management",
-      "Marketing Management",
-      "Business Management",
-      "Operations Management",
-      "Human Resource Management"
+      "Diploma in Finance Management",
+      "Diploma in Marketing Management",
+      "Diploma in Business Management",
+      "Diploma in Operations Management",
+      "Diploma in Human Resource Management"
     ],
-    careerPaths: []
+    careerPaths: [
+      "Financial Auditor",
+      "Financial Planning Analyst",
+      "Financial Planner",
+      "Product Manager",
+      "Brand Manager",
+      "Business Strategy Manager",
+      "Business Development Manager",
+      "Account Manager",
+      "Operations Manager",
+      "Supply Chain Analyst",
+      "Process Improvement Manager",
+      "Talent Acquisition Manager",
+      "Employee Relations Manager",
+      "HR Operations Manager"
+    ]
   },
   {
     id: 20,
