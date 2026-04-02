@@ -34,7 +34,7 @@ function useIsTabletOrDesktop() {
   }, [])
   return isTabletOrDesktop
 }
-import HeroImg2 from '../assets/images/Hero_Img2.png'
+import HeroImg2 from '../assets/images/Hero_img2.png'
 import careerCounsellingImg from '../assets/images/career_counselling.png'
 import admissionProcessImg from '../assets/images/admission_process.png'
 import programsImg from '../assets/images/programs.png'
