@@ -17,6 +17,8 @@ export type UniversityCourseContent = {
   highlights: string[]
   mode?: string
   duration?: string
+  /** When set, course list cards can prefer this over CourseMaster.specializations */
+  specializations?: string[]
   keyTopics?: string[]
   eligibility?: string[]
   fees?: FeeDetails

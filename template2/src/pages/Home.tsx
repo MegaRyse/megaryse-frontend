@@ -902,28 +902,25 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             className="mt-16 sm:mt-20 max-w-4xl mx-auto"
           >
-            <h3 className="text-xl sm:text-2xl font-bold text-black mb-6 sm:mb-8 text-center">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-black mb-5 sm:mb-7 text-center">
               Our Universities
             </h3>
             <div className="overflow-hidden">
-              <div className="flex gap-8 sm:gap-10 w-max animate-partner-scroll">
+              <div className="flex gap-4 sm:gap-6 md:gap-8 w-max will-change-transform transform-gpu motion-safe:animate-partner-scroll motion-reduce:animate-none">
                 {partnerUniversitiesMarquee.map((uni, idx) => (
                   <Link
                     key={`${uni.id}-${idx}`}
                     to="/courses"
                     state={{ universityName: uni.name, universitySlug: uni.slug }}
-                    className="flex flex-col items-center text-center group flex-shrink-0 w-24 sm:w-28"
+                    className="flex flex-col items-center text-center group flex-shrink-0"
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-white border border-gray-100 shadow-sm group-hover:shadow-md group-hover:border-gold/30 transition-all flex-shrink-0 mb-2">
+                    <div className="flex-shrink-0 mb-2">
                       <img
                         src={uni.logo}
                         alt={uni.name}
-                        className="w-full h-full object-cover"
+                        className="block w-auto h-auto max-w-[70px] sm:max-w-[86px] md:max-w-[96px] max-h-[52px] sm:max-h-[64px] object-contain"
                       />
                     </div>
-                    <span className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-[#00275E] transition-colors line-clamp-2">
-                      {uni.name}
-                    </span>
                   </Link>
                 ))}
               </div>

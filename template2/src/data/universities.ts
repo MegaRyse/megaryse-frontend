@@ -1,6 +1,20 @@
 import { TAB_TO_CATEGORIES } from './courses'
 import { coursesMasterData } from './courses'
 
+import VITLogo from '../assets/images/VIT.png'
+import NMIMSLogo from '../assets/images/NMIMS.png'
+import ManipalLogo from '../assets/images/Manipal.png'
+import SMULogo from '../assets/images/SMU.png'
+import AmityLogo from '../assets/images/Amity.png'
+import DYPatilLogo from '../assets/images/DYPatil.png'
+import BennetLogo from '../assets/images/Bennet.png'
+import JainUniversityLogo from '../assets/images/Jain_University.png'
+
+export type UniversityBenefits = {
+  emi?: string
+  scholarships?: string[]
+}
+
 export type University = {
   id: number
   name: string
@@ -10,6 +24,8 @@ export type University = {
   courseIds: number[]
   /** Logo image URL or path (e.g. /logos/vit-online.png) */
   logo: string
+  admissionStatus?: string
+  benefits?: UniversityBenefits
 }
 
 export const universitiesData: University[] = [
@@ -20,7 +36,7 @@ export const universitiesData: University[] = [
     slug: "vit-online",
     location: "India",
     courseIds: [5, 6, 21],
-    logo: "https://ui-avatars.com/api/?name=VIT&size=128&background=00275E&color=fff&bold=true"
+    logo: VITLogo
   },
   {
     id: 2,
@@ -29,7 +45,7 @@ export const universitiesData: University[] = [
     slug: "nmims-university",
     location: "India",
     courseIds: [1, 17, 18, 5, 19, 20],
-    logo: "https://ui-avatars.com/api/?name=NMIMS&size=128&background=00275E&color=fff&bold=true"
+    logo: NMIMSLogo
   },
   {
     id: 3,
@@ -38,7 +54,7 @@ export const universitiesData: University[] = [
     slug: "manipal-university-jaipur",
     location: "India",
     courseIds: [1, 2, 3, 22, 5, 6, 23, 24, 25],
-    logo: "https://ui-avatars.com/api/?name=MUJ&size=128&background=00275E&color=fff&bold=true"
+    logo: ManipalLogo
   },
   {
     id: 4,
@@ -47,7 +63,7 @@ export const universitiesData: University[] = [
     slug: "sikkim-manipal-university",
     location: "India",
     courseIds: [4, 22, 5, 6, 26, 27, 28],
-    logo: "https://ui-avatars.com/api/?name=SMU&size=128&background=00275E&color=fff&bold=true"
+    logo: SMULogo
   },
   {
     id: 5,
@@ -55,8 +71,18 @@ export const universitiesData: University[] = [
     fullName: "Amity University Online",
     slug: "amity-university",
     location: "India",
-    courseIds: [2, 3, 4, 5, 6, 7, 10, 11, 13],
-    logo: "https://ui-avatars.com/api/?name=Amity&size=128&background=00275E&color=fff&bold=true"
+    courseIds: [1, 2, 3, 4, 5, 6, 21, 22, 29],
+    logo: AmityLogo,
+    admissionStatus: "Open",
+    benefits: {
+      emi: "No-cost EMI available",
+      scholarships: [
+        "Defence personnel",
+        "Government employees",
+        "Differently-abled individuals",
+        "Academically outstanding students"
+      ]
+    }
   },
   {
     id: 6,
@@ -65,16 +91,16 @@ export const universitiesData: University[] = [
     slug: "dy-patil-pune",
     location: "India",
     courseIds: [2, 5, 14, 6, 15, 16],
-    logo: "https://ui-avatars.com/api/?name=DYP&size=128&background=00275E&color=fff&bold=true"
+    logo: DYPatilLogo
   },
   {
     id: 7,
-    name: "UMASS Global",
-    fullName: "University of Massachusetts Global",
-    slug: "umass-global",
-    location: "United States",
+    name: "Bennet University",
+    fullName: "Bennet University",
+    slug: "bennet-university",
+    location: "India",
     courseIds: [2, 4, 5, 7, 12, 11],
-    logo: "https://ui-avatars.com/api/?name=UMASS&size=128&background=00275E&color=fff&bold=true"
+    logo: BennetLogo
   },
   {
     id: 8,
@@ -83,7 +109,7 @@ export const universitiesData: University[] = [
     slug: "jain-university",
     location: "India",
     courseIds: [2, 1, 3, 22, 5, 6],
-    logo: "https://ui-avatars.com/api/?name=Jain&size=128&background=00275E&color=fff&bold=true"
+    logo: JainUniversityLogo
   }
 ]
 

@@ -3,7 +3,6 @@ import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUniversitiesByTab, type University } from '../data/universities'
 
-const LOGOS = ['🏛️', '🎓', '📚', '🌟', '💎', '🏆', '💻', '🌍']
 const UNIVERSITY_TABS = [
   { id: 'undergraduate', label: 'Undergraduate Programs' },
   { id: 'postgraduate', label: 'Postgraduate Programs' },
@@ -302,12 +301,29 @@ const Universities = () => {
                     />
 
                     {/* Logo */}
-                    <div className="text-5xl mb-4 text-center">
-                      {LOGOS[uni.id % LOGOS.length]}
+                    <div className="mb-4 text-center">
+                      <img
+                        src={uni.logo}
+                        alt={uni.name}
+                        className="block w-auto h-auto max-w-[84px] sm:max-w-[96px] md:max-w-[120px] max-h-[62px] sm:max-h-[72px] md:max-h-[84px] object-contain mx-auto"
+                      />
                     </div>
 
+                    {uni.admissionStatus && (
+                      <div className="mb-2 flex flex-wrap items-center justify-center gap-2 px-1">
+                        <span className="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold text-emerald-800">
+                          Admission {uni.admissionStatus}
+                        </span>
+                        {uni.benefits?.emi && (
+                          <span className="text-center text-[10px] sm:text-xs text-gray-600">
+                            {uni.benefits.emi}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     {/* University Name */}
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 text-center">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 text-center leading-tight">
                       {uni.name}
                     </h3>
 

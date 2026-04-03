@@ -99,6 +99,7 @@ const COURSE_ICONS: Record<number, JSX.Element> = {
   26: <BookOpenText className={COURSE_ICON_CLASS} />,
   27: <Landmark className={COURSE_ICON_CLASS} />,
   28: <Database className={COURSE_ICON_CLASS} />,
+  29: <BookOpenText className={COURSE_ICON_CLASS} />,
 }
 
 function renderCourseIcon(courseId: number, fallback: string) {
@@ -171,6 +172,24 @@ const Courses = () => {
     const content = getUniversityCourseContent(universitySlug, toCourseSlug(course.shortName))
     return content?.careers?.length ? content.careers : course.careerPaths
   }, [universitySlug])
+
+  const getCourseListDescription = useCallback(
+    (course: CourseMaster) => {
+      if (!universitySlug) return course.description
+      const content = getUniversityCourseContent(universitySlug, toCourseSlug(course.shortName))
+      return content?.overview ?? course.description
+    },
+    [universitySlug]
+  )
+
+  const getCourseListSpecializations = useCallback(
+    (course: CourseMaster) => {
+      if (!universitySlug) return course.specializations
+      const content = getUniversityCourseContent(universitySlug, toCourseSlug(course.shortName))
+      return content?.specializations?.length ? content.specializations : course.specializations
+    },
+    [universitySlug]
+  )
 
   const handleKnowMore = useCallback((course: CourseMaster) => {
     if (selectedUniversity && universityName && universitySlug) {
@@ -458,12 +477,12 @@ const Courses = () => {
                         {course.fullName} ({course.shortName})
                       </h3>
                       <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">
-                        {course.description}
+                        {getCourseListDescription(course)}
                       </p>
                       <div className="mb-4">
                         <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Specializations:</p>
                         <div className="flex flex-wrap gap-2">
-                          {course.specializations.map((spec) => (
+                          {getCourseListSpecializations(course).map((spec) => (
                             <span
                               key={spec}
                               className="px-3 py-1 rounded-md text-xs font-medium bg-gold/10 text-gold border border-gold/20 transition-colors duration-200 hover:bg-blue-custom hover:text-white"

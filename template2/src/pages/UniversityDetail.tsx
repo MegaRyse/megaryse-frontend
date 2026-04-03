@@ -100,6 +100,11 @@ const UniversityDetail = () => {
   const course = state?.course ?? courseFromRouteState
   const highlights = courseContent?.highlights ?? []
   const highlightRows = useMemo(() => getHighlightRows(highlights), [highlights])
+  const courseSpecializations = useMemo(() => {
+    if (!course) return [] as string[]
+    if (courseContent?.specializations?.length) return courseContent.specializations
+    return course.specializations ?? []
+  }, [course, courseContent])
   const programsByCategory = useMemo(() => {
     if (!universityFromData) return []
     const courses = getCoursesByIds(universityFromData.courseIds)
@@ -345,7 +350,7 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
-          {/* {course.specializations && course.specializations.length > 0 && (
+          {courseSpecializations.length > 0 && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
@@ -354,9 +359,9 @@ const UniversityDetail = () => {
                 Specializations
               </h2>
               <div className="flex flex-wrap gap-2">
-                {course.specializations.map((s, i) => (
+                {courseSpecializations.map((s, i) => (
                   <span
-                    key={i}
+                    key={`${s}-${i}`}
                     className="px-3 py-1.5 rounded-lg bg-gold/10 text-gold font-medium text-sm"
                   >
                     {s}
@@ -364,7 +369,7 @@ const UniversityDetail = () => {
                 ))}
               </div>
             </motion.section>
-          )} */}
+          )}
 
           {courseContent?.keyTopics && courseContent.keyTopics.length > 0 ? (
             <motion.section
@@ -405,10 +410,10 @@ const UniversityDetail = () => {
               </p>
               <div className="flex flex-wrap justify-center gap-2 mt-4">
                 <span className="inline-flex items-center rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium text-white border border-white/25">
-                  Duration: 2 years
+                  Duration: {courseContent?.duration ?? 'N/A'}
                 </span>
                 <span className="inline-flex items-center rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium text-white border border-white/25">
-                  Mode: Online + Live Sessions
+                  Mode: {courseContent?.mode ?? 'N/A'}
                 </span>
               </div>
             </div>
@@ -576,9 +581,37 @@ const UniversityDetail = () => {
             <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-2">
               Programs Offered
             </h2>
-            <p className="text-gray-600 text-sm mb-6">
+            <p className="text-gray-600 text-sm mb-4">
               {universityFromData.location}
             </p>
+            {universityFromData.admissionStatus && (
+              <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+                <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                  Admissions {universityFromData.admissionStatus}
+                </span>
+                {universityFromData.benefits?.emi && (
+                  <span className="inline-flex items-center rounded-full bg-gold/15 px-3 py-1 text-xs font-medium text-[#00275E]">
+                    {universityFromData.benefits.emi}
+                  </span>
+                )}
+              </div>
+            )}
+            {universityFromData.benefits?.scholarships &&
+              universityFromData.benefits.scholarships.length > 0 && (
+                <div className="mb-6 rounded-xl border border-gold/20 bg-offwhite/80 p-4 text-center">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#00275E] mb-2">
+                    Scholarships
+                  </p>
+                  <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-700">
+                    {universityFromData.benefits.scholarships.map((s) => (
+                      <li key={s} className="flex items-center gap-1">
+                        <span className="text-gold">•</span>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             <div className="space-y-6">
               {programsByCategory.map(([category, list]) => (
                 <div key={category}>

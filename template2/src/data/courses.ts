@@ -484,6 +484,21 @@ export const coursesMasterData: CourseMaster[] = [
       "Social Movements"
     ],
     careerPaths: []
+  },
+  {
+    id: 29,
+    shortName: "MA",
+    fullName: "Master of Arts",
+    category: "Postgraduate Programs",
+    icon: "🎓",
+    description:
+      "Postgraduate programme focusing on humanities, media, and public policy.",
+    specializations: [
+      "Journalism & Mass Communication",
+      "Psychology",
+      "Public Policy & Governance"
+    ],
+    careerPaths: []
   }
 ]
 
