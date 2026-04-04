@@ -476,7 +476,10 @@ const Courses = () => {
                       <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                         {course.fullName} ({course.shortName})
                       </h3>
-                      <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">
+                      <p
+                        className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed text-left line-clamp-4 min-w-0"
+                        title={getCourseListDescription(course)}
+                      >
                         {getCourseListDescription(course)}
                       </p>
                       <div className="mb-4">

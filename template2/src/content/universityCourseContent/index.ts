@@ -20,7 +20,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Career-focused MBA programme designed to enhance leadership, strategic thinking, and business decision-making skills.',
+        'The Vellore Institute of Technology (VIT) presents a two-year Online Master of Business Administration (MBA) programme crafted to provide a dynamic and career-enhancing learning experience. This programme is designed to deepen your understanding of business practices, sharpen your leadership capabilities, encourage innovative thinking, enable strategic decision-making, and equip you to capitalize on emerging growth opportunities.',
       highlights: [
         'Access to exclusive VIT alumni gatherings and valuable networking platforms',
         'Dedicated recorded modules focused on interview readiness and career preparation',
@@ -50,7 +50,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced IT programme focusing on software development, AI, cybersecurity, and modern technologies.',
+        'The Vellore Institute of Technology (VIT) presents a two-year Online Master of Computer Applications (MCA) programme designed to deliver a flexible, industry-focused, and career-advancing learning experience. The programme strengthens core computer science fundamentals, enhances expertise in software development and IT, fosters innovation, and prepares learners to excel in today’s rapidly evolving digital economy. Ideal for working professionals, it combines academic excellence with practical, industry-relevant exposure.',
       highlights: [
         'UGC-entitled and AICTE-approved postgraduate degree',
         'Flexible online format suited for working professionals',
@@ -90,7 +90,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Programme designed to build expertise in data analytics, machine learning, and data-driven decision making.',
+        'The Vellore Institute of Technology (VIT) presents a two-year Online Master of Science in Data Science (M.Sc. Data Science) programme designed to equip professionals with in-demand data analytics and machine learning skills. The programme builds a strong foundation in data science concepts, enhances expertise through specialised electives such as marketing analytics, financial data analytics, and big data analytics, and develops the ability to analyse complex datasets for strategic decision-making. Ideal for working professionals, it combines industry-focused learning with flexible online delivery to boost career versatility, increase earning potential, and prepare learners for leadership roles in the rapidly expanding data-driven job market.',
       highlights: [
         'An online M.Sc. Data Science programme that is easily accessible',
         'A degree comparable to a postgraduate programme earned through traditional classroom learning',
@@ -128,7 +128,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years (4 Years Honours available)',
       mode: 'Online / Flexible Learning',
       overview:
-        'Foundation in business and management including marketing, finance, HR, economics, and entrepreneurship.',
+        'Dr. D. Y. Patil Vidyapeeth, Pune offers a three-year Bachelor of Business Administration (BBA) programme designed to build a strong foundation in business and management. The programme equips students with knowledge in key areas such as marketing, finance, human resources, economics, and entrepreneurship, helping them understand the functioning of modern organizations. Structured across six semesters, the curriculum combines theoretical concepts with practical business insights to develop leadership, communication, analytical, and problem-solving skills. Through a technology-enabled learning environment that includes online lectures, study materials, webinars, and interactive sessions, students gain the knowledge and skills required to succeed in the dynamic corporate world.',
       highlights: [
         '3-Year Programme: Structured across six semesters with a comprehensive management curriculum. 4-Year Honours Programme: Extends the programme to eight semesters with advanced specialization courses, along with a project work, report submission, evaluation and viva',
         'Flexible Learning Model: Access to recorded lectures, online study materials, presentations, and virtual classrooms',
@@ -160,7 +160,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced management programme covering marketing, finance, HR, operations, and strategy.',
+        'Dr. D. Y. Patil Vidyapeeth, Pune offers a two-year Master of Business Administration (MBA) programme designed to develop strong managerial, analytical, and leadership capabilities required in today’s dynamic business environment. The programme provides in-depth knowledge of core business areas such as marketing, finance, human resources, operations, and strategic management, helping students understand modern organizational practices and decision-making. Structured across four semesters, the curriculum combines theoretical learning with practical insights through case-based learning, industry interactions, and project work. Delivered through a technology-enabled online learning platform, students can access live lectures, recorded sessions, digital study materials, and interactive learning resources, enabling flexible learning for both fresh graduates and working professionals',
       highlights: [
         '2-Year MBA Programme: Structured across four semesters with a credit-based curriculum',
         'Wide Range of Specializations: The MBA programme offers multiple specializations including Marketing, Operations, Finance, IT, Human Resource Management, International Business, Digital Marketing, Business Analytics, Fintech, Agribusiness, Project Management, Blockchain, Artificial Intelligence & Machine Learning, Logistics & Supply Chain Management, and Hospital & Healthcare Management',
@@ -203,7 +203,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '24 Months',
       mode: 'Online',
       overview:
-        'Designed for working professionals with global exposure and leadership focus.',
+        'Dr. D. Y. Patil Vidyapeeth, Pune offers the MBA WX – MBA for Working Professionals, a 24-month postgraduate programme designed for professionals seeking to advance their careers while continuing to work. Delivered through a flexible online learning format, the programme develops skills in management, leadership, strategic decision-making, and emerging business technologies. Offered in collaboration with IFC France and Media School International, the programme provides dual international certification and global exposure, helping learners gain practical business insights and leadership capabilities for today’s global business environment.',
       highlights: [
         'Designed for Working Professionals: Flexible online learning to balance work and study',
         'Dual International Certification: Offered in collaboration with IFC France and Media School International',
@@ -235,7 +235,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced programme in software development, AI, cloud computing, and data science.',
+        'The Master of Computer Applications (MCA) at Dr. D. Y. Patil Vidyapeeth, Pune is a 2-year postgraduate programme designed for learners and working professionals who want to build advanced expertise in computer applications and emerging technologies. The programme focuses on software development, data science, cloud computing, artificial intelligence, and modern programming practices, combining theoretical knowledge with practical learning. Delivered through a flexible online learning model, it allows professionals to upgrade their technical skills while continuing their careers.',
       highlights: [
         'Industry-Aligned Curriculum: Modules designed in consultation with technology industry experts',
         'Flexible Online Learning: 100% online programme suitable for working professionals',
@@ -268,7 +268,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '6 Months',
       mode: 'Online',
       overview:
-        'Covers SEO, social media marketing, and digital strategies.',
+        'The Certificate Programme in Digital Marketing (CPDM) at Dr. D. Y. Patil Vidyapeeth, Pune is a 6-month online certification programme designed to help learners build practical knowledge of modern digital marketing tools, strategies, and platforms. The programme provides a comprehensive understanding of key areas such as search engine optimization (SEO), social media marketing, integrated marketing communication, and emerging digital technologies. Through interactive online learning and practical assignments, learners gain the skills needed to plan, implement, and manage effective digital marketing campaigns for businesses and brands',
       highlights: [
         'Flexible Online Learning: Fully online programme designed for students and working professionals',
         'Industry-Relevant Curriculum: Covers key areas such as SEO, Social Media Marketing, Integrated Marketing Communication, and Digital Marketing fundamentals',
@@ -302,7 +302,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '6 Months',
       mode: 'Online',
       overview:
-        'Focus on hospital administration, healthcare operations, and management.',
+        'The Certificate Programme in Hospital & Health Care Management (CPHAHM) at Dr. D. Y. Patil Vidyapeeth, Pune is a 6-month online certification programme designed to build foundational knowledge in hospital administration and healthcare management. The programme focuses on key areas such as hospital operations, healthcare services marketing, quality management, and legal aspects of healthcare administration, enabling learners to understand the functioning of healthcare organizations. Through structured online learning, assignments, and assessments, the programme equips students with practical skills to manage hospital departments, support healthcare operations, and contribute effectively to the healthcare industry.',
       highlights: [
         'Flexible Online Learning: Fully online programme designed for students and working professionals',
         'Short-Term Professional Certification: A 6-month programme with 20 academic credits focused on healthcare administration',
@@ -332,7 +332,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Foundation in commerce, finance, and business management including accounting, economics, and entrepreneurship.',
+        'Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) offers a three-year Online Bachelor of Commerce (BCom) programme designed to build a strong foundation in commerce, finance, and business management. The programme combines theoretical knowledge with practical insights across key areas such as accounting, economics, management, and entrepreneurship. Delivered through a technology-enabled learning platform, it allows students to study anytime, anywhere while developing the analytical, financial, and business skills required to succeed in today’s dynamic business environment.',
       highlights: [
         'Flexible online learning with 24/7 access to live and recorded lectures across multiple devices and platforms',
         'Curriculum designed by experienced academicians and industry experts to ensure academic excellence and industry relevance',
@@ -363,7 +363,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Focused programme in marketing and financial management with strong business foundation.',
+        'Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) presents the Bachelor of Business Administration (Marketing & Finance), a three-year undergraduate programme spread across six semesters, designed to build a strong foundation in business management, marketing, and financial management. The programme combines core management concepts with practical insights in areas such as accounting, economics, business communication, marketing strategy, and financial decision-making. Through a structured curriculum covering subjects from Principles of Management and Financial Accounting to Digital Marketing and Financial Analysis, students develop the analytical and strategic skills required to succeed in today’s competitive business environment.',
       highlights: [
         'Flexible three-year programme structured across six semesters with a comprehensive curriculum focused on marketing and finance',
         'Specialised learning in Marketing and Finance, enabling students to build expertise in marketing strategy, financial management, and business decision-making',
@@ -396,7 +396,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Business programme integrating marketing, finance, and analytics for data-driven decision making.',
+        'Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) presents the Bachelor of Business Administration (Marketing, Finance & Business Analytics), a three-year undergraduate programme spread across six semesters, designed to build a strong foundation in business management, marketing, finance, and business analytics. The programme integrates core management concepts with practical insights across accounting, economics, business communication, marketing strategy, financial decision-making, and analytics. Through a structured curriculum covering subjects from Principles of Management and Financial Accounting to Digital Marketing, Financial Analysis, and Business Analytics, students develop the analytical, strategic, and data-driven skills required to thrive in today’s competitive business environment.',
       highlights: [
         'Flexible three-year programme structured across six semesters with a comprehensive curriculum focused on marketing, finance, and business analytics',
         'Specialised learning in Marketing, Finance, and Business Analytics, enabling students to build expertise in marketing strategy, financial management, business decision-making, and data-driven insights',
@@ -430,7 +430,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced management programme designed for working professionals with flexible learning.',
+        'Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) offers a two-year Online Master of Business Administration (MBA) programme designed for working professionals and aspiring managers seeking to accelerate their career growth. The programme provides a strong foundation in core business disciplines while allowing learners to specialise in key management domains. Delivered through a flexible, technology-enabled learning platform, the programme enables students to study anytime and from anywhere with access to live sessions, recorded lectures, and digital study resources. The curriculum combines academic rigor with practical, case-based learning to help participants develop strategic thinking, leadership capabilities, and problem-solving skills required in today’s evolving corporate landscape. With guidance from experienced faculty, industry experts, and access to NMIMS’ extensive academic ecosystem, the programme supports professionals in advancing their careers without interrupting their work commitments.',
       highlights: [
         'Flexible Online Learning: Study anytime, anywhere with 24/7 access to live and recorded lectures, session recordings, and digital learning materials through an advanced learning platform',
         'Industry-Relevant Curriculum: Designed by experienced academicians and industry professionals to balance theoretical knowledge with practical business applications',
@@ -472,7 +472,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '1 Year',
       mode: 'Online',
       overview:
-        'Short-term diploma programmes for working professionals with industry-focused skills.',
+        'Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) one-year online diploma programmes are designed for working professionals seeking to gain specialised, industry-ready skills within a short, focused timeframe. Crafted to accommodate busy schedules, these programmes offer self-paced learning, enabling participants to effectively balance work commitments with studies. Offered in Finance Management, Marketing Management, Business Management, Operations Management, and Human Resource Management, these programmes provide practical, industry-relevant knowledge from one of the nation’s leading online learning institutes, equipping learners to enhance their careers and stay competitive in today’s dynamic professional environment.',
       highlights: [
         'Diploma in Finance Management: Gain in-depth knowledge in Corporate Finance, Cost & Management Accounting, and Capital Market & Portfolio Management.',
         'Diploma in Marketing Management: Learn essential marketing skills in Sales Management, Brand Management, and Consumer Behaviour.',
@@ -518,7 +518,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '6 Months',
       mode: 'Online',
       overview:
-        'Short-term programme covering core business and management principles.',
+        'Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) offers a six-month Certificate in Business Management, designed for working professionals seeking a strong foundation in management principles and practices within a short, focused timeframe. Crafted for busy schedules, the programme provides self-paced learning, allowing participants to balance work commitments with studies while gaining practical, industry-relevant skills. The curriculum offers a well-rounded introduction to core business concepts, equipping students to analyse business challenges and implement effective management strategies.',
       highlights: [
         'Duration: Six months, designed for working professionals seeking a short-term, skill-oriented programme',
         'Core Curriculum: Covers Business Communication, Financial Accounting, Human Resource Management, Micro & Macro Economics, and Marketing Management',
@@ -553,7 +553,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Foundation in commerce, finance, accounting, taxation, and business management.',
+        'Manipal University Jaipur offers a three-year Online Bachelor of Commerce (B.Com) programme designed to build a strong foundation in commerce, finance, and business management. The programme integrates theoretical knowledge with practical skills across key areas such as accounting, economics, marketing, taxation, and entrepreneurship. Delivered through a technology-enabled digital learning platform, it enables students to learn anytime, anywhere while developing the analytical, financial, and managerial competencies required to succeed in today’s dynamic business environmen',
       highlights: [
         'Flexible online learning with 24/7 access to live and recorded lectures, allowing students to study anytime and anywhere',
         'Comprehensive three-year programme structured across six semesters covering core commerce and business subjects',
@@ -597,7 +597,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Business and management programme focusing on marketing, finance, HR, and analytics.',
+        'Manipal University Jaipur offers a three-year Online Bachelor of Business Administration (BBA) programme designed to build a strong foundation in business, management, and entrepreneurship. The programme combines theoretical knowledge with practical and industry-relevant skills across key areas such as marketing, finance, human resource management, business analytics, and operations management. Delivered through a technology-enabled digital learning platform, it enables students to study anytime, anywhere while developing managerial, analytical, and strategic competencies required to succeed in today’s dynamic business environment.',
       highlights: [
         'Flexible online learning with 24/7 access to live and recorded lectures through an advanced digital learning platform ',
         'Comprehensive three-year programme structured across six semesters covering core business and management subjects ',
@@ -639,7 +639,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Computer science programme with focus on development, analytics, and emerging technologies.',
+        'Manipal University Jaipur offers a three-year Online Bachelor of Computer Applications (BCA) programme designed to build strong foundations in computer science and modern technology. The programme includes specialisations such as Data Analytics, Cloud Computing, Cybersecurity, and Full Stack Development, helping students develop industry-relevant technical skills. Delivered through a flexible online learning platform, students can access live classes, recorded lectures, and digital learning resources from anywhere. The curriculum combines core computing concepts with practical labs and projects to prepare learners for careers in software development, IT services, and emerging technology sectors.',
       highlights: [
         'Flexible Online Learning: Study anytime with access to live classes, recorded lectures, and digital study resources.',
         'Industry-Relevant Curriculum: Covers core computing along with domains like Data Analytics, Cloud Computing, Cybersecurity, and Full Stack Development',
@@ -678,7 +678,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced commerce programme focusing on finance, accounting, and analytics.',
+        'Manipal University Jaipur offers a two-year Online Master of Commerce (MCom) programme designed for graduates seeking advanced knowledge in commerce, finance, and business management. The programme focuses on key areas such as Finance, Accounting, International Business, and Analytics, helping learners build strong analytical and managerial skills for modern business environments. Delivered through a flexible online learning platform, students can access live classes, recorded lectures, and digital study resources from anywhere. The curriculum combines advanced commerce concepts with practical insights to prepare learners for careers in finance, accounting, banking, and global business.',
       highlights: [
         'Flexible Online Learning: Access live and recorded lectures through the digital learning platform.',
         'Industry-Relevant Curriculum: Focus on finance, accounting, international business, and analytics.',
@@ -711,7 +711,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Management programme designed to develop leadership and business decision-making skills.',
+        'Manipal University Jaipur offers a two-year Online Master of Business Administration (MBA) programme designed to develop managerial, analytical, and leadership skills required in today’s dynamic business environment. The programme provides a strong foundation in core management disciplines while allowing learners to specialise in career-focused domains. Delivered through a flexible online learning platform, students can attend live classes and access recorded lectures and digital study resources from anywhere. The curriculum combines business fundamentals with practical learning through projects and industry interactions to prepare learners for leadership roles across industries',
       highlights: [
         'Flexible Online Learning: Access live and recorded lectures anytime through the digital platform.',
         'Industry-Relevant Curriculum: Focus on practical business knowledge and managerial skills.',
@@ -753,7 +753,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced IT programme covering programming, cloud computing, and AI technologies.',
+        'Manipal University Jaipur offers a two-year Online Master of Computer Applications (MCA) programme designed to build advanced knowledge in computer science, software development, and emerging digital technologies. The programme develops strong foundations in programming, data management, and cloud computing while introducing learners to modern computing domains. Delivered through a fully online learning platform, students can access lectures, study materials, and interactive learning resources through a dedicated Learning Management System. The curriculum combines theoretical knowledge with practical learning through virtual labs, projects, and digital tools.',
       highlights: [
         'Flexible Online Learning: Study anytime through video lectures, virtual classrooms, and digital resources',
         '2-Year Programme Structure: Four semesters with flexible completion up to four years.',
@@ -790,7 +790,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced mathematics programme covering pure and applied mathematics with research focus.',
+        'Manipal University Jaipur offers a two-year Online Master of Science (MSc) in Mathematics programme designed to develop advanced knowledge in pure and applied mathematics. The programme strengthens analytical, problem-solving, and research skills through subjects such as linear algebra, differential equations, topology, and optimization, along with electives in emerging interdisciplinary areas. Delivered through a flexible online learning platform, students can access video lectures, virtual classrooms, and interactive study materials. The programme is structured across four semesters with a maximum completion period of four years and includes seminars, electives, and a final project to provide practical and research experience',
       highlights: [
         'Flexible Online Learning: Access lectures, virtual classrooms, and digital study resources anytime.',
         '2-Year Programme Structure: Four semesters with flexible completion up to four years.',
@@ -828,7 +828,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Economics programme focusing on applied and financial economics with research and analytics.',
+        'Manipal University Jaipur offers a two-year online Master of Arts in Economics designed to blend advanced economic theory with practical, real-world applications. The programme focuses on building robust analytical and decision-making skills suitable for a data-driven world, with specialized curriculum paths in Applied and Financial Economics. It is ideal for those seeking impactful careers in research, policy-making, and finance. The programme is delivered through a sophisticated digital learning platform that provides 24x7 access to various educational resources. Structured over four semesters, the curriculum includes core subjects like Microeconomics, Macroeconomics, and Econometrics, along with a final dissertation and diverse elective choices',
       highlights: [
         'Flexible Online Learning: Engage with a next-gen pedagogy featuring live classes, recorded lectures, and e-learning content accessible anytime.',
         '2-Year Programme Structure: A minimum duration of two years divided into four semesters, with a maximum completion time of four years.',
@@ -864,7 +864,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Media and communication programme focusing on journalism, digital media, and PR.',
+        'The Manipal University Jaipur Online Master of Arts in Journalism & Mass Communication (MA JMC) is a two-year postgraduate program designed to provide a future-ready blend of journalism, digital media, public relations (PR), and communication. It is ideal for individuals looking to lead in the fast-evolving media landscape, offering specializations in key media fields to equip students with practical skills and strategic insights for careers in news, content, and corporate communication',
       highlights: [
         'Flexible Online Learning: Engage with a next-gen pedagogy featuring live classes, recorded lectures, and e-learning content accessible anywhere, anytime, through an advanced digital platform.',
         '2-Year Programme Structure: A minimum two-year duration divided into four semesters, with a maximum completion period of four years.',
@@ -897,7 +897,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Programme covering humanities and social sciences including English, Political Science, and Sociology.',
+        'Sikkim Manipal University (SMU) offers a three-year Online Bachelor of Arts (BA) programme designed to provide a strong foundation in humanities and social sciences. The programme integrates key subjects from English, Political Science, and Sociology, helping students develop an understanding of literature, society, governance, and human behaviour. Delivered through a technology-enabled online learning platform, students can access video lectures, digital study materials, and virtual classrooms through the Learning Management System (LMS). Structured across six semesters, the programme helps learners build communication, analytical, and critical thinking skills for careers in media, education, research, public policy, and related fields.',
       highlights: [
         'Flexible Online Learning: Access video lectures, digital materials, and virtual classrooms anytime through the LMS.',
         'Comprehensive Humanities Curriculum: Covers key areas from English, Political Science, and Sociology.',
@@ -933,7 +933,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced commerce programme focusing on finance, accounting, and business management.',
+        'Sikkim Manipal University (SMU) offers a two-year Online Master of Commerce (M.Com) programme designed to strengthen advanced knowledge in commerce, finance, accounting, and business management. The programme integrates theoretical concepts with practical insights across areas such as corporate accounting, financial management, marketing, business laws, and strategic management. Delivered through a technology-enabled digital learning platform, it enables learners to study flexibly while developing analytical, managerial, and research skills required for leadership roles in business, finance, and academia.',
       highlights: [
         'Flexible online learning with access to video lectures, virtual classrooms, simulations, and discussion forums through a Learning Management System',
         'Two-year programme structured across four semesters with a total of 80 credits',
@@ -969,7 +969,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Management programme designed to build leadership, analytical, and strategic skills.',
+        'The Sikkim Manipal University (SMU) Online MBA is a two-year postgraduate programme designed to develop managerial, analytical, and leadership skills required in today’s dynamic business environment. Structured across four semesters, the programme covers core management areas such as marketing, finance, human resources, operations, and strategy. Learners build strong business fundamentals in the first two semesters and progress to advanced subjects, electives, and a project in the later semesters. With a total of 102 credits, the curriculum blends theoretical knowledge with practical application to prepare professionals for leadership roles across industries.',
       highlights: [
         'Comprehensive curriculum: Covers key functional areas such as management, finance, marketing, operations, analytics, and strategy.',
         'Industry-relevant learning: Includes research methodology, project work, and practical business applications.',
@@ -1006,7 +1006,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'IT programme focusing on programming, software development, and emerging technologies.',
+        'The Online Master of Computer Applications (MCA) from Sikkim Manipal University (SMU) is a two-year postgraduate programme designed to develop skilled IT professionals with expertise in programming, software development, and emerging technologies. Structured across four semesters and 80 credits, the programme covers core areas such as Java and Python programming, database management, operating systems, computer networks, and software engineering, along with hands-on labs and a final project. Delivered through a 100% online learning platform with live and recorded classes, the programme allows learners to study flexibly while building practical technical skills relevant to modern IT careers.',
       highlights: [
         'Industry-relevant curriculum covering programming, data structures, software engineering, and emerging technologies.',
         'Hands-on learning approach with programming labs and a final project to build practical IT skills',
@@ -1040,7 +1040,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Programme focused on literature, critical theory, and research.',
+        'The Online MA in English offered by Sikkim Manipal University (SMU) is a two-year postgraduate program designed to develop advanced knowledge of English literature, critical theory, and research skills. The curriculum covers major literary forms such as drama, poetry, and fiction, along with specialized areas including American Literature, Indian English Literature, Post-Colonial Literature, and World Literature. Delivered through a technology-enabled learning platform, the program combines academic rigor with flexible online learning. Students benefit from expert faculty guidance, interactive webinars, and research-focused coursework, culminating in a dissertation in the final semester.',
       highlights: [
         'UGC-entitled postgraduate degree from Sikkim Manipal University',
         'AI-enabled Learning Management System (LMS) for interactive digital learning',
@@ -1078,7 +1078,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Programme covering political theory, governance, and global politics.',
+        'The Online MA in Political Science offered by Sikkim Manipal University (SMU) is a two-year postgraduate program designed to provide a comprehensive understanding of political theory, governance, and global political dynamics. The curriculum explores key areas such as Indian government and politics, Western political thought, international relations, public policy, and political sociology. Delivered through a flexible online learning platform, the program combines academic rigor with practical insights through expert faculty guidance, interactive sessions, and research-based learning, culminating in a dissertation and viva voce in the final semester.',
       highlights: [
         'UGC-entitled online master’s degree from Sikkim Manipal University',
         'Comprehensive curriculum covering political theory, governance, international relations, and public policy',
@@ -1115,7 +1115,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Programme focusing on social structures, globalization, and societal issues.',
+        'The MA in Sociology at Sikkim Manipal University (SMU) is a two-year postgraduate programme that provides a comprehensive understanding of social structures, institutions, and contemporary societal issues. The programme explores key areas such as sociological theories, Indian society, culture, globalization, development, and social movements. Structured across four semesters with 80 credits, it also includes research methodology and a dissertation in the final semester, enabling students to develop strong analytical and research skills through a flexible, technology-enabled learning platform.',
       highlights: [
         'UGC-entitled online postgraduate degree from Sikkim Manipal University',
         'Comprehensive curriculum covering classical and contemporary sociological theories',
@@ -1156,7 +1156,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Business management programme focusing on operations, strategy, and leadership skills.',
+        'The Bachelor of Business Administration (BBA) is a 3-year (6 semesters) UGC-entitled online degree program designed to provide a foundational understanding of business operations, management theories, and strategic decision-making. The program is structured to equip students with the essential knowledge and practical skills required to excel in various corporate and organizational roles, blending theoretical academic learning with professional skill development.',
       highlights: [
         'UGC-entitled online degree program with a duration of 3 years (6 semesters).',
         'Flexible learning through live sessions, self-learning materials, discussion forums, and online exams.',
@@ -1195,7 +1195,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Commerce programme focusing on accounting, finance, and business management.',
+        'The Bachelor of Commerce (B.Com) is a 3-year (6 semesters) UGC-entitled online degree program designed to build strong knowledge in commerce, accounting, finance, and business management. The program helps students develop practical skills required to manage financial operations, understand business environments, and make strategic financial decisions. The curriculum combines accounting, finance, management, and economics along with skill enhancement courses, research projects, and analytical tools to prepare students for careers in areas such as auditing, financial analysis, consulting, and corporate finance.',
       highlights: [
         'UGC-entitled online degree program with a duration of 3 years (6 semesters)',
         'Live sessions, self-learning material, discussion forums, and online exams',
@@ -1233,7 +1233,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '3 Years',
       mode: 'Online',
       overview:
-        'Computer science programme focusing on programming, analytics, and emerging technologies.',
+        'The Bachelor of Computer Applications (BCA) is a 3-year (6 semesters) UGC-entitled online degree program designed to build a strong foundation in computer applications, programming, and modern information technology. The program combines core computer science principles with specialized electives so students can gain expertise in emerging technology domains. Through the program, learners study subjects such as programming, algorithms, operating systems, databases, networking, and web technologies, along with industry-relevant technologies. The curriculum is designed to help students develop analytical thinking, problem-solving ability, and technical proficiency, while gaining practical exposure through applied learning projects and real-world problem analysis. The program is delivered through live sessions, self-learning materials, discussion forums, and online exams.',
       highlights: [
         'UGC-entitled online degree program',
         '3-year duration with 6 semesters',
@@ -1274,7 +1274,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced commerce programme focusing on accounting, finance, and business strategy.',
+        'The Master of Commerce (M.Com) is a 2-year (4 semesters) UGC-entitled online degree program designed to provide advanced knowledge in accounting, finance, and business management. The program helps learners develop strong analytical, financial, and decision-making skills through subjects related to financial reporting, taxation, financial management, and corporate laws. It prepares students for roles in accounting, financial advisory, consulting, financial management, and financial analysis.',
       highlights: [
         'UGC-entitled online degree program',
         'Global faculty and industry-relevant curriculum',
@@ -1311,7 +1311,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced business programme focusing on leadership, analytics, and strategic decision-making.',
+        'The Master of Business Administration (MBA) is a 2-year UGC-entitled online degree program designed to provide advanced knowledge in business management, strategic leadership, and specialized functional areas. The program aims to develop professional skills in decision-making, analytical thinking, and operational efficiency to prepare students for leadership roles in a global business environment. The curriculum combines core management subjects—such as organizational behavior, quantitative techniques, and business law—with research projects, thesis work, and industry-focused electives to provide both theoretical foundations and practical applications.',
       highlights: [
         'UGC-entitled online degree program with a duration of 2 years.',
         'Flexible learning through live sessions, self-learning materials, discussion forums, and online exams',
@@ -1360,7 +1360,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
       duration: '2 Years',
       mode: 'Online',
       overview:
-        'Advanced IT programme focusing on software development, analytics, and emerging technologies.',
+        'The Master of Computer Applications (MCA) is a 2-year (4 semesters) UGC-entitled online degree program designed to provide advanced knowledge in computer science, software development, and emerging digital technologies. The program helps learners develop strong programming, analytical, and problem-solving skills through subjects related to software engineering, data management, application development, and modern computing technologies. It prepares students for roles in software development, IT consulting, system analysis, data analytics, cybersecurity, and technology management.',
       highlights: [
         'UGC-entitled online degree program',
         'Industry-relevant curriculum designed by academic and technology experts',

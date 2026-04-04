@@ -18,7 +18,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Undergraduate Programs",
     icon: "💰",
     description:
-      "Designed for students aiming for careers in finance, banking, accounting, and taxation.",
+      "Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) offers a three-year Online Bachelor of Commerce (BCom) programme designed to build a strong foundation in commerce, finance, and business management. The programme combines theoretical knowledge with practical insights across key areas such as accounting, economics, management, and entrepreneurship. Delivered through a technology-enabled learning platform, it allows students to study anytime, anywhere while developing the analytical, financial, and business skills required to succeed in today’s dynamic business environment.",
     specializations: ["Accounting", "Finance", "Banking", "Taxation", "Auditing"],
     careerPaths: [
       "Chartered Accountant (CA)",
@@ -259,7 +259,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "🧑‍💼",
     description:
-      "Designed for working professionals with global exposure and leadership focus.",
+      "Dr. D. Y. Patil Vidyapeeth, Pune offers the MBA WX – MBA for Working Professionals, a 24-month postgraduate programme designed for professionals seeking to advance their careers while continuing to work. Delivered through a flexible online learning format, the programme develops skills in management, leadership, strategic decision-making, and emerging business technologies. Offered in collaboration with IFC France and Media School International, the programme provides dual international certification and global exposure, helping learners gain practical business insights and leadership capabilities for today’s global business environment.",
     specializations: [
       "Marketing",
       "HR",
@@ -278,7 +278,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Professional & Certificate Courses",
     icon: "📣",
     description:
-      "Covers SEO, social media marketing, and digital strategies.",
+      "The Certificate Programme in Digital Marketing (CPDM) at Dr. D. Y. Patil Vidyapeeth, Pune is a 6-month online certification programme designed to help learners build practical knowledge of modern digital marketing tools, strategies, and platforms. The programme provides a comprehensive understanding of key areas such as search engine optimization (SEO), social media marketing, integrated marketing communication, and emerging digital technologies. Through interactive online learning and practical assignments, learners gain the skills needed to plan, implement, and manage effective digital marketing campaigns for businesses and brands",
     specializations: ["SEO", "Social Media Marketing", "Digital Strategies"],
     careerPaths: [
       "Digital Marketing Executive",
@@ -294,7 +294,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Professional & Certificate Courses",
     icon: "🏨",
     description:
-      "Focus on hospital administration, healthcare operations, and management.",
+      "The Certificate Programme in Hospital & Health Care Management (CPHAHM) at Dr. D. Y. Patil Vidyapeeth, Pune is a 6-month online certification programme designed to build foundational knowledge in hospital administration and healthcare management. The programme focuses on key areas such as hospital operations, healthcare services marketing, quality management, and legal aspects of healthcare administration, enabling learners to understand the functioning of healthcare organizations. Through structured online learning, assignments, and assessments, the programme equips students with practical skills to manage hospital departments, support healthcare operations, and contribute effectively to the healthcare industry.",
     specializations: [
       "Hospital Administration",
       "Healthcare Operations",
@@ -309,7 +309,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Undergraduate Programs",
     icon: "📊",
     description:
-      "Focused programme in marketing and financial management with strong business foundation.",
+      "Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) presents the Bachelor of Business Administration (Marketing & Finance), a three-year undergraduate programme spread across six semesters, designed to build a strong foundation in business management, marketing, and financial management. The programme combines core management concepts with practical insights in areas such as accounting, economics, business communication, marketing strategy, and financial decision-making. Through a structured curriculum covering subjects from Principles of Management and Financial Accounting to Digital Marketing and Financial Analysis, students develop the analytical and strategic skills required to succeed in today’s competitive business environment.",
     specializations: ["Marketing", "Finance"],
     careerPaths: []
   },
@@ -320,7 +320,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Undergraduate Programs",
     icon: "📈",
     description:
-      "Business programme integrating marketing, finance, and analytics for data-driven decision making.",
+      "Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) presents the Bachelor of Business Administration (Marketing, Finance & Business Analytics), a three-year undergraduate programme spread across six semesters, designed to build a strong foundation in business management, marketing, finance, and business analytics. The programme integrates core management concepts with practical insights across accounting, economics, business communication, marketing strategy, financial decision-making, and analytics. Through a structured curriculum covering subjects from Principles of Management and Financial Accounting to Digital Marketing, Financial Analysis, and Business Analytics, students develop the analytical, strategic, and data-driven skills required to thrive in today’s competitive business environment.",
     specializations: ["Business Analytics"],
     careerPaths: []
   },
@@ -331,7 +331,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Professional & Certificate Courses",
     icon: "📘",
     description:
-      "Short-term diploma programmes for working professionals with industry-focused skills.",
+      "Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) one-year online diploma programmes are designed for working professionals seeking to gain specialised, industry-ready skills within a short, focused timeframe. Crafted to accommodate busy schedules, these programmes offer self-paced learning, enabling participants to effectively balance work commitments with studies. Offered in Finance Management, Marketing Management, Business Management, Operations Management, and Human Resource Management, these programmes provide practical, industry-relevant knowledge from one of the nation’s leading online learning institutes, equipping learners to enhance their careers and stay competitive in today’s dynamic professional environment.",
     specializations: [
       "Diploma in Finance Management",
       "Diploma in Marketing Management",
@@ -363,7 +363,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Professional & Certificate Courses",
     icon: "📜",
     description:
-      "Short-term programme covering core business and management principles.",
+      "Narsee Monjee Institute of Management Studies (NMIMS) Centre for Distance and Online Education (CDOE) offers a six-month Certificate in Business Management, designed for working professionals seeking a strong foundation in management principles and practices within a short, focused timeframe. Crafted for busy schedules, the programme provides self-paced learning, allowing participants to balance work commitments with studies while gaining practical, industry-relevant skills. The curriculum offers a well-rounded introduction to core business concepts, equipping students to analyse business challenges and implement effective management strategies.",
     specializations: ["Business Management"],
     careerPaths: [
       "Business Development Manager",
@@ -377,7 +377,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "📊",
     description:
-      "Programme designed to build expertise in data analytics, machine learning, and data-driven decision making.",
+      "The Vellore Institute of Technology (VIT) presents a two-year Online Master of Science in Data Science (M.Sc. Data Science) programme designed to equip professionals with in-demand data analytics and machine learning skills. The programme builds a strong foundation in data science concepts, enhances expertise through specialised electives such as marketing analytics, financial data analytics, and big data analytics, and develops the ability to analyse complex datasets for strategic decision-making. Ideal for working professionals, it combines industry-focused learning with flexible online delivery to boost career versatility, increase earning potential, and prepare learners for leadership roles in the rapidly expanding data-driven job market.",
     specializations: [
       "Data Analytics",
       "Machine Learning",
@@ -393,7 +393,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "📚",
     description:
-      "Advanced commerce programme focusing on finance, accounting, and analytics.",
+      "Manipal University Jaipur offers a two-year Online Master of Commerce (MCom) programme designed for graduates seeking advanced knowledge in commerce, finance, and business management. The programme focuses on key areas such as Finance, Accounting, International Business, and Analytics, helping learners build strong analytical and managerial skills for modern business environments. Delivered through a flexible online learning platform, students can access live classes, recorded lectures, and digital study resources from anywhere. The curriculum combines advanced commerce concepts with practical insights to prepare learners for careers in finance, accounting, banking, and global business.",
     specializations: [],
     careerPaths: []
   },
@@ -404,7 +404,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "🧮",
     description:
-      "Advanced mathematics programme covering pure and applied mathematics with research focus.",
+      "Manipal University Jaipur offers a two-year Online Master of Science (MSc) in Mathematics programme designed to develop advanced knowledge in pure and applied mathematics. The programme strengthens analytical, problem-solving, and research skills through subjects such as linear algebra, differential equations, topology, and optimization, along with electives in emerging interdisciplinary areas. Delivered through a flexible online learning platform, students can access video lectures, virtual classrooms, and interactive study materials. The programme is structured across four semesters with a maximum completion period of four years and includes seminars, electives, and a final project to provide practical and research experience",
     specializations: [
       "Data Science",
       "Computational Science",
@@ -419,7 +419,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "📈",
     description:
-      "Economics programme focusing on applied and financial economics with research and analytics.",
+      "Manipal University Jaipur offers a two-year online Master of Arts in Economics designed to blend advanced economic theory with practical, real-world applications. The programme focuses on building robust analytical and decision-making skills suitable for a data-driven world, with specialized curriculum paths in Applied and Financial Economics. It is ideal for those seeking impactful careers in research, policy-making, and finance. The programme is delivered through a sophisticated digital learning platform that provides 24x7 access to various educational resources. Structured over four semesters, the curriculum includes core subjects like Microeconomics, Macroeconomics, and Econometrics, along with a final dissertation and diverse elective choices",
     specializations: [
       "Applied Economics",
       "Financial Economics"
@@ -433,7 +433,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "📰",
     description:
-      "Media and communication programme focusing on journalism, digital media, and PR.",
+      "The Manipal University Jaipur Online Master of Arts in Journalism & Mass Communication (MA JMC) is a two-year postgraduate program designed to provide a future-ready blend of journalism, digital media, public relations (PR), and communication. It is ideal for individuals looking to lead in the fast-evolving media landscape, offering specializations in key media fields to equip students with practical skills and strategic insights for careers in news, content, and corporate communication",
     specializations: [],
     careerPaths: []
   },
@@ -444,7 +444,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "📖",
     description:
-      "Programme focused on literature, critical theory, and research.",
+      "The Online MA in English offered by Sikkim Manipal University (SMU) is a two-year postgraduate program designed to develop advanced knowledge of English literature, critical theory, and research skills. The curriculum covers major literary forms such as drama, poetry, and fiction, along with specialized areas including American Literature, Indian English Literature, Post-Colonial Literature, and World Literature. Delivered through a technology-enabled learning platform, the program combines academic rigor with flexible online learning. Students benefit from expert faculty guidance, interactive webinars, and research-focused coursework, culminating in a dissertation in the final semester.",
     specializations: [
       "American Literature",
       "Indian Literature",
@@ -460,7 +460,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "🏛️",
     description:
-      "Programme covering political theory, governance, and global politics.",
+      "The Online MA in Political Science offered by Sikkim Manipal University (SMU) is a two-year postgraduate program designed to provide a comprehensive understanding of political theory, governance, and global political dynamics. The curriculum explores key areas such as Indian government and politics, Western political thought, international relations, public policy, and political sociology. Delivered through a flexible online learning platform, the program combines academic rigor with practical insights through expert faculty guidance, interactive sessions, and research-based learning, culminating in a dissertation and viva voce in the final semester.",
     specializations: [
       "Indian Politics",
       "Western Political Thought",
@@ -476,7 +476,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "🌐",
     description:
-      "Programme focusing on social structures, globalization, and societal issues.",
+      "The MA in Sociology at Sikkim Manipal University (SMU) is a two-year postgraduate programme that provides a comprehensive understanding of social structures, institutions, and contemporary societal issues. The programme explores key areas such as sociological theories, Indian society, culture, globalization, development, and social movements. Structured across four semesters with 80 credits, it also includes research methodology and a dissertation in the final semester, enabling students to develop strong analytical and research skills through a flexible, technology-enabled learning platform.",
     specializations: [
       "Sociological Theories",
       "Indian Society",
@@ -492,7 +492,7 @@ export const coursesMasterData: CourseMaster[] = [
     category: "Postgraduate Programs",
     icon: "🎓",
     description:
-      "Postgraduate programme focusing on humanities, media, and public policy.",
+      "The Master of Arts (MA) is a postgraduate academic degree programme designed to provide advanced knowledge and specialised understanding in fields such as psychology, media studies, and public policy. These programmes are structured to bridge theoretical academic frameworks with practical, industry-oriented applications, catering to both fresh graduates and working professionals. By offering flexible, UGC-entitled online learning environments, the MA programme equips students with the critical thinking, research, and professional skills necessary to navigate complex societal issues and excel in their respective careers.",
     specializations: [
       "Journalism & Mass Communication",
       "Psychology",

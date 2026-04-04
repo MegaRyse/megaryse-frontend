@@ -54,6 +54,51 @@ const getHighlightRows = (items: string[]): string[][] => {
   return rows
 }
 
+/** Long overviews become multiple paragraphs; explicit blank lines in content are always respected. */
+const splitOverviewIntoParagraphs = (overview: string): string[] => {
+  const normalized = overview.replace(/\r\n/g, '\n').trim()
+  if (!normalized) return []
+
+  const explicit = normalized
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+  if (explicit.length > 1) return explicit
+
+  const text = explicit[0] ?? normalized.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
+  const longThreshold = 380
+  if (text.length < longThreshold) return [text]
+
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (sentences.length <= 1) return [text]
+
+  const paragraphs: string[] = []
+  let chunk: string[] = []
+  let chunkLen = 0
+  const targetLen = 300
+  for (const sentence of sentences) {
+    if (chunk.length === 0) {
+      chunk.push(sentence)
+      chunkLen = sentence.length
+      continue
+    }
+    const joinedLen = chunkLen + sentence.length + 1
+    if (joinedLen >= targetLen || chunk.length >= 2) {
+      paragraphs.push(chunk.join(' '))
+      chunk = [sentence]
+      chunkLen = sentence.length
+    } else {
+      chunk.push(sentence)
+      chunkLen = joinedLen
+    }
+  }
+  if (chunk.length) paragraphs.push(chunk.join(' '))
+  return paragraphs.length ? paragraphs : [text]
+}
+
 type CourseState = {
   title: string
   desc: string
@@ -209,10 +254,17 @@ const UniversityDetail = () => {
             <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-4 text-center">
               Programe Overview
             </h2>
-            <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-start min-w-0 max-md:items-center max-md:justify-items-center">
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-md:text-center max-md:mx-auto">
-                {courseContent?.overview ?? ''}
-              </p>
+            <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-center min-w-0 max-md:justify-items-center">
+              <div className="space-y-4 max-md:text-center max-md:mx-auto min-w-0">
+                {splitOverviewIntoParagraphs(courseContent?.overview ?? '').map((para, i) => (
+                  <p
+                    key={i}
+                    className="text-sm sm:text-base text-gray-600 leading-relaxed max-md:mx-auto"
+                  >
+                    {para}
+                  </p>
+                ))}
+              </div>
               <div className="bg-offwhite rounded-xl border border-gold/30 p-4 sm:p-5">
                 <h3 className="text-sm sm:text-base font-semibold text-[#00275E] mb-3">
                   At a Glance
@@ -280,7 +332,7 @@ const UniversityDetail = () => {
                   return (
                     <div
                       key={rowIndex}
-                      className="relative grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-x-12 sm:gap-x-16 gap-y-0 items-stretch"
+                      className="relative grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-x-4 sm:gap-x-6 gap-y-0 items-stretch"
                     >
                       {!isLastRow && (
                         <div
@@ -288,29 +340,37 @@ const UniversityDetail = () => {
                           className="hidden sm:block absolute left-1/2 -translate-x-1/2 top-full h-8 sm:h-10 border-l-2 border-dotted border-blue-custom/50"
                         />
                       )}
-                      {hasBothCards && (
-                        <div
-                          aria-hidden
-                          className="absolute left-[6%] right-[6%] top-1/2 -translate-y-1/2 hidden sm:block border-t-2 border-dotted border-blue-custom/50 pointer-events-none z-0"
-                        />
-                      )}
-                      <div className="flex justify-end relative z-10">
+                      <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-end items-center">
                         {hasBothCards && leftItem && (
-                          <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
+                          <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {leftItem}
                             </p>
                           </div>
                         )}
                       </div>
-                      <div className="relative flex items-center justify-center z-20">
+                      <div className="relative z-0 flex items-center justify-center min-w-[0.75rem]">
                         {rowIndex > 0 && (
                           <span
                             aria-hidden
                             className="hidden sm:block absolute left-1/2 -translate-x-1/2 top-0 h-[calc(50%-0.375rem)] border-l-2 border-dotted border-blue-custom/50"
                           />
                         )}
-                        <span className="h-3 w-3 rounded-full border-2 border-gold bg-offwhite shadow-[0_0_0_3px_rgba(201,169,120,0.25)]" />
+                        <span className="relative inline-block h-3 w-3 shrink-0">
+                          {hasBothCards && (
+                            <>
+                              <span
+                                aria-hidden
+                                className="pointer-events-none absolute right-1/2 top-1/2 z-0 hidden h-0 w-[5.5rem] -translate-y-1/2 border-t-2 border-dotted border-blue-custom/50 sm:block sm:w-[7.5rem]"
+                              />
+                              <span
+                                aria-hidden
+                                className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden h-0 w-[5.5rem] -translate-y-1/2 border-t-2 border-dotted border-blue-custom/50 sm:block sm:w-[7.5rem]"
+                              />
+                            </>
+                          )}
+                          <span className="relative z-10 block h-3 w-3 rounded-full border-2 border-gold bg-offwhite shadow-[0_0_0_3px_rgba(201,169,120,0.25)]" />
+                        </span>
                         {!isLastRow && (
                           <span
                             aria-hidden
@@ -324,9 +384,9 @@ const UniversityDetail = () => {
                           />
                         )}
                       </div>
-                      <div className="flex justify-start relative z-10">
+                      <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-start items-center">
                         {hasBothCards && rightItem && (
-                          <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
+                          <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {rightItem}
                             </p>

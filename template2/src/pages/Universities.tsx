@@ -309,19 +309,6 @@ const Universities = () => {
                       />
                     </div>
 
-                    {uni.admissionStatus && (
-                      <div className="mb-2 flex flex-wrap items-center justify-center gap-2 px-1">
-                        <span className="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold text-emerald-800">
-                          Admission {uni.admissionStatus}
-                        </span>
-                        {uni.benefits?.emi && (
-                          <span className="text-center text-[10px] sm:text-xs text-gray-600">
-                            {uni.benefits.emi}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
                     {/* University Name */}
                     <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 text-center leading-tight">
                       {uni.name}
