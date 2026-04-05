@@ -33,6 +33,8 @@ export default {
       },
       animation: {
         'partner-scroll': 'partner-scroll 25s linear infinite',
+        /** Same keyframes as partner-scroll; shorter duration for small screens (Home.tsx). */
+        'partner-scroll-fast': 'partner-scroll 12s linear infinite',
       },
     },
   },

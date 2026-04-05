@@ -817,8 +817,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Programs Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">
+      {/* Programs Section — tighter bottom padding so Our Universities sits closer to Success Stories */}
+      <section className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-6 sm:pb-8 md:pb-10 lg:pb-10 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -894,31 +894,46 @@ const Home = () => {
             </Link>
           </motion.div>
 
-          {/* Partner Universities - reduced width + auto-scroll */}
+          {/* Partner Universities — full container width + large logos (mobile → desktop) */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mt-16 sm:mt-20 max-w-4xl mx-auto"
+            className="mt-16 sm:mt-20 w-full min-w-0"
           >
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-black mb-5 sm:mb-7 text-center">
-              Our Universities
-            </h3>
-            <div className="overflow-hidden">
-              <div className="flex gap-4 sm:gap-6 md:gap-8 w-max will-change-transform transform-gpu motion-safe:animate-partner-scroll motion-reduce:animate-none">
+            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-3 sm:mb-4">
+              Our{' '}
+              <span className="relative inline-block">
+                <span className="text-black">Universities</span>
+                <motion.span
+                  className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                />
+              </span>
+            </h2>
+            <p className="mx-auto mb-6 max-w-2xl px-2 text-center text-base text-black sm:mb-8 sm:text-lg">
+              Leading institutions we work with to offer accredited online programmes tailored to your
+              goals.
+            </p>
+            <div className="w-full min-w-0 overflow-hidden py-2 sm:py-3">
+              <div className="flex w-max gap-6 sm:gap-8 md:gap-10 lg:gap-12 will-change-transform transform-gpu motion-safe:animate-partner-scroll-fast md:motion-safe:animate-partner-scroll motion-reduce:animate-none">
                 {partnerUniversitiesMarquee.map((uni, idx) => (
                   <Link
                     key={`${uni.id}-${idx}`}
                     to="/courses"
                     state={{ universityName: uni.name, universitySlug: uni.slug }}
-                    className="flex flex-col items-center text-center group flex-shrink-0"
+                    className="flex shrink-0 flex-col items-center text-center group"
                   >
-                    <div className="flex-shrink-0 mb-2">
+                    <div className="mb-1 flex h-[108px] w-[168px] shrink-0 items-center justify-center sm:mb-2 sm:h-[124px] sm:w-[196px] md:h-[140px] md:w-[220px] lg:h-[156px] lg:w-[248px]">
                       <img
                         src={uni.logo}
                         alt={uni.name}
-                        className="block w-auto h-auto max-w-[70px] sm:max-w-[86px] md:max-w-[96px] max-h-[52px] sm:max-h-[64px] object-contain"
+                        className="block h-full w-full object-contain object-center [max-width:none]"
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                       />
                     </div>
                   </Link>
@@ -929,8 +944,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials Section — small screens: horizontal auto-scroll, no full-bleed; md+: unchanged */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">
+      {/* Testimonials Section — reduced top padding to sit closer to Our Universities */}
+      <section className="pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-12 sm:pb-16 md:pb-20 lg:pb-24 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
