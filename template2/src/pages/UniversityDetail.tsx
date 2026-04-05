@@ -308,7 +308,7 @@ const UniversityDetail = () => {
                 {highlights.map((item, index) => (
                   <li
                     key={index}
-                    className="rounded-xl bg-offwhite/90 border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4"
+                    className="rounded-xl bg-offwhite border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4"
                   >
                     <div className="flex items-start gap-3">
                       <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-gold" />
@@ -342,7 +342,7 @@ const UniversityDetail = () => {
                       )}
                       <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-end items-center">
                         {hasBothCards && leftItem && (
-                          <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
+                          <div className="max-w-md rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {leftItem}
                             </p>
@@ -386,7 +386,7 @@ const UniversityDetail = () => {
                       </div>
                       <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-start items-center">
                         {hasBothCards && rightItem && (
-                          <div className="max-w-md rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
+                          <div className="max-w-md rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {rightItem}
                             </p>
@@ -395,7 +395,7 @@ const UniversityDetail = () => {
                       </div>
                       {hasSingleCard && (
                         <div className="col-span-3 flex flex-col items-center relative z-30">
-                          <div className="w-full max-w-[26rem] rounded-xl bg-offwhite/90 border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
+                          <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words text-center">
                               {singleItem}
                             </p>
