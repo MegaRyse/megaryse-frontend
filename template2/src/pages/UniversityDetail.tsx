@@ -499,35 +499,35 @@ const UniversityDetail = () => {
                 <h3 className="text-base font-semibold text-[#00275E] mb-4 pb-2 border-b border-gold/30">
                   Application & Programme Fee
                 </h3>
-                <dl className="space-y-3 text-sm">
+                <dl className="text-sm">
                   {courseContent?.fees?.applicationFee && (
-                    <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 py-2 border-b border-gray-100">
+                    <div className="grid grid-cols-1 gap-y-1 border-b border-gray-100 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-6">
                       <dt className="font-medium text-gray-700">Application Fee</dt>
-                      <dd className="text-right font-semibold text-[#00275E]">
+                      <dd className="font-semibold text-[#00275E] tabular-nums sm:text-right">
                         {courseContent.fees.applicationFee}
                       </dd>
                     </div>
                   )}
                   {courseContent?.fees?.totalFee && (
-                    <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 py-2 border-b border-gray-100">
+                    <div className="grid grid-cols-1 gap-y-1 border-b border-gray-100 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-6">
                       <dt className="font-medium text-gray-700">Total Programme Fee</dt>
-                      <dd className="text-right font-semibold text-[#00275E]">
+                      <dd className="font-semibold text-[#00275E] tabular-nums sm:text-right">
                         {courseContent.fees.totalFee}
                       </dd>
                     </div>
                   )}
                   {courseContent?.fees?.examAndOtherCharges && (
-                    <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 py-2 border-b border-gray-100">
-                      <dt className="font-medium text-gray-700">Exam & Other Charges</dt>
-                      <dd className="text-right text-gray-600 text-xs">
+                    <div className="grid grid-cols-1 gap-y-1 border-b border-gray-100 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-6">
+                      <dt className="shrink-0 font-medium text-gray-700">Exam & Other Charges</dt>
+                      <dd className="text-xs leading-relaxed text-gray-600 sm:max-w-sm sm:text-right">
                         {courseContent.fees.examAndOtherCharges}
                       </dd>
                     </div>
                   )}
                   {courseContent?.fees?.paymentModes && (
-                    <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 pt-2">
+                    <div className="grid grid-cols-1 gap-y-1 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-6">
                       <dt className="font-medium text-gray-700">Payment Modes</dt>
-                      <dd className="text-right text-gray-600">
+                      <dd className="text-gray-600 sm:max-w-sm sm:text-right">
                         {courseContent.fees.paymentModes}
                       </dd>
                     </div>
