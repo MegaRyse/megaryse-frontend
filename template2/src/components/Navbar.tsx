@@ -299,7 +299,7 @@ const Navbar = () => {
         <Link
           to={item.path}
           onClick={closeMobileMenu}
-          className={`block relative px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
+          className={`block relative px-3 py-2.5 rounded-xl text-base font-medium transition-all duration-300 sm:px-4 ${
             isActive(item.path)
               ? 'text-navy font-bold bg-gradient-to-r from-gold/25 to-gold-bright/25 shadow-sm'
               : 'text-navy hover:bg-white/60 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
@@ -332,9 +332,9 @@ const Navbar = () => {
           aria-hidden
         />
       )}
-      {/* Main Navigation Bar Container — mobile padding/height controlled by MOBILE_* constants at top */}
+      {/* Main Navigation Bar Container — lift above mobile menu overlay while open (z-60 > menu z-40) */}
       <div
-        className="relative z-10 w-full md:px-4 md:py-0 lg:px-6 xl:px-8"
+        className={`relative w-full md:px-4 md:py-0 lg:px-6 xl:px-8 ${isOpen ? 'z-[60]' : 'z-10'}`}
         style={
           isMobile
             ? {
@@ -463,28 +463,47 @@ const Navbar = () => {
         </motion.div>
       </div>
       
-      {/* MOBILE MENU — overlay on top of screen (screens < 768px), does not push content */}
+      {/* MOBILE MENU — 80vw width, height from content (max viewport), arrow under menu / X control (< 768px) */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="md:hidden fixed left-0 right-0 top-[5.875rem] bottom-0 z-40 overflow-y-auto"
-          >
-            <div
-              className="min-h-full px-6 py-6 space-y-1.5 rounded-b-2xl border-b border-x border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
-              style={{
-                background: 'rgba(255, 255, 255, 0.92)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-              }}
+          <>
+            <motion.button
+              type="button"
+              key="mobile-menu-backdrop"
+              aria-label="Close menu"
+              className="fixed inset-0 z-30 bg-[#050B23]/40 backdrop-blur-[4px] md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22 }}
+              onClick={closeMobileMenu}
+            />
+            <motion.div
+              key="mobile-menu-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation menu"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+              className="fixed left-3 top-[6.85rem] z-40 flex w-[80vw] max-w-[80vw] flex-col md:hidden sm:left-4"
             >
-              {/* Mobile navigation items */}
-              {renderMobileNavItems()}
-            </div>
-          </motion.div>
+              {/* Arrow tip centered under menu / X (≈ padding + p-2 + half icon from panel left) */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -top-[11px] left-5 z-10 block h-3 w-[22px] -translate-x-1/2"
+              >
+                <span className="absolute left-1/2 top-0 h-0 w-0 -translate-x-1/2 border-x-[11px] border-b-[12px] border-x-transparent border-b-gold/40" />
+                <span className="absolute left-1/2 top-[2px] h-0 w-0 -translate-x-1/2 border-x-[9px] border-b-[10px] border-x-transparent border-b-offwhite" />
+              </span>
+              <div className="flex max-h-[calc(100dvh-7.25rem)] flex-col overflow-hidden rounded-2xl bg-offwhite shadow-[0_24px_48px_-12px_rgba(5,11,35,0.35)]">
+                <nav className="max-h-[calc(100dvh-8.5rem)] overflow-y-auto overscroll-contain px-4 pb-3 pt-1.5 sm:px-5 sm:pb-3.5 sm:pt-2">
+                  <div className="space-y-0.5">{renderMobileNavItems()}</div>
+                </nav>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.nav>
