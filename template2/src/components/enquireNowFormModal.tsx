@@ -5,7 +5,7 @@ import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { useEnquireModal } from '../context/EnquireModalContext'
 
 const GMAIL_SUFFIX = '@gmail.com'
-const IDLE_SECONDS = 60000
+const IDLE_SECONDS = 2000
 
 const PAGES_NO_ENQUIRE_MODAL = ['/careers', '/contact']
 

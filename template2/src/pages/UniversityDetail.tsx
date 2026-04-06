@@ -99,6 +99,81 @@ const splitOverviewIntoParagraphs = (overview: string): string[] => {
   return paragraphs.length ? paragraphs : [text]
 }
 
+/** Splits strings like "Indian: ₹99,000 | NRI: $1,458" into rows for layout. */
+const parseFeePipeSegments = (raw: string): { label: string; value: string }[] => {
+  const trimmed = raw.trim()
+  if (!trimmed) return []
+  const chunks = trimmed.split(/\s*\|\s*/)
+  const rows: { label: string; value: string }[] = []
+  for (const chunk of chunks) {
+    const c = chunk.trim()
+    if (!c) continue
+    const i = c.indexOf(':')
+    if (i > 0 && i < c.length - 1) {
+      rows.push({ label: c.slice(0, i).trim(), value: c.slice(i + 1).trim() })
+    } else {
+      rows.push({ label: '', value: c })
+    }
+  }
+  return rows
+}
+
+const FeeCard = ({
+  title,
+  value,
+  variant = 'primary',
+}: {
+  title: string
+  value: string
+  variant?: 'primary' | 'muted'
+}) => {
+  const segments = parseFeePipeSegments(value)
+  const useSplitRows = segments.length > 1 || (segments.length === 1 && Boolean(segments[0].label))
+  const valuePrimary = variant === 'primary'
+
+  return (
+    <div className="rounded-xl border border-gold/18 bg-gradient-to-b from-[#faf8f5] to-white px-4 py-3.5 shadow-sm sm:px-5 sm:py-4">
+      <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-[#00275E]/50">{title}</p>
+      {useSplitRows ? (
+        <ul className="mt-3 divide-y divide-gray-200/80">
+          {segments.map((row, idx) => (
+            <li key={idx} className="py-2.5 first:pt-0 last:pb-0">
+              {row.label ? (
+                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-x-4">
+                  <span className="min-w-0 text-sm font-medium leading-snug text-gray-700">{row.label}</span>
+                  <span
+                    className={`min-w-0 shrink-0 text-sm leading-snug sm:max-w-[58%] sm:text-right ${
+                      valuePrimary ? 'font-semibold tabular-nums text-[#00275E]' : 'text-gray-600'
+                    }`}
+                  >
+                    {row.value}
+                  </span>
+                </div>
+              ) : (
+                <p
+                  className={`text-sm leading-relaxed ${
+                    valuePrimary ? 'font-semibold text-[#00275E]' : 'text-gray-600'
+                  }`}
+                >
+                  {row.value}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p
+          className={`mt-2 text-sm leading-relaxed ${
+            valuePrimary ? 'font-semibold text-[#00275E]' : 'text-gray-600'
+          }`}
+        >
+          {value}
+        </p>
+      )}
+    </div>
+  )
+}
+
 type CourseState = {
   title: string
   desc: string
@@ -496,43 +571,27 @@ const UniversityDetail = () => {
                 </ul>
               </div>
               <div className="p-6 sm:p-8 bg-white">
-                <h3 className="text-base font-semibold text-[#00275E] mb-4 pb-2 border-b border-gold/30">
+                <h3 className="mb-4 border-b border-gold/30 pb-2 text-base font-semibold text-[#00275E]">
                   Application & Programme Fee
                 </h3>
-                <dl className="text-sm">
+                <div className="space-y-3">
                   {courseContent?.fees?.applicationFee && (
-                    <div className="grid grid-cols-1 gap-y-1 border-b border-gray-100 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-6">
-                      <dt className="font-medium text-gray-700">Application Fee</dt>
-                      <dd className="font-semibold text-[#00275E] tabular-nums sm:text-right">
-                        {courseContent.fees.applicationFee}
-                      </dd>
-                    </div>
+                    <FeeCard title="Application Fee" value={courseContent.fees.applicationFee} />
                   )}
                   {courseContent?.fees?.totalFee && (
-                    <div className="grid grid-cols-1 gap-y-1 border-b border-gray-100 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-6">
-                      <dt className="font-medium text-gray-700">Total Programme Fee</dt>
-                      <dd className="font-semibold text-[#00275E] tabular-nums sm:text-right">
-                        {courseContent.fees.totalFee}
-                      </dd>
-                    </div>
+                    <FeeCard title="Total Programme Fee" value={courseContent.fees.totalFee} />
                   )}
                   {courseContent?.fees?.examAndOtherCharges && (
-                    <div className="grid grid-cols-1 gap-y-1 border-b border-gray-100 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-6">
-                      <dt className="shrink-0 font-medium text-gray-700">Exam & Other Charges</dt>
-                      <dd className="text-xs leading-relaxed text-gray-600 sm:max-w-sm sm:text-right">
-                        {courseContent.fees.examAndOtherCharges}
-                      </dd>
-                    </div>
+                    <FeeCard
+                      title="Exam & Other Charges"
+                      value={courseContent.fees.examAndOtherCharges}
+                      variant="muted"
+                    />
                   )}
                   {courseContent?.fees?.paymentModes && (
-                    <div className="grid grid-cols-1 gap-y-1 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-6">
-                      <dt className="font-medium text-gray-700">Payment Modes</dt>
-                      <dd className="text-gray-600 sm:max-w-sm sm:text-right">
-                        {courseContent.fees.paymentModes}
-                      </dd>
-                    </div>
+                    <FeeCard title="Payment Modes" value={courseContent.fees.paymentModes} variant="muted" />
                   )}
-                </dl>
+                </div>
               </div>
             </div>
 
