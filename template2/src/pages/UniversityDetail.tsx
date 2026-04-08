@@ -98,13 +98,13 @@ const parseStructuredCourseDescription = (rawDescription: string): ParsedStructu
   }
 
   const overview = normalized
-    .split(/\n\s*(Electives Offered|Programme Highlights)\s*\n/i)[0]
+    .split(/\n\s*(Electives Offered|Programme Highlights|Diploma Programme Highlights)\s*\n/i)[0]
     .replace(/^[A-Z][A-Z\s()./&-]*\s+[–-]?\s*PROGRAMME OVERVIEW\s*/i, '')
     .trim()
 
   const highlightsBlock = extractSection(
     normalized,
-    /\n\s*Programme Highlights\s*\n/i,
+    /\n\s*(Programme Highlights|Diploma Programme Highlights)\s*\n/i,
     /\n\s*(Electives Offered|Eligibility)\s*\n/i
   )
   const parsedHighlights = highlightsBlock
@@ -136,33 +136,65 @@ const parseStructuredCourseDescription = (rawDescription: string): ParsedStructu
     })
   }
 
-  const eligibilityBlock = extractSection(normalized, /\n\s*Eligibility\s*\n/i, /\n\s*Programme Fee\s*\n/i)
-  const eligibility = eligibilityBlock ? [eligibilityBlock.replace(/\s+/g, ' ').trim()] : []
-
-  const programmeFeeBlock = extractSection(
-    normalized,
-    /\n\s*Programme Fee\s*\n/i,
-    /\n\s*No-Cost EMI Option Available\s*\n/i
+  const eligibilityBlocks = normalized.match(
+    /(?:^|\n)\s*Eligibility\s*\n([\s\S]*?)(?=\n\s*Programme Fee\s*\n|$)/gi
   )
-  const applicationFeeMatch = programmeFeeBlock.match(/Application Fee:\s*([^\n]+)/i)
-  const totalFeeMatch = programmeFeeBlock.match(/Total Programme Fee:\s*([^\n]+)/i)
-  const totalFeeLines = programmeFeeBlock
-    .split('\n')
-    .map((line) => line.trim())
-    .map((line) => line.replace(/^[-*•]\s*/, '').trim())
-    .filter((line) => /^[A-Za-z][A-Za-z0-9\s()./&+-]*\s*[-:]\s*[A-Za-z0-9₹$,\s]+$/i.test(line))
-    .map((line) => line.replace(/\s*-\s*/g, ': ').trim())
-  const totalFeeValue = totalFeeLines.length
-    ? totalFeeLines.join(' | ')
-    : totalFeeMatch?.[1]?.trim()
-
-  const noCostEmiBlock = extractSection(
-    normalized,
-    /\n\s*No-Cost EMI Option Available\s*\n/i,
-    /\n\s*Scholarships Available\s*\n/i
+  const eligibility = Array.from(
+    new Set(
+      (eligibilityBlocks ?? [])
+        .map((block) => block.replace(/^(?:^|\n)\s*Eligibility\s*\n/i, '').trim())
+        .map((block) => block.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+    )
   )
-  const scholarshipsBlock = extractSection(normalized, /\n\s*Scholarships Available\s*\n/i)
-  const scholarships = scholarshipsBlock ? [scholarshipsBlock.replace(/\s+/g, ' ').trim()] : []
+
+  const programmeFeeBlocks = normalized.match(
+    /(?:^|\n)\s*Programme Fee\s*\n([\s\S]*?)(?=\n\s*No-Cost EMI Option Available\s*\n|$)/gi
+  )
+  const applicationFees = new Set<string>()
+  const totalFeeValues = new Set<string>()
+  for (const feeBlockWithHeading of programmeFeeBlocks ?? []) {
+    const feeBlock = feeBlockWithHeading.replace(/^(?:^|\n)\s*Programme Fee\s*\n/i, '').trim()
+    const applicationFeeMatch = feeBlock.match(/Application Fee:\s*([^\n]+)/i)
+    if (applicationFeeMatch?.[1]?.trim()) applicationFees.add(applicationFeeMatch[1].trim())
+    const totalFeeMatch = feeBlock.match(/Total Programme Fee:\s*([^\n]+)/i)
+    if (totalFeeMatch?.[1]?.trim()) totalFeeValues.add(totalFeeMatch[1].trim())
+    const totalFeeLines = feeBlock
+      .split('\n')
+      .map((line) => line.trim())
+      .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+      .filter((line) => !/^Application Fee\s*:/i.test(line))
+      .filter((line) => !/^Total Programme Fee\s*:/i.test(line))
+      .filter((line) => /^[A-Za-z][A-Za-z0-9\s()./&+-]*\s*[-:]\s*[A-Za-z0-9₹$,\s]+$/i.test(line))
+      .map((line) => line.replace(/\s*-\s*/g, ': ').trim())
+    for (const line of totalFeeLines) totalFeeValues.add(line)
+  }
+  const applicationFeeValue = Array.from(applicationFees)[0]
+  const totalFeeValue = Array.from(totalFeeValues).join(' | ')
+
+  const noCostEmiBlocks = normalized.match(
+    /(?:^|\n)\s*No-Cost EMI Option Available\s*\n([\s\S]*?)(?=\n\s*Scholarships Available\s*\n|$)/gi
+  )
+  const noCostEmi = Array.from(
+    new Set(
+      (noCostEmiBlocks ?? [])
+        .map((block) => block.replace(/^(?:^|\n)\s*No-Cost EMI Option Available\s*\n/i, '').trim())
+        .map((block) => block.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+    )
+  ).join(' ')
+
+  const scholarshipsBlocks = normalized.match(
+    /(?:^|\n)\s*Scholarships Available\s*\n([\s\S]*?)(?=\n\s*Eligibility\s*\n|$)/gi
+  )
+  const scholarships = Array.from(
+    new Set(
+      (scholarshipsBlocks ?? [])
+        .map((block) => block.replace(/^(?:^|\n)\s*Scholarships Available\s*\n/i, '').trim())
+        .map((block) => block.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+    )
+  )
 
   return {
     overview,
@@ -170,13 +202,13 @@ const parseStructuredCourseDescription = (rawDescription: string): ParsedStructu
     electives,
     eligibility,
     fees:
-      applicationFeeMatch || totalFeeValue
+      applicationFeeValue || totalFeeValue
         ? {
-            applicationFee: applicationFeeMatch?.[1]?.trim(),
+            applicationFee: applicationFeeValue,
             totalFee: totalFeeValue,
           }
         : undefined,
-    noCostEmi: noCostEmiBlock.replace(/\s+/g, ' ').trim(),
+    noCostEmi,
     scholarships,
   }
 }
@@ -356,10 +388,11 @@ const UniversityDetail = () => {
   const universityName =
     state?.name ?? universityFromData?.name ?? (universitySlug ? slugToName(universitySlug) : 'University')
   const course = state?.course ?? courseFromRouteState
+  const effectiveCourseDescription = courseFromRoute?.description ?? course?.desc ?? ''
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
-    () => parseStructuredCourseDescription(course?.desc ?? ''),
-    [course?.desc]
+    () => parseStructuredCourseDescription(effectiveCourseDescription),
+    [effectiveCourseDescription]
   )
   const effectiveOverview = useMemo(() => {
     if (parsedDescription.overview) return parsedDescription.overview
@@ -370,8 +403,32 @@ const UniversityDetail = () => {
     () => (parsedDescription.eligibility.length ? parsedDescription.eligibility : courseContent?.eligibility ?? []),
     [parsedDescription.eligibility, courseContent?.eligibility]
   )
-  const eligibilityPoints = useMemo(() => splitEligibilityIntoPoints(effectiveEligibility), [effectiveEligibility])
+  const courseSectionOverrides = useMemo(() => {
+    if (courseFromRoute?.id !== 19) return null
+    return {
+      eligibility: [
+        "Applicants must have completed 10+2 (higher secondary education) from a recognised board, with a minimum of 50% aggregate marks for General category and 45% aggregate marks for Reserved categories (SC/ST/OBC/PwD).",
+      ],
+      fees: {
+        applicationFee: "11,200",
+        totalFee: "110,000",
+        paymentModes:
+          "Benefit from our no-cost EMI facility, designed to make financing your education simple and manageable.",
+      },
+      scholarships: [
+        "We offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.",
+      ],
+    }
+  }, [courseFromRoute?.id])
   const effectiveFees = useMemo(() => {
+    if (courseSectionOverrides?.fees) {
+      return {
+        applicationFee: courseSectionOverrides.fees.applicationFee,
+        totalFee: courseSectionOverrides.fees.totalFee,
+        examAndOtherCharges: undefined,
+        paymentModes: courseSectionOverrides.fees.paymentModes,
+      }
+    }
     if (parsedDescription.fees?.applicationFee || parsedDescription.fees?.totalFee) {
       return {
         applicationFee: parsedDescription.fees?.applicationFee,
@@ -381,13 +438,25 @@ const UniversityDetail = () => {
       }
     }
     return courseContent?.fees
-  }, [parsedDescription.fees, parsedDescription.noCostEmi, courseContent?.fees])
+  }, [courseSectionOverrides?.fees, parsedDescription.fees, parsedDescription.noCostEmi, courseContent?.fees])
+  const effectiveEligibilityResolved = useMemo(
+    () => courseSectionOverrides?.eligibility ?? effectiveEligibility,
+    [courseSectionOverrides?.eligibility, effectiveEligibility]
+  )
+  const eligibilityPointsResolved = useMemo(
+    () => splitEligibilityIntoPoints(effectiveEligibilityResolved),
+    [effectiveEligibilityResolved]
+  )
   const effectiveScholarships = useMemo(
-    () =>
+    () => {
+      if (courseSectionOverrides?.scholarships) return courseSectionOverrides.scholarships
+      return (
       parsedDescription.scholarships.length
         ? parsedDescription.scholarships
-        : courseContent?.scholarships ?? [],
-    [parsedDescription.scholarships, courseContent?.scholarships]
+        : courseContent?.scholarships ?? []
+      )
+    },
+    [courseSectionOverrides?.scholarships, parsedDescription.scholarships, courseContent?.scholarships]
   )
   const effectiveHighlights = useMemo(
     () =>
@@ -737,7 +806,7 @@ const UniversityDetail = () => {
           ) : null}
 
           {/* Programme Structure for selected course */}
-          {(eligibilityPoints.length || effectiveFees || effectiveScholarships.length) && (
+          {(eligibilityPointsResolved.length || effectiveFees || effectiveScholarships.length) && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="rounded-2xl shadow-lg border border-gold/25 overflow-hidden bg-white"
@@ -767,7 +836,7 @@ const UniversityDetail = () => {
                   Eligibility Criteria
                 </h3>
                 <ul className="space-y-3 text-sm text-gray-700">
-                  {eligibilityPoints.map((item, index) => (
+                  {eligibilityPointsResolved.map((item, index) => (
                     <li key={item} className="flex gap-3">
                       <span className="shrink-0 w-5 h-5 rounded-full bg-gold/20 text-gold flex items-center justify-center text-xs font-semibold">
                         {index + 1}
