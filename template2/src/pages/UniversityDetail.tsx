@@ -408,16 +408,30 @@ const UniversityDetail = () => {
   const isProfessionalOrCertificateCourse = Boolean(
     courseFromRoute?.category && /professional|certificate/i.test(courseFromRoute.category)
   )
+  const isMujBCom =
+    universitySlug === 'manipal-university-jaipur' && courseSlug === 'b-com'
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
     () => parseStructuredCourseDescription(effectiveCourseDescription),
     [effectiveCourseDescription]
   )
   const effectiveOverview = useMemo(() => {
+    // Match Courses.tsx getCourseListDescription: university overview, else CourseMaster.description
+    const fromCoursesPage =
+      universitySlug && courseFromRoute
+        ? courseContent?.overview ?? courseFromRoute.description
+        : courseFromRoute?.description ?? course?.desc ?? ''
+    const trimmed = (fromCoursesPage ?? '').trim()
+    if (trimmed) return trimmed
     if (parsedDescription.overview) return parsedDescription.overview
-    if (course?.desc?.trim()) return course.desc.trim()
-    return courseContent?.overview ?? ''
-  }, [parsedDescription.overview, course?.desc, courseContent?.overview])
+    return ''
+  }, [
+    universitySlug,
+    courseFromRoute,
+    courseContent?.overview,
+    course?.desc,
+    parsedDescription.overview,
+  ])
   const effectiveEligibility = useMemo(
     () => (parsedDescription.eligibility.length ? parsedDescription.eligibility : courseContent?.eligibility ?? []),
     [parsedDescription.eligibility, courseContent?.eligibility]
@@ -788,7 +802,7 @@ const UniversityDetail = () => {
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
             >
               <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-4">
-                Specializations
+                {isMujBCom ? 'Electives' : 'Specializations'}
               </h2>
               <div className="flex flex-wrap gap-2">
                 {courseSpecializations.map((s, i) => (
@@ -803,7 +817,8 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
-          {!isProfessionalOrCertificateCourse &&
+          {!isMujBCom &&
+          !isProfessionalOrCertificateCourse &&
           courseContent?.keyTopics &&
           courseContent.keyTopics.length > 0 ? (
             <motion.section

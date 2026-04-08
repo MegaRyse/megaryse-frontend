@@ -10,7 +10,7 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold text-white mb-4">MegaRyse</h3>
             <p className="text-white/80 text-sm">
-              Your trusted partner in MBA education and career advancement.
+              Your trusted partner in higher education and career advancement.
             </p>
           </div>
           <div>
