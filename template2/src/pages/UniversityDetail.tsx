@@ -274,15 +274,31 @@ const parseFeePipeSegments = (raw: string): { label: string; value: string }[] =
   const trimmed = raw.trim()
   if (!trimmed) return []
   const chunks = trimmed.split(/\s*\|\s*/)
+  const seen = new Set<string>()
   const rows: { label: string; value: string }[] = []
+  const normalizeFeeText = (text: string): string =>
+    text
+      .replace(/^[-*•–]+\s*/, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+
   for (const chunk of chunks) {
     const c = chunk.trim()
     if (!c) continue
     const i = c.indexOf(':')
     if (i > 0 && i < c.length - 1) {
-      rows.push({ label: c.slice(0, i).trim(), value: c.slice(i + 1).trim() })
+      const label = normalizeFeeText(c.slice(0, i))
+      const value = normalizeFeeText(c.slice(i + 1))
+      const key = `${label}::${value}`.toLowerCase()
+      if (seen.has(key)) continue
+      seen.add(key)
+      rows.push({ label, value })
     } else {
-      rows.push({ label: '', value: c })
+      const value = normalizeFeeText(c)
+      const key = `::${value}`.toLowerCase()
+      if (seen.has(key)) continue
+      seen.add(key)
+      rows.push({ label: '', value })
     }
   }
   return rows
@@ -389,6 +405,9 @@ const UniversityDetail = () => {
     state?.name ?? universityFromData?.name ?? (universitySlug ? slugToName(universitySlug) : 'University')
   const course = state?.course ?? courseFromRouteState
   const effectiveCourseDescription = courseFromRoute?.description ?? course?.desc ?? ''
+  const isProfessionalOrCertificateCourse = Boolean(
+    courseFromRoute?.category && /professional|certificate/i.test(courseFromRoute.category)
+  )
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
     () => parseStructuredCourseDescription(effectiveCourseDescription),
@@ -621,7 +640,7 @@ const UniversityDetail = () => {
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
             >
             <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-3 text-center">
-              Programme Highlights
+              {isProfessionalOrCertificateCourse ? 'Specializations' : 'Programme Highlights'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 text-center max-w-2xl mx-auto mb-6">
               Key reasons why this programme stands out and adds tangible value to your academic and career journey.
@@ -632,7 +651,7 @@ const UniversityDetail = () => {
                 {effectiveHighlights.map((item, index) => (
                   <li
                     key={index}
-                    className="rounded-xl bg-offwhite border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4"
+                    className="w-full rounded-xl bg-offwhite border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4 min-h-[112px] flex items-center"
                   >
                     <div className="flex items-start gap-3">
                       <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-gold" />
@@ -666,7 +685,7 @@ const UniversityDetail = () => {
                       )}
                       <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-end items-center">
                         {hasBothCards && leftItem && (
-                          <div className="max-w-md rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
+                          <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 min-h-[140px] flex items-center">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {leftItem}
                             </p>
@@ -710,7 +729,7 @@ const UniversityDetail = () => {
                       </div>
                       <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-start items-center">
                         {hasBothCards && rightItem && (
-                          <div className="max-w-md rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 shrink-0">
+                          <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 min-h-[140px] flex items-center">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
                               {rightItem}
                             </p>
@@ -719,7 +738,7 @@ const UniversityDetail = () => {
                       </div>
                       {hasSingleCard && (
                         <div className="col-span-3 flex flex-col items-center relative z-30">
-                          <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4">
+                          <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 min-h-[140px] flex items-center">
                             <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words text-center">
                               {singleItem}
                             </p>
@@ -763,7 +782,7 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
-          {courseSpecializations.length > 0 && (
+          {!isProfessionalOrCertificateCourse && courseSpecializations.length > 0 && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
@@ -784,7 +803,9 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
-          {courseContent?.keyTopics && courseContent.keyTopics.length > 0 ? (
+          {!isProfessionalOrCertificateCourse &&
+          courseContent?.keyTopics &&
+          courseContent.keyTopics.length > 0 ? (
             <motion.section
               variants={SECTION_VARIANTS}
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
