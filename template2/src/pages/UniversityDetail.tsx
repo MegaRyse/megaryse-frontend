@@ -54,6 +54,133 @@ const getHighlightRows = (items: string[]): string[][] => {
   return rows
 }
 
+type ParsedElective = {
+  title: string
+  summary: string
+  highlights: string[]
+}
+
+type ParsedStructuredDescription = {
+  overview: string
+  highlights: string[]
+  electives: ParsedElective[]
+  eligibility: string[]
+  fees?: {
+    applicationFee?: string
+    totalFee?: string
+  }
+  noCostEmi?: string
+  scholarships: string[]
+}
+
+const cleanSectionText = (value: string): string =>
+  value
+    .replace(/\r\n/g, '\n')
+    .replace(/\u2022/g, '-')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+
+const extractSection = (source: string, startHeading: RegExp, endHeading?: RegExp): string => {
+  const start = source.match(startHeading)
+  if (!start || start.index === undefined) return ''
+  const fromStart = source.slice(start.index + start[0].length).trim()
+  if (!endHeading) return fromStart
+  const end = fromStart.match(endHeading)
+  if (!end?.index && end?.index !== 0) return fromStart
+  return fromStart.slice(0, end.index).trim()
+}
+
+const parseStructuredCourseDescription = (rawDescription: string): ParsedStructuredDescription => {
+  const normalized = cleanSectionText(rawDescription)
+  if (!normalized) {
+    return { overview: '', highlights: [], electives: [], eligibility: [], scholarships: [] }
+  }
+
+  const overview = normalized
+    .split(/\n\s*(Electives Offered|Programme Highlights)\s*\n/i)[0]
+    .replace(/^[A-Z][A-Z\s()./&-]*\s+[–-]?\s*PROGRAMME OVERVIEW\s*/i, '')
+    .trim()
+
+  const highlightsBlock = extractSection(
+    normalized,
+    /\n\s*Programme Highlights\s*\n/i,
+    /\n\s*(Electives Offered|Eligibility)\s*\n/i
+  )
+  const parsedHighlights = highlightsBlock
+    .split('\n')
+    .map((line) => line.trim())
+    .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+    .filter(Boolean)
+
+  const electivesBlock = extractSection(normalized, /\n\s*Electives Offered\s*\n/i, /\n\s*Eligibility\s*\n/i)
+  const electives: ParsedElective[] = []
+  const electiveRegex = /(?:^|\n)(\d+)\.\s+([^\n]+)\n+([\s\S]*?)(?=(?:\n\d+\.\s+[^\n]+)|$)/g
+  let electiveMatch: RegExpExecArray | null
+  while ((electiveMatch = electiveRegex.exec(electivesBlock)) !== null) {
+    const title = electiveMatch[2].trim()
+    const body = electiveMatch[3].trim()
+    const [summaryPart = ''] = body.split(/\n\s*Highlights:\s*\n/i)
+    const highlightsPart = body.split(/\n\s*Highlights:\s*\n/i)[1] ?? ''
+    const highlights = highlightsPart
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.startsWith('-'))
+      .map((line) => line.replace(/^-+\s*/, '').trim())
+      .filter(Boolean)
+
+    electives.push({
+      title,
+      summary: summaryPart.trim(),
+      highlights,
+    })
+  }
+
+  const eligibilityBlock = extractSection(normalized, /\n\s*Eligibility\s*\n/i, /\n\s*Programme Fee\s*\n/i)
+  const eligibility = eligibilityBlock ? [eligibilityBlock.replace(/\s+/g, ' ').trim()] : []
+
+  const programmeFeeBlock = extractSection(
+    normalized,
+    /\n\s*Programme Fee\s*\n/i,
+    /\n\s*No-Cost EMI Option Available\s*\n/i
+  )
+  const applicationFeeMatch = programmeFeeBlock.match(/Application Fee:\s*([^\n]+)/i)
+  const totalFeeMatch = programmeFeeBlock.match(/Total Programme Fee:\s*([^\n]+)/i)
+  const totalFeeLines = programmeFeeBlock
+    .split('\n')
+    .map((line) => line.trim())
+    .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+    .filter((line) => /^[A-Za-z][A-Za-z0-9\s()./&+-]*\s*[-:]\s*[A-Za-z0-9₹$,\s]+$/i.test(line))
+    .map((line) => line.replace(/\s*-\s*/g, ': ').trim())
+  const totalFeeValue = totalFeeLines.length
+    ? totalFeeLines.join(' | ')
+    : totalFeeMatch?.[1]?.trim()
+
+  const noCostEmiBlock = extractSection(
+    normalized,
+    /\n\s*No-Cost EMI Option Available\s*\n/i,
+    /\n\s*Scholarships Available\s*\n/i
+  )
+  const scholarshipsBlock = extractSection(normalized, /\n\s*Scholarships Available\s*\n/i)
+  const scholarships = scholarshipsBlock ? [scholarshipsBlock.replace(/\s+/g, ' ').trim()] : []
+
+  return {
+    overview,
+    highlights: parsedHighlights,
+    electives,
+    eligibility,
+    fees:
+      applicationFeeMatch || totalFeeValue
+        ? {
+            applicationFee: applicationFeeMatch?.[1]?.trim(),
+            totalFee: totalFeeValue,
+          }
+        : undefined,
+    noCostEmi: noCostEmiBlock.replace(/\s+/g, ' ').trim(),
+    scholarships,
+  }
+}
+
 /** Long overviews become multiple paragraphs; explicit blank lines in content are always respected. */
 const splitOverviewIntoParagraphs = (overview: string): string[] => {
   const normalized = overview.replace(/\r\n/g, '\n').trim()
@@ -97,6 +224,17 @@ const splitOverviewIntoParagraphs = (overview: string): string[] => {
   }
   if (chunk.length) paragraphs.push(chunk.join(' '))
   return paragraphs.length ? paragraphs : [text]
+}
+
+const splitEligibilityIntoPoints = (items: string[]): string[] => {
+  return items
+    .flatMap((item) =>
+      item
+        .split('.')
+        .map((part) => part.trim())
+        .filter(Boolean)
+    )
+    .map((point) => `${point}.`)
 }
 
 /** Splits strings like "Indian: ₹99,000 | NRI: $1,458" into rows for layout. */
@@ -219,12 +357,54 @@ const UniversityDetail = () => {
     state?.name ?? universityFromData?.name ?? (universitySlug ? slugToName(universitySlug) : 'University')
   const course = state?.course ?? courseFromRouteState
   const highlights = courseContent?.highlights ?? []
-  const highlightRows = useMemo(() => getHighlightRows(highlights), [highlights])
+  const parsedDescription = useMemo(
+    () => parseStructuredCourseDescription(course?.desc ?? ''),
+    [course?.desc]
+  )
+  const effectiveOverview = useMemo(() => {
+    if (parsedDescription.overview) return parsedDescription.overview
+    if (course?.desc?.trim()) return course.desc.trim()
+    return courseContent?.overview ?? ''
+  }, [parsedDescription.overview, course?.desc, courseContent?.overview])
+  const effectiveEligibility = useMemo(
+    () => (parsedDescription.eligibility.length ? parsedDescription.eligibility : courseContent?.eligibility ?? []),
+    [parsedDescription.eligibility, courseContent?.eligibility]
+  )
+  const eligibilityPoints = useMemo(() => splitEligibilityIntoPoints(effectiveEligibility), [effectiveEligibility])
+  const effectiveFees = useMemo(() => {
+    if (parsedDescription.fees?.applicationFee || parsedDescription.fees?.totalFee) {
+      return {
+        applicationFee: parsedDescription.fees?.applicationFee,
+        totalFee: parsedDescription.fees?.totalFee,
+        examAndOtherCharges: undefined,
+        paymentModes: parsedDescription.noCostEmi || courseContent?.fees?.paymentModes,
+      }
+    }
+    return courseContent?.fees
+  }, [parsedDescription.fees, parsedDescription.noCostEmi, courseContent?.fees])
+  const effectiveScholarships = useMemo(
+    () =>
+      parsedDescription.scholarships.length
+        ? parsedDescription.scholarships
+        : courseContent?.scholarships ?? [],
+    [parsedDescription.scholarships, courseContent?.scholarships]
+  )
+  const effectiveHighlights = useMemo(
+    () =>
+      highlights.length > 0
+        ? highlights
+        : parsedDescription.electives.length > 0
+          ? parsedDescription.electives.flatMap((e) => e.highlights)
+          : parsedDescription.highlights,
+    [highlights, parsedDescription.electives, parsedDescription.highlights]
+  )
+  const effectiveHighlightRows = useMemo(() => getHighlightRows(effectiveHighlights), [effectiveHighlights])
   const courseSpecializations = useMemo(() => {
     if (!course) return [] as string[]
     if (courseContent?.specializations?.length) return courseContent.specializations
+    if (parsedDescription.electives.length) return parsedDescription.electives.map((e) => e.title)
     return course.specializations ?? []
-  }, [course, courseContent])
+  }, [course, courseContent, parsedDescription.electives])
   const programsByCategory = useMemo(() => {
     if (!universityFromData) return []
     const courses = getCoursesByIds(universityFromData.courseIds)
@@ -331,7 +511,7 @@ const UniversityDetail = () => {
             </h2>
             <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-center min-w-0 max-md:justify-items-center">
               <div className="space-y-4 max-md:text-center max-md:mx-auto min-w-0">
-                {splitOverviewIntoParagraphs(courseContent?.overview ?? '').map((para, i) => (
+                {splitOverviewIntoParagraphs(effectiveOverview).map((para, i) => (
                   <p
                     key={i}
                     className="text-sm sm:text-base text-gray-600 leading-relaxed max-md:mx-auto"
@@ -366,7 +546,7 @@ const UniversityDetail = () => {
             </div>
           </motion.section>
 
-          {highlights.length > 0 && (
+          {effectiveHighlights.length > 0 && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
@@ -380,7 +560,7 @@ const UniversityDetail = () => {
 
             <div className="md:hidden">
               <ul className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
-                {highlights.map((item, index) => (
+                {effectiveHighlights.map((item, index) => (
                   <li
                     key={index}
                     className="rounded-xl bg-offwhite border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4"
@@ -397,7 +577,7 @@ const UniversityDetail = () => {
             </div>
             <div className="hidden md:block relative max-w-4xl mx-auto">
               <div className="space-y-8 sm:space-y-10">
-                {highlightRows.map((row, rowIndex, allRows) => {
+                {effectiveHighlightRows.map((row, rowIndex, allRows) => {
                   const [leftItem, rightItem] = row
                   const singleItem = leftItem ?? rightItem
                   const isLastRow = rowIndex === allRows.length - 1
@@ -485,6 +665,35 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
+          {parsedDescription.electives.length > 0 && (
+            <motion.section
+              variants={SECTION_VARIANTS}
+              className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
+            >
+              <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-5">Electives Offered</h2>
+              <div className="space-y-5">
+                {parsedDescription.electives.map((elective, index) => (
+                  <div key={`${elective.title}-${index}`} className="rounded-xl border border-gold/20 bg-offwhite/60 p-4 sm:p-5">
+                    <h3 className="text-base sm:text-lg font-semibold text-[#00275E] mb-2">{elective.title}</h3>
+                    {elective.summary ? (
+                      <p className="text-sm text-gray-700 leading-relaxed mb-3">{elective.summary}</p>
+                    ) : null}
+                    {elective.highlights.length > 0 ? (
+                      <ul className="space-y-2">
+                        {elective.highlights.map((point, pointIndex) => (
+                          <li key={`${point}-${pointIndex}`} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
+                            <span className="mt-1 h-2 w-2 rounded-full bg-gold shrink-0" />
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
           {courseSpecializations.length > 0 && (
             <motion.section
               variants={SECTION_VARIANTS}
@@ -528,9 +737,7 @@ const UniversityDetail = () => {
           ) : null}
 
           {/* Programme Structure for selected course */}
-          {(courseContent?.eligibility?.length ||
-            courseContent?.fees ||
-            courseContent?.scholarships?.length) && (
+          {(eligibilityPoints.length || effectiveFees || effectiveScholarships.length) && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="rounded-2xl shadow-lg border border-gold/25 overflow-hidden bg-white"
@@ -560,7 +767,7 @@ const UniversityDetail = () => {
                   Eligibility Criteria
                 </h3>
                 <ul className="space-y-3 text-sm text-gray-700">
-                  {(courseContent?.eligibility ?? []).map((item, index) => (
+                  {eligibilityPoints.map((item, index) => (
                     <li key={item} className="flex gap-3">
                       <span className="shrink-0 w-5 h-5 rounded-full bg-gold/20 text-gold flex items-center justify-center text-xs font-semibold">
                         {index + 1}
@@ -575,36 +782,51 @@ const UniversityDetail = () => {
                   Application & Programme Fee
                 </h3>
                 <div className="space-y-3">
-                  {courseContent?.fees?.applicationFee && (
-                    <FeeCard title="Application Fee" value={courseContent.fees.applicationFee} />
+                  {effectiveFees?.applicationFee && (
+                    <FeeCard title="Application Fee" value={effectiveFees.applicationFee} />
                   )}
-                  {courseContent?.fees?.totalFee && (
-                    <FeeCard title="Total Programme Fee" value={courseContent.fees.totalFee} />
+                  {effectiveFees?.totalFee && (
+                    <FeeCard title="Total Programme Fee" value={effectiveFees.totalFee} />
                   )}
-                  {courseContent?.fees?.examAndOtherCharges && (
+                  {effectiveFees?.examAndOtherCharges && (
                     <FeeCard
                       title="Exam & Other Charges"
-                      value={courseContent.fees.examAndOtherCharges}
+                      value={effectiveFees.examAndOtherCharges}
                       variant="muted"
                     />
                   )}
-                  {courseContent?.fees?.paymentModes && (
-                    <FeeCard title="Payment Modes" value={courseContent.fees.paymentModes} variant="muted" />
+                  {effectiveFees?.paymentModes && (
+                    <FeeCard title="Payment Modes" value={effectiveFees.paymentModes} variant="muted" />
                   )}
                 </div>
               </div>
             </div>
 
             {/* Row 3: Scholarships & Finance highlight */}
-            {!!courseContent?.scholarships?.length && (
+            {!!effectiveScholarships.length && (
               <div className="px-6 py-5 sm:px-8 sm:py-6 bg-[#00275E] text-white border-t border-gold-bright/20">
                 <h3 className="text-base font-semibold text-gold-bright mb-4 text-center">
                   Scholarships & Finance
                 </h3>
-                <ul className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-white/90 max-w-3xl mx-auto">
-                  {courseContent.scholarships.map((item) => (
-                    <li key={item} className="flex gap-2 items-center">
-                      <span className="text-gold-bright shrink-0">•</span>
+                <ul
+                  className={`text-sm text-white/90 max-w-3xl mx-auto ${
+                    effectiveScholarships.length === 1
+                      ? 'flex justify-center'
+                      : 'flex flex-wrap justify-center gap-x-8 gap-y-2'
+                  }`}
+                >
+                  {effectiveScholarships.map((item) => (
+                    <li
+                      key={item}
+                      className={
+                        effectiveScholarships.length === 1
+                          ? 'w-full text-center'
+                          : 'flex gap-2 items-center'
+                      }
+                    >
+                      {effectiveScholarships.length > 1 && (
+                        <span className="text-gold-bright shrink-0">•</span>
+                      )}
                       {item}
                     </li>
                   ))}
