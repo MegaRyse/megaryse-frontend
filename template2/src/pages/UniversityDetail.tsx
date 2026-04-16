@@ -46,6 +46,19 @@ const SECTION_VARIANTS = {
   },
 }
 
+const NMIMS_BBA_GENERAL_HIGHLIGHTS = [
+  '3-year undergraduate programme structured across 6 semesters',
+  'Comprehensive curriculum covering core areas like Management, Finance, Marketing, Economics, and Business Analytics',
+  'Strong foundation through subjects such as Principles of Management, Financial Accounting, and Business Communication',
+  'Progressive learning with advanced topics like Strategic Management, Project Management, and Digital Marketing',
+  'Industry-relevant curriculum aligned with current business trends and practices',
+  'Skill-based learning focus including critical thinking, problem-solving, and decision-making',
+  'Emphasis on employability through soft skills, design thinking, and entrepreneurial exposure',
+  'Exposure to real-world business challenges and practical applications',
+  'Modern IT-enabled learning environment to support academic and professional growth',
+  'Elective options include Marketing and Finance, along with Business Analytics.',
+]
+
 const getHighlightRows = (items: string[]): string[][] => {
   const rows: string[][] = []
   for (let i = 0; i < items.length; i += 2) {
@@ -437,7 +450,6 @@ const UniversityDetail = () => {
   )
   const isMujBCom =
     universitySlug === 'manipal-university-jaipur' && courseSlug === 'b-com'
-  const isNmimsBba = universitySlug === 'nmims-university' && courseFromRoute?.id === 17
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
     () => parseStructuredCourseDescription(effectiveCourseDescription),
@@ -535,21 +547,11 @@ const UniversityDetail = () => {
     },
     [courseSectionOverrides?.scholarships, parsedDescription.scholarships, courseContent?.scholarships]
   )
+  const isNmimsBba = universitySlug === 'nmims-university' && courseFromRoute?.id === 17
   const effectiveHighlights = useMemo(
     () =>
       isNmimsBba
-        ? [
-            '3-year undergraduate programme structured across 6 semesters',
-            'Comprehensive curriculum covering core areas like Management, Finance, Marketing, Economics, and Business Analytics',
-            'Strong foundation through subjects such as Principles of Management, Financial Accounting, and Business Communication',
-            'Progressive learning with advanced topics like Strategic Management, Project Management, and Digital Marketing',
-            'Industry-relevant curriculum aligned with current business trends and practices',
-            'Skill-based learning focus including critical thinking, problem-solving, and decision-making',
-            'Emphasis on employability through soft skills, design thinking, and entrepreneurial exposure',
-            'Exposure to real-world business challenges and practical applications',
-            'Modern IT-enabled learning environment to support academic and professional growth',
-            'Specialization options include Marketing and Finance, along with Business Analytics.',
-          ]
+        ? NMIMS_BBA_GENERAL_HIGHLIGHTS
         : highlights.length > 0
         ? highlights
         : parsedDescription.electives.length > 0
