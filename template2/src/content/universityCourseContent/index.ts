@@ -3,6 +3,7 @@ import type {
   UniversityCourseContentMap,
 } from '../../types/universityCourseContent'
 import { amityUniversityCourseContent } from './amity'
+import { bennetUniversityCourseContent } from './bennet'
 
 /**
  * Fill this map as you share content university-by-university and course-by-course.
@@ -1427,6 +1428,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
     },
   },
   'amity-university': amityUniversityCourseContent,
+  'bennet-university': bennetUniversityCourseContent,
 }
 
 export function getUniversityCourseContent(

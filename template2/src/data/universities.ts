@@ -99,7 +99,7 @@ export const universitiesData: University[] = [
     fullName: "Bennet University",
     slug: "bennet-university",
     location: "India",
-    courseIds: [2, 4, 5, 7, 12, 11],
+    courseIds: [2, 5],
     logo: BennetLogo
   },
   {

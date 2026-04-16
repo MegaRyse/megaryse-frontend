@@ -490,6 +490,8 @@ const UniversityDetail = () => {
   )
   const isMujBCom =
     universitySlug === 'manipal-university-jaipur' && courseSlug === 'b-com'
+  const isDyPatilCourse = universitySlug === 'dy-patil-pune'
+  const isDyPatilMca = universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 6
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
     () => parseStructuredCourseDescription(effectiveCourseDescription),
@@ -533,6 +535,41 @@ const UniversityDetail = () => {
     [parsedDescription.eligibility, courseContent?.eligibility]
   )
   const courseSectionOverrides = useMemo(() => {
+    if (universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 2) {
+      return {
+        eligibility: [
+          'Candidates must have completed HSC (10+2) or an equivalent examination from a recognized board in any stream, with English as one of the subjects.',
+        ],
+      }
+    }
+    if (universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 14) {
+      return {
+        eligibility: [
+          'Candidates must have a Bachelor’s degree from a recognized university with a minimum of 50% aggregate marks (45% for reserved categories), along with at least 3 years of work experience. Selection is based on a personal interview.',
+        ],
+      }
+    }
+    if (universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 6) {
+      return {
+        eligibility: [
+          'Candidates must have a Bachelor’s degree in any discipline (B.E., B.Tech., B.Sc., B.Com., B.A., B.Voc., BCA, etc.), preferably with Mathematics at the 10+2 level or at graduation, with a minimum of 50% aggregate marks (45% for reserved categories)',
+        ],
+      }
+    }
+    if (universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 15) {
+      return {
+        eligibility: [
+          'Candidates must have a Bachelor’s degree, or be a graduate in any discipline, or hold a diploma from a recognized/approved board or university.',
+        ],
+      }
+    }
+    if (universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 16) {
+      return {
+        eligibility: [
+          'Candidates must have a Bachelor’s degree, or be a graduate in any discipline, or hold a diploma from a recognized/approved board or university.',
+        ],
+      }
+    }
     if (universitySlug === 'manipal-university-jaipur' && courseFromRoute?.id === 3) {
       return {
         eligibility: [
@@ -636,8 +673,8 @@ const UniversityDetail = () => {
     [courseSectionOverrides?.eligibility, effectiveEligibility]
   )
   const eligibilityPointsResolved = useMemo(
-    () => splitEligibilityIntoPoints(effectiveEligibilityResolved),
-    [effectiveEligibilityResolved]
+    () => (isDyPatilMca ? effectiveEligibilityResolved : splitEligibilityIntoPoints(effectiveEligibilityResolved)),
+    [effectiveEligibilityResolved, isDyPatilMca]
   )
   const effectiveScholarships = useMemo(
     () => {
@@ -786,7 +823,10 @@ const UniversityDetail = () => {
             </h2>
             <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-center min-w-0 max-md:justify-items-center">
               <div className="space-y-4 max-md:text-center max-md:mx-auto min-w-0">
-                {splitOverviewIntoParagraphs(effectiveOverview).map((para, i) => (
+                {(isDyPatilCourse
+                  ? [effectiveOverview.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim()]
+                  : splitOverviewIntoParagraphs(effectiveOverview)
+                ).map((para, i) => (
                   <p
                     key={i}
                     className="text-sm sm:text-base text-gray-600 leading-relaxed max-md:mx-auto"
