@@ -523,6 +523,69 @@ const UniversityDetail = () => {
     [parsedDescription.eligibility, courseContent?.eligibility]
   )
   const courseSectionOverrides = useMemo(() => {
+    if (universitySlug === 'manipal-university-jaipur' && courseFromRoute?.id === 3) {
+      return {
+        eligibility: [
+          'Applicants must have completed 10+2 education from a recognized national or state board or hold a 10+3 diploma from a recognized national or state institute. Applicants must have secured a minimum of 40% aggregate marks in 10+2 or diploma (35% for reserved categories). Applicants who have completed 10+2 or graduate-level education outside India must submit a certificate of equivalence issued by the Association of Indian Universities (AIU).',
+        ],
+      }
+    }
+    if (universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 22) {
+      return {
+        eligibility: [
+          'Applicants who have completed 10+2 and graduate-level education with an aggregated of 50% and 45% for reserved categories. The applicants from outside India must submit a certificate of equivalence issued by the Association of Indian Universities (AIU).',
+        ],
+      }
+    }
+    if (universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 6) {
+      return {
+        eligibility: [
+          'Candidates must have completed a 10+2+3-year bachelor’s degree in Computer Applications, Computer Science, Information Technology, or an equivalent qualification from a recognized university with at least 50% marks (45% for reserved categories). Graduates from other streams such as Science, Business Administration, Business Management, Arts & Humanities, or Commerce are also eligible; however, they must complete a compulsory bridge course in Fundamentals of Computer and IT during the first semester. Additionally, candidates who have not studied Mathematics at the 10+2 or bachelor’s level will be required to complete a bridge course in Mathematics alongside their Semester 1 courses.',
+        ],
+      }
+    }
+    if (universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 26) {
+      return {
+        eligibility: [
+          'Candidates must have completed a 10+2+3-year bachelor’s degree from a recognized university or institution, or possess an equivalent qualification recognized by the Association of Indian Universities (AIU). Applicants who have completed their 10+2 or undergraduate education outside India are required to submit a certificate of equivalence issued by the Association of Indian Universities to be eligible for admission.',
+        ],
+      }
+    }
+    if (universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 27) {
+      return {
+        eligibility: [
+          'Candidates must have completed a 10+2+3-year bachelor’s degree from a recognized university or institution, or possess an equivalent qualification recognized by the Association of Indian Universities (AIU). Applicants who have completed their 10+2 or undergraduate education outside India are required to submit a Certificate of Equivalence issued by the Association of Indian Universities (AIU) at the time of admission.',
+        ],
+      }
+    }
+    if (universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 28) {
+      return {
+        eligibility: [
+          'Candidates must have completed a 10+2+3-year bachelor’s degree from a recognized university or institution, or possess an equivalent qualification recognized by the Association of Indian Universities (AIU). Applicants who have completed their 10+2 or undergraduate education outside India are required to submit a Certificate of Equivalence issued by the Association of Indian Universities (AIU) at the time of admission.',
+        ],
+      }
+    }
+    if (universitySlug === 'manipal-university-jaipur' && courseFromRoute?.id === 23) {
+      return {
+        eligibility: [
+          'Candidates must have a BSc degree or a $10+2+3/4$ years equivalent bachelor\'s degree with Mathematics as a compulsory subject. The degree must be from a university or institution recognized by the Association of Indian Universities (AIU) or another competent body. Candidates with $10+2$ or graduate-level education from outside India must provide a certificate of equivalence from the AIU.',
+        ],
+      }
+    }
+    if (universitySlug === 'manipal-university-jaipur' && courseFromRoute?.id === 24) {
+      return {
+        eligibility: [
+          'Candidates must have successfully completed a three-year bachelor\'s degree ($10+2+3$) from a recognized university or institution. Alternatively, they may hold an equivalent qualification that is recognized by the Association of Indian Universities (AIU). Furthermore, any applicants who have completed their 10+2 or graduate-level education outside of India are required to provide a certificate of equivalence issued specifically by the AIU to confirm their eligibility.',
+        ],
+      }
+    }
+    if (universitySlug === 'manipal-university-jaipur' && courseFromRoute?.id === 25) {
+      return {
+        eligibility: [
+          'Applicants must have completed a three-year bachelor\'s degree (10+2+3) from a recognized university or institution, or hold an equivalent qualification recognized by the Association of Indian Universities (AIU). Additionally, candidates who have completed their 10+2 or graduate-level education outside of India are required to produce a certificate of equivalence issued by the AIU to confirm their eligibility.',
+        ],
+      }
+    }
     if (courseFromRoute?.id !== 19) return null
     return {
       eligibility: [
@@ -538,7 +601,7 @@ const UniversityDetail = () => {
         "We offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.",
       ],
     }
-  }, [courseFromRoute?.id])
+  }, [courseFromRoute?.id, universitySlug])
   const effectiveFees = useMemo(() => {
     if (courseSectionOverrides?.fees) {
       return {
