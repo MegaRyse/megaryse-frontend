@@ -54,6 +54,33 @@ const getHighlightRows = (items: string[]): string[][] => {
   return rows
 }
 
+const deriveDurationFromText = (text: string): string | undefined => {
+  const normalized = text.toLowerCase()
+  const yearsMatch = normalized.match(/\b(one|two|three|four|five|six|\d+)\s*[- ]?\s*year\b/)
+  if (yearsMatch?.[1]) {
+    const token = yearsMatch[1]
+    const wordToNumber: Record<string, string> = {
+      one: '1',
+      two: '2',
+      three: '3',
+      four: '4',
+      five: '5',
+      six: '6',
+    }
+    const value = wordToNumber[token] ?? token
+    return `${value} Years`
+  }
+  const monthsMatch = normalized.match(/\b(\d+)\s*[- ]?\s*month\b/)
+  if (monthsMatch?.[1]) return `${monthsMatch[1]} Months`
+  return undefined
+}
+
+const deriveModeFromText = (text: string): string | undefined => {
+  if (/\bonline\b/i.test(text)) return 'Online'
+  if (/\bdistance\b/i.test(text)) return 'Distance'
+  return undefined
+}
+
 type ParsedElective = {
   title: string
   summary: string
@@ -410,11 +437,23 @@ const UniversityDetail = () => {
   )
   const isMujBCom =
     universitySlug === 'manipal-university-jaipur' && courseSlug === 'b-com'
+  const isNmimsBba = universitySlug === 'nmims-university' && courseFromRoute?.id === 17
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
     () => parseStructuredCourseDescription(effectiveCourseDescription),
     [effectiveCourseDescription]
   )
+  const effectiveDuration = useMemo(() => {
+    const fromContent = courseContent?.duration?.trim()
+    if (fromContent) return fromContent
+    return deriveDurationFromText(effectiveCourseDescription) ?? 'N/A'
+  }, [courseContent?.duration, effectiveCourseDescription])
+  const effectiveMode = useMemo(() => {
+    const fromContent = courseContent?.mode?.trim()
+    if (fromContent) return fromContent
+    if (universitySlug === 'nmims-university' && courseFromRoute?.id === 17) return 'Online'
+    return deriveModeFromText(effectiveCourseDescription) ?? 'N/A'
+  }, [courseContent?.mode, universitySlug, courseFromRoute?.id, effectiveCourseDescription])
   const effectiveOverview = useMemo(() => {
     // Match Courses.tsx getCourseListDescription: university overview, else CourseMaster.description
     const fromCoursesPage =
@@ -422,7 +461,12 @@ const UniversityDetail = () => {
         ? courseContent?.overview ?? courseFromRoute.description
         : courseFromRoute?.description ?? course?.desc ?? ''
     const trimmed = (fromCoursesPage ?? '').trim()
-    if (trimmed) return trimmed
+    if (trimmed) {
+      // `courseContent.overview` can include extra blocks like "Electives Offered".
+      // Those blocks are rendered separately on the page, so we only return the overview portion.
+      const parsedForDisplay = parseStructuredCourseDescription(trimmed)
+      return parsedForDisplay.overview || trimmed
+    }
     if (parsedDescription.overview) return parsedDescription.overview
     return ''
   }, [
@@ -493,12 +537,25 @@ const UniversityDetail = () => {
   )
   const effectiveHighlights = useMemo(
     () =>
-      highlights.length > 0
+      isNmimsBba
+        ? [
+            '3-year undergraduate programme structured across 6 semesters',
+            'Comprehensive curriculum covering core areas like Management, Finance, Marketing, Economics, and Business Analytics',
+            'Strong foundation through subjects such as Principles of Management, Financial Accounting, and Business Communication',
+            'Progressive learning with advanced topics like Strategic Management, Project Management, and Digital Marketing',
+            'Industry-relevant curriculum aligned with current business trends and practices',
+            'Skill-based learning focus including critical thinking, problem-solving, and decision-making',
+            'Emphasis on employability through soft skills, design thinking, and entrepreneurial exposure',
+            'Exposure to real-world business challenges and practical applications',
+            'Modern IT-enabled learning environment to support academic and professional growth',
+            'Specialization options include Marketing and Finance, along with Business Analytics.',
+          ]
+        : highlights.length > 0
         ? highlights
         : parsedDescription.electives.length > 0
           ? parsedDescription.electives.flatMap((e) => e.highlights)
           : parsedDescription.highlights,
-    [highlights, parsedDescription.electives, parsedDescription.highlights]
+    [isNmimsBba, highlights, parsedDescription.electives, parsedDescription.highlights]
   )
   const effectiveHighlightRows = useMemo(() => getHighlightRows(effectiveHighlights), [effectiveHighlights])
   const courseSpecializations = useMemo(() => {
@@ -637,11 +694,11 @@ const UniversityDetail = () => {
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="font-medium">Mode</dt>
-                    <dd className="text-right">{courseContent?.mode ?? 'N/A'}</dd>
+                    <dd className="text-right">{effectiveMode}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="font-medium">Duration</dt>
-                    <dd className="text-right">{courseContent?.duration ?? 'N/A'}</dd>
+                    <dd className="text-right">{effectiveDuration}</dd>
                   </div>
                 </dl>
               </div>
@@ -796,7 +853,9 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
-          {!isProfessionalOrCertificateCourse && courseSpecializations.length > 0 && (
+          {!isProfessionalOrCertificateCourse &&
+          parsedDescription.electives.length === 0 &&
+          courseSpecializations.length > 0 && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
@@ -857,10 +916,10 @@ const UniversityDetail = () => {
               </p>
               <div className="flex flex-wrap justify-center gap-2 mt-4">
                 <span className="inline-flex items-center rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium text-white border border-white/25">
-                  Duration: {courseContent?.duration ?? 'N/A'}
+                  Duration: {effectiveDuration}
                 </span>
                 <span className="inline-flex items-center rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium text-white border border-white/25">
-                  Mode: {courseContent?.mode ?? 'N/A'}
+                  Mode: {effectiveMode}
                 </span>
               </div>
             </div>
