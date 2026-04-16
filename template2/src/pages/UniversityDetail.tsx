@@ -94,6 +94,14 @@ const deriveModeFromText = (text: string): string | undefined => {
   return undefined
 }
 
+const splitHeadingAndContent = (value: string): { heading: string; content: string } => {
+  const [heading, ...rest] = value.split(':')
+  return {
+    heading: heading.trim(),
+    content: rest.join(':').trim(),
+  }
+}
+
 type ParsedElective = {
   title: string
   summary: string
@@ -716,23 +724,28 @@ const UniversityDetail = () => {
               {isProfessionalOrCertificateCourse ? 'Specializations' : 'Programme Highlights'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 text-center max-w-2xl mx-auto mb-6">
-              Key reasons why this programme stands out and adds tangible value to your academic and career journey.
             </p>
 
             <div className="md:hidden">
               <ul className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
                 {effectiveHighlights.map((item, index) => (
+                  (() => {
+                    const { heading, content } = splitHeadingAndContent(item)
+                    return (
                   <li
                     key={index}
                     className="w-full rounded-xl bg-offwhite border border-gold/20 shadow-sm px-4 py-3 sm:px-5 sm:py-4 min-h-[112px] flex items-center"
                   >
                     <div className="flex items-start gap-3">
                       <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-gold" />
-                      <p className="text-sm sm:text-base font-medium text-gray-800 leading-relaxed break-words">
-                        {item}
-                      </p>
+                      <div className="text-sm sm:text-base text-gray-800 leading-relaxed break-words">
+                        <p className="font-semibold">{heading}</p>
+                        {content ? <p className="mt-1 text-gray-700">{content}</p> : null}
+                      </div>
                     </div>
                   </li>
+                    )
+                  })()
                 ))}
               </ul>
             </div>
@@ -741,6 +754,9 @@ const UniversityDetail = () => {
                 {effectiveHighlightRows.map((row, rowIndex, allRows) => {
                   const [leftItem, rightItem] = row
                   const singleItem = leftItem ?? rightItem
+                  const leftSplit = leftItem ? splitHeadingAndContent(leftItem) : null
+                  const rightSplit = rightItem ? splitHeadingAndContent(rightItem) : null
+                  const singleSplit = singleItem ? splitHeadingAndContent(singleItem) : null
                   const isLastRow = rowIndex === allRows.length - 1
                   const hasBothCards = Boolean(leftItem && rightItem)
                   const hasSingleCard = Boolean(singleItem && !hasBothCards)
@@ -759,9 +775,10 @@ const UniversityDetail = () => {
                       <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-end items-center">
                         {hasBothCards && leftItem && (
                           <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 min-h-[140px] flex items-center">
-                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
-                              {leftItem}
-                            </p>
+                            <div className="text-base sm:text-[1.02rem] text-gray-800 leading-relaxed break-words">
+                              <p className="font-semibold">{leftSplit?.heading}</p>
+                              {leftSplit?.content ? <p className="mt-1 text-gray-700">{leftSplit.content}</p> : null}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -803,18 +820,20 @@ const UniversityDetail = () => {
                       <div className="relative z-20 min-w-0 flex w-full min-h-[3rem] justify-start items-center">
                         {hasBothCards && rightItem && (
                           <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 min-h-[140px] flex items-center">
-                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words">
-                              {rightItem}
-                            </p>
+                            <div className="text-base sm:text-[1.02rem] text-gray-800 leading-relaxed break-words">
+                              <p className="font-semibold">{rightSplit?.heading}</p>
+                              {rightSplit?.content ? <p className="mt-1 text-gray-700">{rightSplit.content}</p> : null}
+                            </div>
                           </div>
                         )}
                       </div>
                       {hasSingleCard && (
                         <div className="col-span-3 flex flex-col items-center relative z-30">
                           <div className="w-full max-w-[26rem] rounded-xl bg-offwhite border border-gold/20 shadow-md px-4 py-3 sm:px-5 sm:py-4 min-h-[140px] flex items-center">
-                            <p className="text-base sm:text-[1.02rem] font-medium text-gray-800 leading-relaxed break-words text-center">
-                              {singleItem}
-                            </p>
+                            <div className="text-base sm:text-[1.02rem] text-gray-800 leading-relaxed break-words text-center">
+                              <p className="font-semibold">{singleSplit?.heading}</p>
+                              {singleSplit?.content ? <p className="mt-1 text-gray-700">{singleSplit.content}</p> : null}
+                            </div>
                           </div>
                         </div>
                       )}

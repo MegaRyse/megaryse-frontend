@@ -108,6 +108,15 @@ function renderCourseIcon(courseId: number, fallback: string) {
   return <span className="text-4xl sm:text-5xl md:text-6xl">{fallback}</span>
 }
 
+function parseSpecializationCard(value: string) {
+  const [title, ...rest] = value.split(':')
+  const description = rest.join(':').trim()
+  return {
+    title: title.trim(),
+    description,
+  }
+}
+
 const Courses = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -168,6 +177,12 @@ const Courses = () => {
     [courseForUniversitiesModal]
   )
   const getCourseCareerPaths = useCallback((course: CourseMaster) => {
+    if (
+      universitySlug === 'nmims-university' &&
+      course.category === 'Professional & Certificate Courses'
+    ) {
+      return []
+    }
     if (!universitySlug) return course.careerPaths
     const content = getUniversityCourseContent(universitySlug, toCourseSlug(course.shortName))
     return content?.careers?.length ? content.careers : course.careerPaths
@@ -485,14 +500,20 @@ const Courses = () => {
                       <div className="mb-4">
                         <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Specializations:</p>
                         <div className="flex flex-wrap gap-2">
-                          {getCourseListSpecializations(course).map((spec) => (
-                            <span
-                              key={spec}
-                              className="px-3 py-1 rounded-md text-xs font-medium bg-gold/10 text-gold border border-gold/20 transition-colors duration-200 hover:bg-blue-custom hover:text-white"
-                            >
-                              {spec}
-                            </span>
-                          ))}
+                          {getCourseListSpecializations(course).map((spec) => {
+                            const { title, description } = parseSpecializationCard(spec)
+                            return (
+                              <div
+                                key={spec}
+                                className="rounded-md border border-gold/20 bg-gold/10 px-3 py-2 text-xs transition-colors duration-200 hover:bg-blue-custom/10"
+                              >
+                                <p className="font-semibold text-gold">{title}</p>
+                                {description ? (
+                                  <p className="mt-1 leading-relaxed text-gray-600">{description}</p>
+                                ) : null}
+                              </div>
+                            )
+                          })}
                         </div>
                       </div>
                       {getCourseCareerPaths(course).length > 0 && (
