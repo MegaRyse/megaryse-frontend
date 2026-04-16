@@ -24,10 +24,10 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
       'B.Com with Specialization in International Finance & Accounting: This specialization is tailored for students focusing on the global aspects of financial management and accounting standards. It prepares learners for careers requiring proficiency in international financial reporting, accounting practices, and global business operations.',
     ],
     eligibility: [
-      'To be eligible for admission, students with Indian education must have completed 10 years of formal schooling (10th Class Certificate) and 12 years of formal schooling (12th Class Certificate), while students with foreign education must possess O level and A level certificates representing 10 and 12 years of formal schooling, respectively - note that diplomas are not acceptable in these cases - and all foreign students are further required to provide a Certificate of Equivalence from the Association of Indian Universities.',
+      'To be eligible for admission, students with Indian education must have completed 10 years of formal schooling (10th Class Certificate) and 12 years of formal schooling (12th Class Certificate), while students with foreign education must possess O level and A level certificates representing 10 and 12 years of formal schooling, respectively—note that diplomas are not acceptable in these cases—and all foreign students are further required to provide a Certificate of Equivalence from the Association of Indian Universities.',
     ],
     fees: {
-      applicationFee: '₹1,100',
+      applicationFee: 'INR 1,100',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
