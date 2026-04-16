@@ -124,6 +124,16 @@ const splitHeadingAndContent = (value: string): { heading: string; content: stri
   }
 }
 
+const splitFocusOutcomeLines = (content: string): string[] => {
+  if (!content) return []
+  return content
+    .replace(/\s+(Focus:)/g, '\n$1')
+    .replace(/\s+(Outcome:)/g, '\n$1')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
 type ParsedElective = {
   title: string
   summary: string
@@ -641,6 +651,8 @@ const UniversityDetail = () => {
     [courseSectionOverrides?.scholarships, parsedDescription.scholarships, courseContent?.scholarships]
   )
   const isNmimsBba = universitySlug === 'nmims-university' && courseFromRoute?.id === 17
+  const isAmityBbaBcomOrBca =
+    universitySlug === 'amity-university' && [1, 2, 3, 4, 5, 6, 22, 29].includes(courseFromRoute?.id ?? -1)
   const effectiveHighlights = useMemo(
     () =>
       isNmimsBba
@@ -986,16 +998,41 @@ const UniversityDetail = () => {
               <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-4">
                 {isMujBCom ? 'Electives' : 'Specializations'}
               </h2>
-              <div className="flex flex-wrap gap-2">
-                {courseSpecializations.map((s, i) => (
-                  <span
-                    key={`${s}-${i}`}
-                    className="px-3 py-1.5 rounded-lg bg-gold/10 text-gold font-medium text-sm"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
+              {isAmityBbaBcomOrBca ? (
+                <ul className="space-y-4">
+                  {courseSpecializations.map((s, i) => {
+                    const { heading, content } = splitHeadingAndContent(s)
+                    return (
+                      <li
+                        key={`${s}-${i}`}
+                        className="rounded-xl border border-gold/20 bg-offwhite/60 p-4 sm:p-5"
+                      >
+                        <h3 className="text-base sm:text-lg font-semibold text-gold mb-2">
+                          {heading}
+                        </h3>
+                        {content ? (
+                          <div className="space-y-1 text-sm text-gray-700 leading-relaxed">
+                            {splitFocusOutcomeLines(content).map((line, idx) => (
+                              <p key={`${heading}-${idx}`}>{line}</p>
+                            ))}
+                          </div>
+                        ) : null}
+                      </li>
+                    )
+                  })}
+                </ul>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {courseSpecializations.map((s, i) => (
+                    <span
+                      key={`${s}-${i}`}
+                      className="px-3 py-1.5 rounded-lg bg-gold/10 text-gold font-medium text-sm"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
             </motion.section>
           )}
 

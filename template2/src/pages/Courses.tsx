@@ -551,13 +551,15 @@ const Courses = () => {
                             <div className="flex flex-wrap gap-2">
                               {getCourseListSpecializationsForDisplay(course).map((spec) => {
                                 const { title, description } = parseSpecializationCard(spec)
+                                const isAmityBbaBcomOrBcaCourse =
+                                  universitySlug === 'amity-university' && [1, 2, 3, 4, 5, 6, 22, 29].includes(course.id)
                                 return (
                                   <div
                                     key={spec}
                                     className="rounded-md border border-gold/20 bg-gold/10 px-3 py-2 text-xs transition-colors duration-200 hover:bg-blue-custom/10"
                                   >
                                     <p className="font-semibold text-gold">{title}</p>
-                                    {description ? (
+                                    {!isAmityBbaBcomOrBcaCourse && description ? (
                                       <p className="mt-1 leading-relaxed text-gray-600">{description}</p>
                                     ) : null}
                                   </div>
