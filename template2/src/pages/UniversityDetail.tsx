@@ -878,30 +878,6 @@ const UniversityDetail = () => {
             </motion.section>
           )}
 
-          {!isMujBCom &&
-          !isProfessionalOrCertificateCourse &&
-          courseContent?.keyTopics &&
-          courseContent.keyTopics.length > 0 ? (
-            <motion.section
-              variants={SECTION_VARIANTS}
-              className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
-            >
-              <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-4">
-                Key Topics
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {courseContent.keyTopics.map((t, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1.5 rounded-lg bg-gold/10 text-gold font-medium text-sm"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </motion.section>
-          ) : null}
-
           {/* Programme Structure for selected course */}
           {(eligibilityPointsResolved.length || effectiveFees || effectiveScholarships.length) && (
             <motion.section
