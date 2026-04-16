@@ -1,12 +1,5 @@
 import type { UniversityCourseContent } from '../../types/universityCourseContent'
 
-const AMITY_SCHOLARSHIPS = [
-  'Defence personnel',
-  'Government employees',
-  'Differently-abled individuals',
-  'Academically outstanding students',
-] as const
-
 const AMITY_PAYMENT_MODES = 'No-cost EMI available'
 
 /** Per-course content for Amity University Online — keys match `toCourseSlug(course.shortName)` */
