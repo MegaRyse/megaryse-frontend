@@ -103,6 +103,28 @@ const COURSE_ICONS: Record<number, JSX.Element> = {
   30: <Landmark className={COURSE_ICON_CLASS} />,
 }
 
+const SMU_MBA_SPECIALIZATIONS = [
+  'Marketing',
+  'Finance',
+  'Human Resource Management',
+  'Systems',
+  'Operations & Supply Chain Management',
+  'Healthcare',
+]
+
+const SMU_MCA_SPECIALIZATIONS = [
+  'Cloud Computing',
+  'Data Warehousing & Data Mining',
+  'Machine Learning',
+  'Distributed Systems & Grid Computing',
+]
+
+const MUJ_BCA_SPECIALIZATIONS = [
+  'Cloud Computing',
+  'Data Science & Analytics',
+  'Cyber Security',
+]
+
 function renderCourseIcon(courseId: number, fallback: string) {
   const icon = COURSE_ICONS[courseId]
   if (icon) return icon
@@ -208,6 +230,23 @@ const Courses = () => {
       return content?.specializations?.length ? content.specializations : course.specializations
     },
     [universitySlug]
+  )
+
+  const getCourseListSpecializationsForDisplay = useCallback(
+    (course: CourseMaster) => {
+      const specs = getCourseListSpecializations(course)
+      if (universitySlug === 'sikkim-manipal-university' && course.id === 5) {
+        return SMU_MBA_SPECIALIZATIONS
+      }
+      if (universitySlug === 'sikkim-manipal-university' && course.id === 6) {
+        return SMU_MCA_SPECIALIZATIONS
+      }
+      if (universitySlug === 'manipal-university-jaipur' && course.id === 3) {
+        return MUJ_BCA_SPECIALIZATIONS
+      }
+      return specs
+    },
+    [getCourseListSpecializations, universitySlug]
   )
 
   const handleKnowMore = useCallback((course: CourseMaster) => {
@@ -502,12 +541,15 @@ const Courses = () => {
                         {getCourseListDescription(course)}
                       </p>
                       <div className="mb-4">
-                        {!(universitySlug === 'sikkim-manipal-university' && course.id === 4) &&
-                        getCourseListSpecializations(course).length > 0 ? (
+                        {!(
+                          (universitySlug === 'sikkim-manipal-university' && [4, 26, 27, 28].includes(course.id)) ||
+                          (universitySlug === 'manipal-university-jaipur' && [23, 24].includes(course.id))
+                        ) &&
+                        getCourseListSpecializationsForDisplay(course).length > 0 ? (
                           <>
                             <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Specializations:</p>
                             <div className="flex flex-wrap gap-2">
-                              {getCourseListSpecializations(course).map((spec) => {
+                              {getCourseListSpecializationsForDisplay(course).map((spec) => {
                                 const { title, description } = parseSpecializationCard(spec)
                                 return (
                                   <div

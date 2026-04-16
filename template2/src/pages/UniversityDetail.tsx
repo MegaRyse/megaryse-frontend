@@ -94,6 +94,28 @@ const deriveModeFromText = (text: string): string | undefined => {
   return undefined
 }
 
+const SMU_MBA_SPECIALIZATIONS = [
+  'Marketing',
+  'Finance',
+  'Human Resource Management',
+  'Systems',
+  'Operations & Supply Chain Management',
+  'Healthcare',
+]
+
+const SMU_MCA_SPECIALIZATIONS = [
+  'Cloud Computing',
+  'Data Warehousing & Data Mining',
+  'Machine Learning',
+  'Distributed Systems & Grid Computing',
+]
+
+const MUJ_BCA_SPECIALIZATIONS = [
+  'Cloud Computing',
+  'Data Science & Analytics',
+  'Cyber Security',
+]
+
 const splitHeadingAndContent = (value: string): { heading: string; content: string } => {
   const [heading, ...rest] = value.split(':')
   return {
@@ -570,10 +592,19 @@ const UniversityDetail = () => {
   const effectiveHighlightRows = useMemo(() => getHighlightRows(effectiveHighlights), [effectiveHighlights])
   const courseSpecializations = useMemo(() => {
     if (!course) return [] as string[]
+    if (universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 5) {
+      return SMU_MBA_SPECIALIZATIONS
+    }
+    if (universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 6) {
+      return SMU_MCA_SPECIALIZATIONS
+    }
+    if (universitySlug === 'manipal-university-jaipur' && courseFromRoute?.id === 3) {
+      return MUJ_BCA_SPECIALIZATIONS
+    }
     if (courseContent?.specializations?.length) return courseContent.specializations
     if (parsedDescription.electives.length) return parsedDescription.electives.map((e) => e.title)
     return course.specializations ?? []
-  }, [course, courseContent, parsedDescription.electives])
+  }, [course, courseContent, parsedDescription.electives, universitySlug, courseFromRoute?.id])
   const programsByCategory = useMemo(() => {
     if (!universityFromData) return []
     const courses = getCoursesByIds(universityFromData.courseIds)
@@ -881,7 +912,10 @@ const UniversityDetail = () => {
           {!isProfessionalOrCertificateCourse &&
           parsedDescription.electives.length === 0 &&
           courseSpecializations.length > 0 &&
-          !(universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 4) && (
+          !(
+            (universitySlug === 'sikkim-manipal-university' && [4, 26, 27, 28].includes(courseFromRoute?.id ?? -1)) ||
+            (universitySlug === 'manipal-university-jaipur' && [23, 24].includes(courseFromRoute?.id ?? -1))
+          ) && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
