@@ -100,6 +100,7 @@ const COURSE_ICONS: Record<number, JSX.Element> = {
   27: <Landmark className={COURSE_ICON_CLASS} />,
   28: <Database className={COURSE_ICON_CLASS} />,
   29: <BookOpenText className={COURSE_ICON_CLASS} />,
+  30: <Landmark className={COURSE_ICON_CLASS} />,
 }
 
 function renderCourseIcon(courseId: number, fallback: string) {
@@ -181,6 +182,9 @@ const Courses = () => {
       universitySlug === 'nmims-university' &&
       course.category === 'Professional & Certificate Courses'
     ) {
+      return []
+    }
+    if (universitySlug === 'sikkim-manipal-university' && course.id === 4) {
       return []
     }
     if (!universitySlug) return course.careerPaths
@@ -498,23 +502,28 @@ const Courses = () => {
                         {getCourseListDescription(course)}
                       </p>
                       <div className="mb-4">
-                        <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Specializations:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {getCourseListSpecializations(course).map((spec) => {
-                            const { title, description } = parseSpecializationCard(spec)
-                            return (
-                              <div
-                                key={spec}
-                                className="rounded-md border border-gold/20 bg-gold/10 px-3 py-2 text-xs transition-colors duration-200 hover:bg-blue-custom/10"
-                              >
-                                <p className="font-semibold text-gold">{title}</p>
-                                {description ? (
-                                  <p className="mt-1 leading-relaxed text-gray-600">{description}</p>
-                                ) : null}
-                              </div>
-                            )
-                          })}
-                        </div>
+                        {!(universitySlug === 'sikkim-manipal-university' && course.id === 4) &&
+                        getCourseListSpecializations(course).length > 0 ? (
+                          <>
+                            <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Specializations:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {getCourseListSpecializations(course).map((spec) => {
+                                const { title, description } = parseSpecializationCard(spec)
+                                return (
+                                  <div
+                                    key={spec}
+                                    className="rounded-md border border-gold/20 bg-gold/10 px-3 py-2 text-xs transition-colors duration-200 hover:bg-blue-custom/10"
+                                  >
+                                    <p className="font-semibold text-gold">{title}</p>
+                                    {description ? (
+                                      <p className="mt-1 leading-relaxed text-gray-600">{description}</p>
+                                    ) : null}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </>
+                        ) : null}
                       </div>
                       {getCourseCareerPaths(course).length > 0 && (
                         <div className="mb-4">

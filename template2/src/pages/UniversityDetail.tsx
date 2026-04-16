@@ -721,7 +721,11 @@ const UniversityDetail = () => {
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
             >
             <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-3 text-center">
-              {isProfessionalOrCertificateCourse ? 'Specializations' : 'Programme Highlights'}
+              {isProfessionalOrCertificateCourse
+                ? universitySlug === 'nmims-university'
+                  ? 'Programme Highlights'
+                  : 'Specializations'
+                : 'Programme Highlights'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 text-center max-w-2xl mx-auto mb-6">
             </p>
@@ -876,7 +880,8 @@ const UniversityDetail = () => {
 
           {!isProfessionalOrCertificateCourse &&
           parsedDescription.electives.length === 0 &&
-          courseSpecializations.length > 0 && (
+          courseSpecializations.length > 0 &&
+          !(universitySlug === 'sikkim-manipal-university' && courseFromRoute?.id === 4) && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"

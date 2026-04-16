@@ -62,7 +62,7 @@ export const universitiesData: University[] = [
     fullName: "Sikkim Manipal University (SMU)",
     slug: "sikkim-manipal-university",
     location: "India",
-    courseIds: [4, 22, 5, 6, 26, 27, 28],
+    courseIds: [4, 30, 22, 5, 6, 26, 27, 28],
     logo: SMULogo
   },
   {

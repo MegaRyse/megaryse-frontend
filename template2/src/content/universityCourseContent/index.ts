@@ -896,6 +896,37 @@ export const universityCourseContent: UniversityCourseContentMap = {
     },
   },
   'sikkim-manipal-university': {
+    bcom: {
+      heroTitle: 'Bachelor of Commerce (BCOM)',
+      duration: '3 Years',
+      mode: 'Online',
+      overview:
+        'Sikkim Manipal University offers a three-year Online Bachelor of Commerce (B.Com) programme designed to build a strong academic foundation in commerce, finance, and business management. The programme blends core theoretical concepts with practical application across key domains such as accounting, marketing, corporate governance, taxation, financial management, and entrepreneurship. Structured across six semesters, it progressively develops learners’ analytical, financial, and managerial capabilities. Delivered through a robust, technology-enabled learning platform, the programme ensures seamless, flexible learning while preparing students to thrive in a dynamic and evolving business environment.',
+      highlights: [
+        'Flexible online learning with 24/7 access to high-quality study material, enabling uninterrupted learning anytime, anywhere',
+        'UGC-entitled online programme ensuring credibility and recognition',
+        'Comprehensive curriculum structured across six semesters covering accounting, finance, management, taxation, auditing, and business research',
+        'Strong foundation in core subjects including financial accounting, corporate accounting, cost accounting, and management accounting',
+        'Exposure to emerging and applied areas such as e-business, entrepreneurship development, financial markets, and international finance',
+        'Industry-relevant subjects like GST, auditing practices, financial reporting standards, and strategic financial management',
+        'Integrated skill development through courses in communication, personality development, leadership, and digital fluency',
+        'Access to expert faculty, mentors, and industry-led sessions including webinars and practical projects',
+        'Scholarships for deserving candidates to support academic aspirations',
+        'Emphasis on practical learning through project work and research methodology in the final semester',
+        'Foundation courses and structured progression to support learners from diverse academic backgrounds',
+      ],
+      eligibility: [
+        'Candidates who have completed 10+2 education or graduate level education outside India must produce a certificate of equivalence issued by the Association of Indian Universities.',
+      ],
+      fees: {
+        applicationFee: 'INR 500',
+        totalFee: 'Indian & Nepalese Nationals: INR 75,000 | Other Nationals: USD 1,020',
+        paymentModes: 'No-cost EMI available',
+      },
+      scholarships: [
+        'We offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.'
+      ],
+    },
     ba: {
       heroTitle: 'Bachelor of Arts',
       duration: '3 Years',
@@ -917,8 +948,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
         'Sociology',
       ],
       eligibility: [
-        'Qualification: 10+2 or diploma',
-        'Minimum Marks: 40% (35% reserved)',
+        'Candidates must have completed 10+2 or a diploma with at least 40% aggregate marks (35% for reserved categories), and applicants who completed their education outside India must provide an equivalence certificate from the Association of Indian Universities (AIU).'
       ],
       fees: {
         applicationFee: '₹500',
@@ -926,10 +956,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
         paymentModes: 'No-cost EMI available',
       },
       scholarships: [
-        'Defence personnel',
-        'Government employees',
-        'Differently-abled individuals',
-        'Academically outstanding students',
+        'We offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.'
       ],
     },
     mcom: {

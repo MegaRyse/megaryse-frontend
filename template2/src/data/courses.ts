@@ -497,6 +497,17 @@ export const coursesMasterData: CourseMaster[] = [
       "Public Policy & Governance"
     ],
     careerPaths: []
+  },
+  {
+    id: 30,
+    shortName: "BCOM",
+    fullName: "Bachelor of Commerce",
+    category: "Undergraduate Programs",
+    icon: "💰",
+    description:
+      "Sikkim Manipal University offers a three-year Online Bachelor of Commerce (B.Com) programme designed to build a strong academic foundation in commerce, finance, and business management. The programme blends core theoretical concepts with practical application across key domains such as accounting, marketing, corporate governance, taxation, financial management, and entrepreneurship. Structured across six semesters, it progressively develops learners’ analytical, financial, and managerial capabilities. Delivered through a robust, technology-enabled learning platform, the programme ensures seamless, flexible learning while preparing students to thrive in a dynamic and evolving business environment.",
+    specializations: [],
+    careerPaths: []
   }
 ]
 
