@@ -27,7 +27,8 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
       'To be eligible for admission, students with Indian education must have completed 10 years of formal schooling (10th Class Certificate) and 12 years of formal schooling (12th Class Certificate), while students with foreign education must possess O level and A level certificates representing 10 and 12 years of formal schooling, respectively—note that diplomas are not acceptable in these cases—and all foreign students are further required to provide a Certificate of Equivalence from the Association of Indian Universities.',
     ],
     fees: {
-      applicationFee: 'INR 1,100',
+      applicationFee: '₹1,100',
+      totalFee: 'BCOM: ₹1,15,000 | BCOM - HONS: ₹1,75,000 | BCOM - ACCA: ₹2,75,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -51,7 +52,6 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     specializations: [
       'BBA (General): The General BBA programme provides a comprehensive understanding of core business functions including marketing, finance, human resources, operations, and entrepreneurship. It is ideal for students who want a broad management education before specializing later in their careers or pursuing postgraduate studies such as an MBA.',
-      'BBA with Specialization in Travel & Tourism Management (TTM): This specialization focuses on the global travel, tourism, and hospitality industry, one of the fastest-growing sectors worldwide. Students learn about tourism planning, hospitality management, airline and airport operations, destination management, and customer experience in travel services. The programme prepares learners for careers in travel companies, tourism boards, airlines, hotels, and hospitality businesses.',
       'BBA with Specialization in Data Analytics (HCLTech): Offered in collaboration with HCLTech, this specialization combines business management with data analytics skills. Students learn how to analyze business data, interpret insights, and use analytical tools to support decision-making in organizations. The programme also provides exposure to industry practices and career opportunities in data-driven business roles such as business analyst, data analyst, and digital strategy professional.',
       'BBA with Professional Certificate in Business Analytics (KPMG): This programme includes a 13-week Professional Certificate in Business Analytics in academic partnership with KPMG. Students gain practical exposure to data analytics concepts, AI, and business intelligence techniques used in consulting and corporate environments. The programme also offers opportunities for industry experience and helps learners build skills relevant for careers in consulting, analytics, and business strategy.',
     ],
@@ -60,7 +60,7 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
-      totalFee: '₹1,65,000',
+      totalFee: 'BBA: ₹1,99,000 | BBA - HCLTECH_DATA_ANALYTICS: ₹2,50,000 | BBA - KPMG_BAP: ₹2,30,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -93,6 +93,8 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
+      totalFee:
+        'BCA: ₹1,75,000 | BCA - HCLTECH_DATA_ENGINEERING: ₹2,50,000 | BCA - HCLTECH_SOFTWARE_ENGINEERING: ₹2,50,000 | BCA - TCSION_CLOUDSECURITY: ₹2,50,000 | BCA - TCSION_DATAANALYTICS: ₹2,50,000 | BCA - KPMG_ADE: ₹2,30,000 | BCA - FINTECH: ₹2,75,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -127,6 +129,8 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
+      totalFee:
+        'Bachelor of Arts (BA): ₹1,15,000 | Bachelors of Arts (General) Hindi Medium: ₹90,000 | Bachelor of Arts (BA) Journalism and Mass Communication: ₹1,90,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -177,6 +181,8 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
+      totalFee:
+        'MBA: ₹2,25,000 | MBA - ACCA: ₹3,29,000 | MBA - Dual Specialization: ₹3,29,000 | MBA - HHM: ₹3,29,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -210,6 +216,8 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
+      totalFee:
+        'Master of Computer Applications (MCA): ₹1,99,000 | Master of Computer Applications (MCA) with Specialization in Cyber Security: ₹2,75,000 | Master of Computer Applications (MCA) with Specialization in Software Engineering: ₹2,75,000 | Master of Computer Applications (MCA) with Specialization in Machine Learning and Artificial Intelligence: ₹2,75,000 | MCA with Specialization in Financial Technology and AI: ₹2,75,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -224,13 +232,12 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     highlights: [
       'UGC-Entitled Degree: A recognised online postgraduate programme aligned with modern academic standards.',
       'Flexible Online Learning Environment: Designed for both fresh graduates and working professionals through an anytime, anywhere digital learning model.',
-      'Academic + Industry Integration: Bridges theoretical frameworks with practical, industry-oriented applications across media, psychology, and governance.',
+      'Academic + Industry Integration: Bridges theoretical frameworks with practical, industry-oriented applications across media and governance.',
       'Research and Critical Thinking Focus: Builds advanced analytical, research, and professional competencies for complex societal and policy challenges.',
-      'Career-Oriented Progression: Prepares learners for domain-specific roles in journalism, psychology, and public governance.',
+      'Career-Oriented Progression: Prepares learners for domain-specific roles in journalism and public governance.',
     ],
     specializations: [
       'Master of Arts (Journalism & Mass Communication): The Master of Arts in Journalism & Mass Communication is a UGC-entitled online degree programme. It is designed to provide a holistic education in media studies, enabling students including those from non-journalism backgrounds to understand mass communication theories, the normative theories of the press, and media models. Programme Highlights: UGC-Entitled Online Degree - A recognised online programme. Comprehensive Curriculum - Covers areas such as media theory, news gathering, investigative journalism, and digital marketing. Global Accreditations - Accredited by bodies including WASC (USA), QAA (UK), and WES (Canada/USA). Flexible Learning - Features live, interactive lectures by expert faculty, an easy-to-use Learning Management System (LMS), and web-proctored exams.',
-      'Master of Arts in Psychology: The Master of Arts in Psychology is a UGC-entitled, NAAC A+ accredited online degree programme. It is designed to help students navigate complex societal issues and develop effective, psychological solutions. Programme Highlights: UGC-Entitled & NAAC A+ Accredited - A recognised programme with high institutional accreditation. Career Services - Offers placement assistance and industry mentorship to aid professional growth. AI-Powered Support - Includes access to "AI-PROF. AMI," an AI assistant powered by ChatGPT-4 for 24/7 academic support. Diverse Learning - Provides various learning mediums, including recorded lectures, e-books, and audiobooks.',
       'Master of Arts (Public Policy & Governance): The Master of Arts in Public Policy & Governance is a UGC-entitled online degree programme. It is structured to serve both working professionals seeking career advancement and lifelong learners. Programme Highlights: UGC-Entitled Online Degree - A recognised programme. Global Accreditations - Accredited by WASC (USA), QAA (UK), and WES (Canada/USA). Supportive Learning Environment - Students have access to a digital platform with interactive online courses, digital libraries, and forums for academic discourse. Flexible Access - The programme is designed to accommodate needs through state-of-the-art technology, enabling learners to transcend geographical boundaries.',
     ],
     eligibility: [
@@ -239,6 +246,7 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
+      totalFee: 'MA - JMC: ₹1,90,000 | MA - PPG: ₹1,50,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -267,6 +275,7 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
+      totalFee: 'Master of Commerce (M.Com) in Financial Management: ₹1,50,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
@@ -298,6 +307,7 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
+      totalFee: 'Master of Science (M.Sc) Data Science: ₹2,75,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [

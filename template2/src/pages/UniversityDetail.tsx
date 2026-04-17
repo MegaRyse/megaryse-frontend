@@ -658,6 +658,10 @@ const UniversityDetail = () => {
         paymentModes: courseSectionOverrides.fees.paymentModes,
       }
     }
+    // Amity B.Com/BBA/BCA/BA/MBA/MCA/M.Com/M.Sc DS/MA should always use the curated university-course content fees.
+    if (universitySlug === 'amity-university' && [1, 2, 3, 4, 5, 6, 21, 22, 29].includes(courseFromRoute?.id ?? -1) && courseContent?.fees) {
+      return courseContent.fees
+    }
     if (parsedDescription.fees?.applicationFee || parsedDescription.fees?.totalFee) {
       return {
         applicationFee: parsedDescription.fees?.applicationFee,
@@ -667,7 +671,14 @@ const UniversityDetail = () => {
       }
     }
     return courseContent?.fees
-  }, [courseSectionOverrides?.fees, parsedDescription.fees, parsedDescription.noCostEmi, courseContent?.fees])
+  }, [
+    courseSectionOverrides?.fees,
+    universitySlug,
+    courseFromRoute?.id,
+    courseContent?.fees,
+    parsedDescription.fees,
+    parsedDescription.noCostEmi,
+  ])
   const effectiveEligibilityResolved = useMemo(
     () => courseSectionOverrides?.eligibility ?? effectiveEligibility,
     [courseSectionOverrides?.eligibility, effectiveEligibility]
