@@ -1041,7 +1041,8 @@ const UniversityDetail = () => {
           universitySlug !== 'dy-patil-pune' &&
           !(
             (universitySlug === 'sikkim-manipal-university' && [4, 26, 27, 28].includes(courseFromRoute?.id ?? -1)) ||
-            (universitySlug === 'manipal-university-jaipur' && [23, 24].includes(courseFromRoute?.id ?? -1))
+            (universitySlug === 'manipal-university-jaipur' && [23, 24].includes(courseFromRoute?.id ?? -1)) ||
+            (universitySlug === 'bennet-university' && courseFromRoute?.id === 2)
           ) && (
             <motion.section
               variants={SECTION_VARIANTS}

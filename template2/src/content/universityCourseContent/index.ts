@@ -28,7 +28,15 @@ export const universityCourseContent: UniversityCourseContentMap = {
         'Interactive live online classes delivered by VIT’s distinguished management faculty, with the flexibility of recorded session access',
         'Receive an MBA qualification equivalent to a postgraduate degree earned through conventional classroom learning',
         'A competitively priced and highly regarded MBA that enhances career prospects',
+        'Specializations in HR, Finance, Marketing, General Management, Operations and Supply Chain enhance career opportunities',
         'Official VIT alumni recognition upon successful completion of the programme',
+      ],
+      specializations: [
+        'HR',
+        'Finance',
+        'Marketing',
+        'General Management',
+        'Operations & Supply Chain',
       ],
       eligibility: [
         'Qualification: Bachelor’s degree (minimum 3 years)',
@@ -57,8 +65,13 @@ export const universityCourseContent: UniversityCourseContentMap = {
         'Flexible online format suited for working professionals',
         'Comprehensive curriculum covering computer science fundamentals, advanced IT, and software engineering',
         'Exposure to cutting-edge tools and technologies including Python, Java, Artificial Intelligence (AI), Machine Learning (ML), Cyber Security, Cyber Forensics, Big Data Analytics, Data Mining, Blockchain, Computer Networks, Database Systems, VR/AR, and Mobile Application Development',
+        'Dual specialization option in AI & Machine Learning, along with Cyber Security available as a separate option as a single specialization.',
         'Prestigious and cost-effective qualification equivalent to an on-campus MCA degree',
         'Designed to prepare graduates for high-growth roles in IT, multinational corporations, and start-ups',
+      ],
+      specializations: [
+        'AI & Machine Learning',
+        'Cyber Security',
       ],
       keyTopics: [
         'Python',
@@ -97,8 +110,12 @@ export const universityCourseContent: UniversityCourseContentMap = {
         'A degree comparable to a postgraduate programme earned through traditional classroom learning',
         'A comprehensive curriculum with a choice of electives to integrate knowledge from multiple domains',
         'Live online learning from VIT’s distinguished faculty, with access to recorded sessions',
+        'Data Science is available as a specialisation option.',
         'Official alumni status from Vellore Institute of Technology',
         'A well-priced, esteemed programme that unlocks diverse career opportunities',
+      ],
+      specializations: [
+        'Data Science',
       ],
       keyTopics: [
         'Data Analytics',
@@ -1172,251 +1189,6 @@ export const universityCourseContent: UniversityCourseContentMap = {
       fees: {
         applicationFee: '₹500',
         totalFee: 'Indian: ₹75,000 | International: $980',
-        paymentModes: 'No-cost EMI available',
-      },
-      scholarships: [
-        'Defence personnel',
-        'Government employees',
-        'Differently-abled individuals',
-        'Academically outstanding students',
-      ],
-    },
-  },
-  'jain-university': {
-    bba: {
-      heroTitle: 'Bachelor of Business Administration',
-      duration: '3 Years',
-      mode: 'Online',
-      overview:
-        'The Bachelor of Business Administration (BBA) is a 3-year (6 semesters) UGC-entitled online degree program designed to provide a foundational understanding of business operations, management theories, and strategic decision-making. The program is structured to equip students with the essential knowledge and practical skills required to excel in various corporate and organizational roles, blending theoretical academic learning with professional skill development.',
-      highlights: [
-        'UGC-entitled online degree program with a duration of 3 years (6 semesters).',
-        'Flexible learning through live sessions, self-learning materials, discussion forums, and online exams.',
-        'Industry-designed curriculum that delivers technical excellence and supplements professional skills',
-        'Includes a host of skill enhancement and ability enhancement courses alongside core subjects.',
-        'Incorporates project work that allows students to analyse problems and propose actions for real-world situations.',
-        'Global learning environment with diversity from 43+ countries and access to over 20,000 LinkedIn Learning courses.',
-        'Innovative learning methodology with dedicated program managers and additional live sessions for career success.',
-      ],
-      keyTopics: [
-        'Marketing',
-        'Human Resource Management',
-        'Finance',
-      ],
-      eligibility: [
-        'Qualification: 10+2',
-        'Status: Appearing students also eligible',
-      ],
-      fees: {
-        applicationFee: 'Domestic: ₹2,500 | International: $150',
-        totalFee:
-          'Marketing: ₹1,50,000 | Finance: ₹1,50,000 | HRM: Domestic ₹1,50,000 | HRM: International $2,700',
-        examAndOtherCharges:
-          'Exam Fee - Domestic: ₹9,000 (3 years) | International: $150',
-        paymentModes: 'No-cost EMI available',
-      },
-      scholarships: [
-        'Defence personnel',
-        'Government employees',
-        'Differently-abled individuals',
-        'Academically outstanding students',
-      ],
-    },
-    'b-com': {
-      heroTitle: 'Bachelor of Commerce',
-      duration: '3 Years',
-      mode: 'Online',
-      overview:
-        'The Bachelor of Commerce (B.Com) is a 3-year (6 semesters) UGC-entitled online degree program designed to build strong knowledge in commerce, accounting, finance, and business management. The program helps students develop practical skills required to manage financial operations, understand business environments, and make strategic financial decisions. The curriculum combines accounting, finance, management, and economics along with skill enhancement courses, research projects, and analytical tools to prepare students for careers in areas such as auditing, financial analysis, consulting, and corporate finance.',
-      highlights: [
-        'UGC-entitled online degree program with a duration of 3 years (6 semesters)',
-        'Live sessions, self-learning material, discussion forums, and online exams',
-        'Industry-designed curriculum focused on accounting, finance, and management skills',
-        'Skill enhancement and ability enhancement courses along with core subjects',
-        'Research methodology, business analytics, and project-based learning',
-        'Global learning opportunities and access to LinkedIn Learning courses',
-        'Innovative learning methodology with additional live sessions for skill development',
-      ],
-      keyTopics: [
-        'Accounting and Finance',
-        'International Finance and Accounting (ACCA)',
-      ],
-      eligibility: [
-        'Qualification: 10+2',
-        'Status: Appearing students eligible',
-      ],
-      fees: {
-        applicationFee: 'Domestic: ₹2,500 | International: $150',
-        totalFee:
-          'Accounting and Finance - Domestic: ₹1,20,000 | International: $1,950 | International Finance - Domestic: ₹1,20,000 + affiliation fee | International Finance - International: $3,150 + affiliation fee',
-        examAndOtherCharges:
-          'Exam Fee - Domestic: ₹9,000 | International: $150 | Affiliation Fee - Domestic: ₹36,000 | International: $650',
-        paymentModes: 'No-cost EMI available',
-      },
-      scholarships: [
-        'Defence personnel',
-        'Government employees',
-        'Differently-abled individuals',
-        'Academically outstanding students',
-      ],
-    },
-    bca: {
-      heroTitle: 'Bachelor of Computer Applications',
-      duration: '3 Years',
-      mode: 'Online',
-      overview:
-        'The Bachelor of Computer Applications (BCA) is a 3-year (6 semesters) UGC-entitled online degree program designed to build a strong foundation in computer applications, programming, and modern information technology. The program combines core computer science principles with specialized electives so students can gain expertise in emerging technology domains. Through the program, learners study subjects such as programming, algorithms, operating systems, databases, networking, and web technologies, along with industry-relevant technologies. The curriculum is designed to help students develop analytical thinking, problem-solving ability, and technical proficiency, while gaining practical exposure through applied learning projects and real-world problem analysis. The program is delivered through live sessions, self-learning materials, discussion forums, and online exams.',
-      highlights: [
-        'UGC-entitled online degree program',
-        '3-year duration with 6 semesters',
-        'Live sessions, self-learning materials, discussion forums, and online exams',
-        'Industry-relevant curriculum designed by experts',
-        'Exposure to modern technologies and programming languages',
-        'Applied learning projects to analyze real-world situations',
-        'Opportunities to develop technical, analytical, and problem-solving skills',
-      ],
-      keyTopics: [
-        'Cloud Computing',
-        'Data Science & Analytics',
-        'Cyber Security',
-        'Computer Science & IT',
-        'Artificial Intelligence',
-      ],
-      eligibility: [
-        'Qualification: 10+2',
-        'Status: Appearing students eligible',
-      ],
-      fees: {
-        applicationFee: 'Domestic: ₹2,500 | International: $150',
-        totalFee:
-          'CS & IT - Domestic: ₹1,35,000 | International: $2,400 | Data Science: Domestic ₹1,65,000 / International $3,000 | Cyber Security: Domestic ₹1,65,000 / International $3,000 | AI: Domestic ₹1,65,000 / International $3,000 | Cloud: Domestic ₹1,65,000 / International $3,000',
-        examAndOtherCharges:
-          'Exam Fee - Domestic: ₹9,000 | International: $150',
-        paymentModes: 'No-cost EMI available',
-      },
-      scholarships: [
-        'Defence personnel',
-        'Government employees',
-        'Differently-abled individuals',
-        'Academically outstanding students',
-      ],
-    },
-    mcom: {
-      heroTitle: 'Master of Commerce',
-      duration: '2 Years',
-      mode: 'Online',
-      overview:
-        'The Master of Commerce (M.Com) is a 2-year (4 semesters) UGC-entitled online degree program designed to provide advanced knowledge in accounting, finance, and business management. The program helps learners develop strong analytical, financial, and decision-making skills through subjects related to financial reporting, taxation, financial management, and corporate laws. It prepares students for roles in accounting, financial advisory, consulting, financial management, and financial analysis.',
-      highlights: [
-        'UGC-entitled online degree program',
-        'Global faculty and industry-relevant curriculum',
-        'Access to LinkedIn Learning courses',
-        'Additional live sessions to build key professional skills',
-        'Flexible online learning from anywhere',
-        'Career advancement support',
-      ],
-      keyTopics: [
-        'Accounting and Finance',
-        'International Finance (ACCA)',
-      ],
-      eligibility: [
-        'Qualification: Bachelor’s degree',
-        'Status: Final year students eligible',
-      ],
-      fees: {
-        applicationFee: 'Domestic: ₹2,500 | International: $150',
-        totalFee:
-          'Accounting and Finance - Domestic: ₹1,10,000 | International: $2,000 | International Finance - Domestic: ₹1,20,000 + affiliation fee | International: $2,100 + affiliation fee',
-        examAndOtherCharges:
-          'Exam Fee - Domestic: ₹6,000 | International: $100 | Affiliation Fee - Domestic: ₹30,500 | International: $525',
-        paymentModes: 'No-cost EMI available',
-      },
-      scholarships: [
-        'Defence personnel',
-        'Government employees',
-        'Differently-abled individuals',
-        'Academically outstanding students',
-      ],
-    },
-    mba: {
-      heroTitle: 'Master of Business Administration',
-      duration: '2 Years',
-      mode: 'Online',
-      overview:
-        'The Master of Business Administration (MBA) is a 2-year UGC-entitled online degree program designed to provide advanced knowledge in business management, strategic leadership, and specialized functional areas. The program aims to develop professional skills in decision-making, analytical thinking, and operational efficiency to prepare students for leadership roles in a global business environment. The curriculum combines core management subjects—such as organizational behavior, quantitative techniques, and business law—with research projects, thesis work, and industry-focused electives to provide both theoretical foundations and practical applications.',
-      highlights: [
-        'UGC-entitled online degree program with a duration of 2 years.',
-        'Flexible learning through live sessions, self-learning materials, discussion forums, and online exams',
-        'Industry-aligned curriculum that integrates modern tools, including Generative AI for online learners',
-        'Extensive support through dedicated program managers and career advancement services.',
-        'Access to a global learning network with students from over 43 countries and 20,000+ LinkedIn Learning courses.',
-        'Research-oriented approach with master thesis or project components included in the curriculum.',
-        'Professional-grade specializations with international accreditations from bodies like ACCA (UK) and the Institute of Analytics (IoA, UK).',
-      ],
-      keyTopics: [
-        'Supply Chain & Operations',
-        'Retail & Quick Commerce',
-        'Marketing & Business Analytics',
-        'HR & Business Analytics',
-        'Finance & Business Analytics',
-        'Entrepreneurship',
-        'Project Management',
-        'Marketing',
-        'HRM',
-        'International Finance (ACCA)',
-        'IT Management',
-        'General Management',
-        'Business Intelligence & Analytics',
-      ],
-      eligibility: [
-        'Qualification: Bachelor’s degree',
-        'Status: Final year students eligible',
-      ],
-      fees: {
-        applicationFee: 'Domestic: ₹2,500 | International: $150',
-        totalFee:
-          'General: ₹1,96,000 | International Finance: ₹2,08,000 + affiliation fee',
-        examAndOtherCharges:
-          'Exam Fee - Domestic: ₹6,000 | International: $100 | Affiliation Fee - Domestic: ₹45,000 | International: $800',
-        paymentModes: 'No-cost EMI available',
-      },
-      scholarships: [
-        'Defence personnel',
-        'Government employees',
-        'Differently-abled individuals',
-        'Academically outstanding students',
-      ],
-    },
-    mca: {
-      heroTitle: 'Master of Computer Applications',
-      duration: '2 Years',
-      mode: 'Online',
-      overview:
-        'The Master of Computer Applications (MCA) is a 2-year (4 semesters) UGC-entitled online degree program designed to provide advanced knowledge in computer science, software development, and emerging digital technologies. The program helps learners develop strong programming, analytical, and problem-solving skills through subjects related to software engineering, data management, application development, and modern computing technologies. It prepares students for roles in software development, IT consulting, system analysis, data analytics, cybersecurity, and technology management.',
-      highlights: [
-        'UGC-entitled online degree program',
-        'Industry-relevant curriculum designed by academic and technology experts',
-        'Flexible online learning accessible from anywhere',
-        'Exposure to emerging technologies and modern computing practices',
-        'Focus on practical application and problem-solving skills',
-        'Opportunities for career advancement in the IT and technology sector',
-      ],
-      keyTopics: [
-        'Computer Science & IT',
-        'Data Analytics',
-        'Cyber Security',
-        'DevOps',
-        'NLP & LLM Development',
-      ],
-      eligibility: [
-        'Qualification: Bachelor’s degree',
-        'Requirement: Mathematics required',
-      ],
-      fees: {
-        applicationFee: 'Domestic: ₹2,500 | International: $150',
-        totalFee: 'Domestic: ₹1,60,000 | International: $2,800',
-        examAndOtherCharges:
-          'Exam Fee - Domestic: ₹6,000 | International: $100',
         paymentModes: 'No-cost EMI available',
       },
       scholarships: [

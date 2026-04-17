@@ -544,7 +544,8 @@ const Courses = () => {
                         {!(
                           (universitySlug === 'sikkim-manipal-university' && [4, 26, 27, 28].includes(course.id)) ||
                           (universitySlug === 'manipal-university-jaipur' && [23, 24].includes(course.id)) ||
-                          universitySlug === 'dy-patil-pune'
+                          universitySlug === 'dy-patil-pune' ||
+                          (universitySlug === 'bennet-university' && course.id === 2)
                         ) &&
                         getCourseListSpecializationsForDisplay(course).length > 0 ? (
                           <>

@@ -8,7 +8,6 @@ import SMULogo from '../assets/images/SMU.png'
 import AmityLogo from '../assets/images/Amity.png'
 import DYPatilLogo from '../assets/images/DYPatil.png'
 import BennetLogo from '../assets/images/Bennet.png'
-import JainUniversityLogo from '../assets/images/Jain_University.png'
 
 export type UniversityBenefits = {
   emi?: string
@@ -101,15 +100,6 @@ export const universitiesData: University[] = [
     location: "India",
     courseIds: [2, 5],
     logo: BennetLogo
-  },
-  {
-    id: 8,
-    name: "JAIN (Deemed-to-be University)",
-    fullName: "JAIN (Deemed-to-be University)",
-    slug: "jain-university",
-    location: "India",
-    courseIds: [2, 1, 3, 22, 5, 6],
-    logo: JainUniversityLogo
   }
 ]
 
