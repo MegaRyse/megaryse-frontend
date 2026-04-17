@@ -543,7 +543,8 @@ const Courses = () => {
                       <div className="mb-4">
                         {!(
                           (universitySlug === 'sikkim-manipal-university' && [4, 26, 27, 28].includes(course.id)) ||
-                          (universitySlug === 'manipal-university-jaipur' && [23, 24].includes(course.id))
+                          (universitySlug === 'manipal-university-jaipur' && [23, 24].includes(course.id)) ||
+                          universitySlug === 'dy-patil-pune'
                         ) &&
                         getCourseListSpecializationsForDisplay(course).length > 0 ? (
                           <>
