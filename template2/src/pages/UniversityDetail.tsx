@@ -492,6 +492,7 @@ const UniversityDetail = () => {
     universitySlug === 'manipal-university-jaipur' && courseSlug === 'b-com'
   const isDyPatilCourse = universitySlug === 'dy-patil-pune'
   const isDyPatilMca = universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 6
+  const isVitMcaOrMscDs = universitySlug === 'vit-online' && [6, 21].includes(courseFromRoute?.id ?? -1)
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
     () => parseStructuredCourseDescription(effectiveCourseDescription),
@@ -633,6 +634,20 @@ const UniversityDetail = () => {
         ],
       }
     }
+    if (universitySlug === 'vit-online' && courseFromRoute?.id === 21) {
+      return {
+        eligibility: [
+          'Applicants must hold a bachelor’s degree of at least three years’ duration in statistics, mathematics, computer science, engineering, technology, or a related discipline from a recognized university or institution, with a minimum of two years of coursework in mathematics or statistics, and must have achieved an aggregate grade of at least 50% (45% for reserved categories).',
+        ],
+      }
+    }
+    if (universitySlug === 'vit-online' && courseFromRoute?.id === 6) {
+      return {
+        eligibility: [
+          'Applicants must have completed a BCA, B.Sc. (Computer Science/IT), or a Bachelor’s degree in Computer Science/Engineering/IT (or equivalent) with at least 50% marks (45% for reserved categories). Alternatively, applicants with any bachelor’s degree of minimum three years’ duration from a recognized university are eligible, provided they have secured at least 50% marks (45% for reserved categories) and studied Mathematics at the 10+2 or graduation level.',
+        ],
+      }
+    }
     if (courseFromRoute?.id !== 19) return null
     return {
       eligibility: [
@@ -684,8 +699,11 @@ const UniversityDetail = () => {
     [courseSectionOverrides?.eligibility, effectiveEligibility]
   )
   const eligibilityPointsResolved = useMemo(
-    () => (isDyPatilMca ? effectiveEligibilityResolved : splitEligibilityIntoPoints(effectiveEligibilityResolved)),
-    [effectiveEligibilityResolved, isDyPatilMca]
+    () =>
+      isDyPatilMca || isVitMcaOrMscDs
+        ? effectiveEligibilityResolved
+        : splitEligibilityIntoPoints(effectiveEligibilityResolved),
+    [effectiveEligibilityResolved, isDyPatilMca, isVitMcaOrMscDs]
   )
   const effectiveScholarships = useMemo(
     () => {
