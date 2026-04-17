@@ -189,7 +189,9 @@ const Courses = () => {
         ? getCoursesByIds(selectedUniversity.courseIds).filter((c) =>
             categoriesForTab.includes(c.category)
           )
-        : coursesMasterData.filter((c) => categoriesForTab.includes(c.category)),
+        : coursesMasterData.filter(
+            (c) => categoriesForTab.includes(c.category) && getUniversitiesOfferingCourse(c.id).length > 0
+          ),
     [selectedUniversity, categoriesForTab]
   )
   const universitiesForSelectedCourse = useMemo(

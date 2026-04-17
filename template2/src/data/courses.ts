@@ -529,6 +529,6 @@ export function getCoursesByCategory(category: string): CourseMaster[] {
 
 export const TAB_TO_CATEGORIES: Record<string, string[]> = {
   undergraduate: ["Undergraduate Programs"],
-  postgraduate: ["Postgraduate Programs", "Diploma Programs"],
-  professional: ["Professional & Certificate Courses"],
+  postgraduate: ["Postgraduate Programs"],
+  professional: ["Professional & Certificate Courses", "Diploma Programs"],
 }

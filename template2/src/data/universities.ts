@@ -103,10 +103,17 @@ export const universitiesData: University[] = [
   }
 ]
 
+/**
+ * Optional explicit provider mapping for specific course IDs.
+ * If a course ID is present here, these university slugs are treated as the source of truth.
+ * Otherwise, providers are derived from `universitiesData[].courseIds`.
+ */
+export const COURSE_PROVIDER_OVERRIDES: Record<number, string[]> = {}
+
 export const TAB_TO_CATEGORY_TYPES: Record<string, string[]> = {
   undergraduate: ["Undergraduate Programs"],
-  postgraduate: ["Postgraduate Programs", "Diploma Programs"],
-  professional: ["Professional & Certificate Courses"],
+  postgraduate: ["Postgraduate Programs"],
+  professional: ["Professional & Certificate Courses", "Diploma Programs"],
 }
 
 /** Universities that offer at least one course in the given tab's categories */
@@ -134,5 +141,10 @@ export function getUniversityByName(name: string): University | undefined {
 
 /** Universities that offer the course with the given id */
 export function getUniversitiesOfferingCourse(courseId: number): University[] {
+  const overrideSlugs = COURSE_PROVIDER_OVERRIDES[courseId]
+  if (overrideSlugs?.length) {
+    const slugSet = new Set(overrideSlugs)
+    return universitiesData.filter((u) => slugSet.has(u.slug))
+  }
   return universitiesData.filter((u) => u.courseIds.includes(courseId))
 }
