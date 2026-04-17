@@ -28,7 +28,7 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     ],
     fees: {
       applicationFee: '₹1,100',
-      totalFee: 'BCOM: ₹1,15,000 | BCOM - HONS: ₹1,75,000 | BCOM - ACCA: ₹2,75,000',
+      totalFee: 'BCOM: ₹1,15,000 | BCOM - HONS: ₹1,75,000 | BCOM - IF & A: ₹2,75,000',
       paymentModes: AMITY_PAYMENT_MODES,
     },
     scholarships: [
