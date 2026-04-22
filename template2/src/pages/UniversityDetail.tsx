@@ -493,6 +493,7 @@ const UniversityDetail = () => {
   const isDyPatilCourse = universitySlug === 'dy-patil-pune'
   const isDyPatilMca = universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 6
   const isVitMcaOrMscDs = universitySlug === 'vit-online' && [6, 21].includes(courseFromRoute?.id ?? -1)
+  const isBennetCourse = universitySlug === 'bennet-university'
   const highlights = courseContent?.highlights ?? []
   const parsedDescription = useMemo(
     () => parseStructuredCourseDescription(effectiveCourseDescription),
@@ -531,10 +532,10 @@ const UniversityDetail = () => {
     course?.desc,
     parsedDescription.overview,
   ])
-  const effectiveEligibility = useMemo(
-    () => (parsedDescription.eligibility.length ? parsedDescription.eligibility : courseContent?.eligibility ?? []),
-    [parsedDescription.eligibility, courseContent?.eligibility]
-  )
+  const effectiveEligibility = useMemo(() => {
+    if (isBennetCourse && courseContent?.eligibility?.length) return courseContent.eligibility
+    return parsedDescription.eligibility.length ? parsedDescription.eligibility : courseContent?.eligibility ?? []
+  }, [isBennetCourse, parsedDescription.eligibility, courseContent?.eligibility])
   const courseSectionOverrides = useMemo(() => {
     if (universitySlug === 'dy-patil-pune' && courseFromRoute?.id === 2) {
       return {
@@ -677,6 +678,18 @@ const UniversityDetail = () => {
     if (universitySlug === 'amity-university' && [1, 2, 3, 4, 5, 6, 21, 22, 29].includes(courseFromRoute?.id ?? -1) && courseContent?.fees) {
       return courseContent.fees
     }
+    if (universitySlug === 'manipal-university-jaipur' && courseFromRoute?.id === 5) {
+      return {
+        applicationFee: courseContent?.fees?.applicationFee,
+        totalFee: '180,000',
+        examAndOtherCharges: undefined,
+        paymentModes: courseContent?.fees?.paymentModes,
+      }
+    }
+    // Bennett courses should always use curated university-course content fees.
+    if (isBennetCourse && courseContent?.fees) {
+      return courseContent.fees
+    }
     if (parsedDescription.fees?.applicationFee || parsedDescription.fees?.totalFee) {
       return {
         applicationFee: parsedDescription.fees?.applicationFee,
@@ -688,6 +701,7 @@ const UniversityDetail = () => {
     return courseContent?.fees
   }, [
     courseSectionOverrides?.fees,
+    isBennetCourse,
     universitySlug,
     courseFromRoute?.id,
     courseContent?.fees,
@@ -708,13 +722,14 @@ const UniversityDetail = () => {
   const effectiveScholarships = useMemo(
     () => {
       if (courseSectionOverrides?.scholarships) return courseSectionOverrides.scholarships
+      if (isBennetCourse && courseContent?.scholarships?.length) return courseContent.scholarships
       return (
       parsedDescription.scholarships.length
         ? parsedDescription.scholarships
         : courseContent?.scholarships ?? []
       )
     },
-    [courseSectionOverrides?.scholarships, parsedDescription.scholarships, courseContent?.scholarships]
+    [courseSectionOverrides?.scholarships, isBennetCourse, parsedDescription.scholarships, courseContent?.scholarships]
   )
   const isNmimsBba = universitySlug === 'nmims-university' && courseFromRoute?.id === 17
   const isAmityBbaBcomOrBca =
