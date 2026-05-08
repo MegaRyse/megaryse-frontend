@@ -911,10 +911,8 @@ const UniversityDetail = () => {
               className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
             >
             <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-3 text-center">
-              {isProfessionalOrCertificateCourse
-                ? universitySlug === 'nmims-university'
-                  ? 'Programme Highlights'
-                  : 'Specializations'
+              {universitySlug === 'nmims-university' && courseFromRoute?.id === 19
+                ? 'Specializations'
                 : 'Programme Highlights'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 text-center max-w-2xl mx-auto mb-6">
