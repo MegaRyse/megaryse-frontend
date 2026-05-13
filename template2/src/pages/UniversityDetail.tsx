@@ -507,9 +507,9 @@ const UniversityDetail = () => {
   const effectiveMode = useMemo(() => {
     const fromContent = courseContent?.mode?.trim()
     if (fromContent) return fromContent
-    if (universitySlug === 'nmims-university' && courseFromRoute?.id === 17) return 'Online'
+    if (universitySlug === 'nmims-university' && courseSlug === 'bba') return 'Online'
     return deriveModeFromText(effectiveCourseDescription) ?? 'N/A'
-  }, [courseContent?.mode, universitySlug, courseFromRoute?.id, effectiveCourseDescription])
+  }, [courseContent?.mode, universitySlug, courseSlug, effectiveCourseDescription])
   const effectiveOverview = useMemo(() => {
     // Match Courses.tsx getCourseListDescription: university overview, else CourseMaster.description
     const fromCoursesPage =
@@ -719,7 +719,7 @@ const UniversityDetail = () => {
         : splitEligibilityIntoPoints(effectiveEligibilityResolved),
     [effectiveEligibilityResolved, isDyPatilMca, isVitMcaOrMscDs]
   )
-  const isNmimsBba = universitySlug === 'nmims-university' && courseFromRoute?.id === 17
+  const isNmimsBba = universitySlug === 'nmims-university' && courseSlug === 'bba'
   const isAmityBbaBcomOrBca =
     universitySlug === 'amity-university' && [1, 2, 3, 4, 5, 6, 22, 29].includes(courseFromRoute?.id ?? -1)
   const effectiveHighlights = useMemo(

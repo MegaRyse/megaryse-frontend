@@ -305,24 +305,6 @@ export const coursesMasterData: CourseMaster[] = [
     careerPaths: []
   },
   {
-    id: 17,
-    shortName: "BBA",
-    fullName: "Bachelor of Business Administration",
-    category: "Undergraduate Programs",
-    icon: "📊",
-    description:
-      "BACHELOR OF BUSINESS ADMINISTRATION (BBA) - PROGRAMME OVERVIEW\n\nThe Bachelor of Business Administration (BBA) is a three-year undergraduate programme spread across six semesters designed to build a strong foundation in business management and its core functional areas. The programme integrates key concepts from management, finance, marketing, and economics to provide students with a comprehensive understanding of the business landscape. Through a structured curriculum that progresses from foundational subjects such as Principles of Management, Business Communication, Financial Accounting, and Microeconomics to advanced areas like Strategic Management, Project Management, and Business Analytics, students develop critical thinking, analytical, and decision-making skills. With the inclusion of contemporary subjects such as Digital Marketing, Integrated Marketing Communication, and Time Series Forecasting, the programme ensures students are well-equipped to meet evolving industry demands and excel in dynamic business environments.\n\nElectives Offered\n\n1. Marketing & Finance\n\nThis specialization focuses on building expertise in marketing strategy, financial management, and business decision-making, helping students develop strong analytical and managerial capabilities.\n\nHighlights:\n- Strong foundation in core business subjects such as Principles of Management, Business Communication, Financial Accounting, and Microeconomics\n- Exposure to advanced subjects including Strategic Management, Project Management, Operations & Supply Chain Management, and Retail Management\n- Industry-relevant topics such as Digital Marketing, Integrated Marketing Communication, Financial Analysis, and Time Series Forecasting\n- Emphasis on critical thinking, problem-solving, and real-world business application\n- Focus on ethical, sustainable, and socially responsible business practices\n- Prepares students for roles in marketing, finance, consulting, and general management\n\n2. Business Analytics\n\nThis specialization integrates business management with analytical and data-driven approaches, enabling students to make informed business decisions in a technology-driven environment.\n\nHighlights:\n- Specialised learning in Business Analytics and data-driven decision-making\n- Exposure to topics such as Digital Marketing, Integrated Marketing Communication, Financial Analysis, and analytics tools\n- Strong focus on developing analytical, critical thinking, and strategic problem-solving skills\n- Application of data interpretation and forecasting techniques to solve real-world business challenges\n- Curriculum aligned with current industry trends and technological advancements\n- Prepares students for careers in analytics, consulting, IT, and business strategy roles\n\nEligibility\n\nCandidates must have completed 10+2 (or equivalent) from a recognized board. Applicants who have completed a 3-year Diploma after 10th or hold a Bachelor's Degree are also eligible to apply. Candidates must have secured a minimum of 50% marks for General category and 45% marks for reserved categories (SC/ST/OBC/PwD).\n\nProgramme Fee\n- Application Fee: 11,200\n- Total Programme Fee:\n  - BBA (Marketing & Finance): INR 150,000\n  - BBA (Business Analytics): INR 180,000\n\nNo-Cost EMI Option Available\n\nBenefit from our no-cost EMI facility, designed to make financing your education simple and manageable.\n\nScholarships Available\n\nWe offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.",
-    specializations: ["Marketing & Finance", "Business Analytics"],
-    careerPaths: [
-      "Marketing Executive",
-      "Financial Analyst",
-      "Business Analyst",
-      "Consultant",
-      "Business Strategy Associate",
-      "General Management Trainee"
-    ]
-  },
-  {
     id: 19,
     shortName: "DIPLOMA",
     fullName: "Online Diploma Programmes",
@@ -496,17 +478,6 @@ export const coursesMasterData: CourseMaster[] = [
       "Psychology",
       "Public Policy & Governance"
     ],
-    careerPaths: []
-  },
-  {
-    id: 30,
-    shortName: "BCOM",
-    fullName: "Bachelor of Commerce",
-    category: "Undergraduate Programs",
-    icon: "💰",
-    description:
-      "Sikkim Manipal University offers a three-year Online Bachelor of Commerce (B.Com) programme designed to build a strong academic foundation in commerce, finance, and business management. The programme blends core theoretical concepts with practical application across key domains such as accounting, marketing, corporate governance, taxation, financial management, and entrepreneurship. Structured across six semesters, it progressively develops learners’ analytical, financial, and managerial capabilities. Delivered through a robust, technology-enabled learning platform, the programme ensures seamless, flexible learning while preparing students to thrive in a dynamic and evolving business environment.",
-    specializations: [],
     careerPaths: []
   }
 ]

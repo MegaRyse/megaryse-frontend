@@ -43,7 +43,7 @@ export const universitiesData: University[] = [
     fullName: "Narsee Monjee Institute of Management Studies (NMIMS)",
     slug: "nmims-university",
     location: "India",
-    courseIds: [1, 17, 18, 5, 19, 20],
+    courseIds: [1, 2, 5, 19, 20],
     logo: NMIMSLogo
   },
   {
@@ -61,7 +61,7 @@ export const universitiesData: University[] = [
     fullName: "Sikkim Manipal University (SMU)",
     slug: "sikkim-manipal-university",
     location: "India",
-    courseIds: [4, 30, 22, 5, 6, 26, 27, 28],
+    courseIds: [4, 1, 22, 5, 6, 26, 27, 28],
     logo: SMULogo
   },
   {

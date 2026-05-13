@@ -87,7 +87,6 @@ const COURSE_ICONS: Record<number, JSX.Element> = {
   14: <Briefcase className={COURSE_ICON_CLASS} />,
   15: <BarChart3 className={COURSE_ICON_CLASS} />,
   16: <Stethoscope className={COURSE_ICON_CLASS} />,
-  17: <Briefcase className={COURSE_ICON_CLASS} />,
   18: <BarChart3 className={COURSE_ICON_CLASS} />,
   19: <FileText className={COURSE_ICON_CLASS} />,
   20: <BookOpenText className={COURSE_ICON_CLASS} />,
@@ -100,7 +99,6 @@ const COURSE_ICONS: Record<number, JSX.Element> = {
   27: <Landmark className={COURSE_ICON_CLASS} />,
   28: <Database className={COURSE_ICON_CLASS} />,
   29: <BookOpenText className={COURSE_ICON_CLASS} />,
-  30: <Landmark className={COURSE_ICON_CLASS} />,
 }
 
 const SMU_MBA_SPECIALIZATIONS = [

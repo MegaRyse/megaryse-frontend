@@ -5,6 +5,7 @@ import type {
 import { amityUniversityCourseContent } from './amity'
 import { bennetUniversityCourseContent } from './bennet'
 import { CERTIFICATE_IMAGES } from './certificateAssets'
+import { NMIMS_BBA_OVERVIEW } from './nmimsBbaOverview'
 
 /**
  * Fill this map as you share content university-by-university and course-by-course.
@@ -368,6 +369,34 @@ export const universityCourseContent: UniversityCourseContentMap = {
       fees: {
         applicationFee: '₹11,200',
         totalFee: '₹1,08,000',
+        paymentModes: 'No-cost EMI available',
+      },
+      scholarships: [
+        'Defence personnel',
+        'Government employees',
+        'Differently-abled individuals',
+        'Academically outstanding students',
+      ],
+    },
+    bba: {
+      heroTitle: 'Bachelor of Business Administration (BBA)',
+      duration: '3 Years',
+      mode: 'Online',
+      overview: NMIMS_BBA_OVERVIEW,
+      highlights: [
+        'Three-year online BBA (six semesters) at NMIMS Centre for Distance and Online Education',
+        'Core foundation across management, finance, marketing, economics, and analytics-oriented subjects',
+        'Elective pathways: Marketing & Finance and Business Analytics (see bba-mf and bba-ba for track-specific copy)',
+        'Structured assessments, digital learning ecosystem, and NMIMS CDOE alumni network access',
+      ],
+      specializations: ['Marketing & Finance', 'Business Analytics'],
+      eligibility: [
+        'Qualification: 10+2 (or equivalent); 3-year diploma after 10th or Bachelor degree may be eligible per NMIMS norms',
+        'Minimum Marks: 50% (General) / 45% (reserved categories SC/ST/OBC/PwD)',
+      ],
+      fees: {
+        applicationFee: '₹11,200',
+        totalFee: 'BBA (Marketing & Finance): INR 1,50,000 | BBA (Business Analytics): INR 1,80,000',
         paymentModes: 'No-cost EMI available',
       },
       scholarships: [
@@ -923,7 +952,7 @@ export const universityCourseContent: UniversityCourseContentMap = {
     },
   },
   'sikkim-manipal-university': {
-    bcom: {
+    'b-com': {
       heroTitle: 'Bachelor of Commerce (BCOM)',
       duration: '3 Years',
       mode: 'Online',
