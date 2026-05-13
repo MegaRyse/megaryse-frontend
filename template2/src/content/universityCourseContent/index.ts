@@ -4,6 +4,7 @@ import type {
 } from '../../types/universityCourseContent'
 import { amityUniversityCourseContent } from './amity'
 import { bennetUniversityCourseContent } from './bennet'
+import { CERTIFICATE_IMAGES } from './certificateAssets'
 
 /**
  * Fill this map as you share content university-by-university and course-by-course.
@@ -768,6 +769,14 @@ export const universityCourseContent: UniversityCourseContentMap = {
         'Government employees',
         'Differently-abled individuals',
         'Academically outstanding students',
+      ],
+      certificates: [
+        {
+          id: 'mba-degree-sample',
+          title: 'Master of Business Administration',
+          image: CERTIFICATE_IMAGES.manipalMba,
+          caption: 'Sample certificate — awarded on successful completion of the online MBA programme.',
+        },
       ],
     },
     mca: {

@@ -36,6 +36,7 @@ export const bennetUniversityCourseContent: Record<string, UniversityCourseConte
     scholarships: [
       'We offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.',
     ],
+    careers: [],
   },
   mba: {
     heroTitle: 'Master of Business Administration (MBA)',
@@ -76,5 +77,6 @@ export const bennetUniversityCourseContent: Record<string, UniversityCourseConte
     scholarships: [
       'We offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.',
     ],
+    careers: [],
   },
 }

@@ -11,6 +11,17 @@ export type CtaConfig = {
   url?: string
 }
 
+/** Credential artwork / sample degree certificate for the programme detail page */
+export type CourseCertificate = {
+  id: string
+  title: string
+  /** Resolved asset URL (e.g. Vite-imported image) */
+  image: string
+  /** Optional slug linking this certificate to a specialisation track */
+  specializationSlug?: string
+  caption?: string
+}
+
 export type UniversityCourseContent = {
   heroTitle?: string
   overview: string
@@ -24,6 +35,8 @@ export type UniversityCourseContent = {
   fees?: FeeDetails
   scholarships?: string[]
   careers?: string[]
+  /** One or more certificates (degree samples, partner certs, etc.) */
+  certificates?: CourseCertificate[]
   cta?: CtaConfig
 }
 

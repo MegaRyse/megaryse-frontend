@@ -201,21 +201,6 @@ const Courses = () => {
         : [],
     [courseForUniversitiesModal]
   )
-  const getCourseCareerPaths = useCallback((course: CourseMaster) => {
-    if (
-      universitySlug === 'nmims-university' &&
-      course.category === 'Professional & Certificate Courses'
-    ) {
-      return []
-    }
-    if (universitySlug === 'sikkim-manipal-university' && course.id === 4) {
-      return []
-    }
-    if (!universitySlug) return course.careerPaths
-    const content = getUniversityCourseContent(universitySlug, toCourseSlug(course.shortName))
-    return content?.careers?.length ? content.careers : course.careerPaths
-  }, [universitySlug])
-
   const getCourseListDescription = useCallback(
     (course: CourseMaster) => {
       if (!universitySlug) return course.description
@@ -573,14 +558,6 @@ const Courses = () => {
                           </>
                         ) : null}
                       </div>
-                      {getCourseCareerPaths(course).length > 0 && (
-                        <div className="mb-4">
-                          <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Career Paths:</p>
-                          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                            {getCourseCareerPaths(course).join(', ')}
-                          </p>
-                        </div>
-                      )}
                       <motion.button
                         onClick={(e) => {
                           e.stopPropagation()

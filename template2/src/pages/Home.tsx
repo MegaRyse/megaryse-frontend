@@ -81,6 +81,11 @@ const STAT_CARD_HOVER = {
 }
 
 function parseStatNumber(numStr: string): { value: number; suffix: string } {
+  if (/^\d+\/\d+$/.test(numStr.trim())) {
+    const [valuePart, totalPart] = numStr.trim().split('/')
+    const num = parseInt(valuePart, 10)
+    return { value: Number.isNaN(num) ? 0 : num, suffix: `/${totalPart}` }
+  }
   if (numStr.includes('k+')) {
     const num = parseInt(numStr.replace('k+', ''), 10)
     return { value: num * 1000, suffix: 'k+' }
@@ -433,10 +438,10 @@ const Home = () => {
     if (months < 0 || (months === 0 && days < 0)) years -= 1
     if (years < 0) years = 0
     return [
-      { number: `${years}+`, label: 'Years Experience', icon: '📅' },
-      { number: '10k+', label: 'Students', icon: '👥' },
-      { number: '50+', label: 'Universities', icon: '🏛️' },
-      { number: '95%', label: 'Success Rate', icon: '⭐' },
+      { number: `${years}+`, label: 'Years Experience', icon: '' },
+      { number: '20000+', label: 'Live Hours Delivered', icon: '' },
+      { number: '10000+', label: 'Professionals Upskilled', icon: '' },
+      { number: '8/10', label: 'Learners Saw Positive Career Growth', icon: '' },
     ]
   }, [])
   const homepageCourses = useMemo(() => coursesMasterData.slice(0, 6), [])

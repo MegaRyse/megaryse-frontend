@@ -1,4 +1,5 @@
 import type { UniversityCourseContent } from '../../types/universityCourseContent'
+import { CERTIFICATE_IMAGES } from './certificateAssets'
 
 const AMITY_PAYMENT_MODES = 'No-cost EMI available'
 
@@ -187,6 +188,14 @@ export const amityUniversityCourseContent: Record<string, UniversityCourseConten
     },
     scholarships: [
       'We offer special scholarship benefits for defence personnel, government employees, differently-abled individuals, and academically outstanding students.',
+    ],
+    certificates: [
+      {
+        id: 'mba-degree-sample',
+        title: 'Master of Business Administration',
+        image: CERTIFICATE_IMAGES.amityMba,
+        caption: 'Sample certificate — awarded on successful completion of the MBA programme.',
+      },
     ],
   },
   mca: {

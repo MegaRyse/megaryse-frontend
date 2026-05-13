@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback } from 'react'
+import { useEffect, useMemo, useCallback, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { getUniversityBySlug } from '../data/universities'
@@ -719,18 +719,6 @@ const UniversityDetail = () => {
         : splitEligibilityIntoPoints(effectiveEligibilityResolved),
     [effectiveEligibilityResolved, isDyPatilMca, isVitMcaOrMscDs]
   )
-  const effectiveScholarships = useMemo(
-    () => {
-      if (courseSectionOverrides?.scholarships) return courseSectionOverrides.scholarships
-      if (isBennetCourse && courseContent?.scholarships?.length) return courseContent.scholarships
-      return (
-      parsedDescription.scholarships.length
-        ? parsedDescription.scholarships
-        : courseContent?.scholarships ?? []
-      )
-    },
-    [courseSectionOverrides?.scholarships, isBennetCourse, parsedDescription.scholarships, courseContent?.scholarships]
-  )
   const isNmimsBba = universitySlug === 'nmims-university' && courseFromRoute?.id === 17
   const isAmityBbaBcomOrBca =
     universitySlug === 'amity-university' && [1, 2, 3, 4, 5, 6, 22, 29].includes(courseFromRoute?.id ?? -1)
@@ -761,6 +749,10 @@ const UniversityDetail = () => {
     if (parsedDescription.electives.length) return parsedDescription.electives.map((e) => e.title)
     return course.specializations ?? []
   }, [course, courseContent, parsedDescription.electives, universitySlug, courseFromRoute?.id])
+  const effectiveCertificates = useMemo(
+    () => courseContent?.certificates ?? [],
+    [courseContent?.certificates]
+  )
   const programsByCategory = useMemo(() => {
     if (!universityFromData) return []
     const courses = getCoursesByIds(universityFromData.courseIds)
@@ -795,6 +787,72 @@ const UniversityDetail = () => {
       },
     })
   }, [navigate, universityFromData])
+
+  const certificateFullscreenRef = useRef<HTMLDivElement>(null)
+  const [certificateFullscreen, setCertificateFullscreen] = useState<{
+    src: string
+    title: string
+  } | null>(null)
+
+  const openCertificateFullscreen = useCallback((src: string, title: string) => {
+    setCertificateFullscreen({ src, title })
+  }, [])
+
+  const closeCertificateFullscreen = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen()
+      }
+    } catch {
+      /* ignore */
+    }
+    setCertificateFullscreen(null)
+  }, [])
+
+  useEffect(() => {
+    if (!certificateFullscreen) return
+    const el = certificateFullscreenRef.current
+    if (!el) return
+    const id = requestAnimationFrame(() => {
+      void el.requestFullscreen().catch(() => {
+        /* denied or unsupported — overlay still visible */
+      })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [certificateFullscreen])
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setCertificateFullscreen(null)
+      }
+    }
+    document.addEventListener('fullscreenchange', onFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      try {
+        if (document.fullscreenElement) {
+          void document.exitFullscreen()
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!certificateFullscreen) return
+    const block = (e: Event) => e.preventDefault()
+    document.addEventListener('copy', block, true)
+    document.addEventListener('cut', block, true)
+    return () => {
+      document.removeEventListener('copy', block, true)
+      document.removeEventListener('cut', block, true)
+    }
+  }, [certificateFullscreen])
 
   if (course) {
     return (
@@ -1121,7 +1179,7 @@ const UniversityDetail = () => {
           )}
 
           {/* Programme Structure for selected course */}
-          {(eligibilityPointsResolved.length || effectiveFees || effectiveScholarships.length) && (
+          {(eligibilityPointsResolved.length || effectiveFees || effectiveCertificates.length > 0) && (
             <motion.section
               variants={SECTION_VARIANTS}
               className="rounded-2xl shadow-lg border border-gold/25 overflow-hidden bg-white"
@@ -1186,39 +1244,65 @@ const UniversityDetail = () => {
               </div>
             </div>
 
-            {/* Row 3: Scholarships & Finance highlight */}
-            {!!effectiveScholarships.length && (
-              <div className="px-6 py-5 sm:px-8 sm:py-6 bg-[#00275E] text-white border-t border-gold-bright/20">
-                <h3 className="text-base font-semibold text-gold-bright mb-4 text-center">
-                  Scholarships & Finance
-                </h3>
-                <ul
-                  className={`text-sm text-white/90 max-w-3xl mx-auto ${
-                    effectiveScholarships.length === 1
-                      ? 'flex justify-center'
-                      : 'flex flex-wrap justify-center gap-x-8 gap-y-2'
-                  }`}
+            {/* Credentials — degree / programme certificates */}
+            {effectiveCertificates.length > 0 && (
+              <div className="border-t border-white/15 bg-[#00275E] px-6 py-8 sm:px-8 sm:py-10">
+                <div className="text-center mb-6 sm:mb-8">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white tracking-tight">
+                    Your credential
+                  </h3>
+                  <p className="text-sm text-white/80 mt-2 max-w-xl mx-auto leading-relaxed">
+                    Official certification awarded on successful completion of the programme. Sample artwork below.
+                  </p>
+                </div>
+                <div
+                  className={
+                    effectiveCertificates.length > 1
+                      ? 'max-h-[min(560px,70vh)] overflow-y-auto overflow-x-hidden space-y-4 pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.35)_transparent]'
+                      : 'space-y-4'
+                  }
                 >
-                  {effectiveScholarships.map((item) => (
-                    <li
-                      key={item}
-                      className={
-                        effectiveScholarships.length === 1
-                          ? 'w-full text-center'
-                          : 'flex gap-2 items-center'
-                      }
+                  {effectiveCertificates.map((cert) => (
+                    <article
+                      key={cert.id}
+                      className="rounded-2xl border border-white/20 bg-white/10 shadow-md flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8 p-4 sm:p-6"
                     >
-                      {effectiveScholarships.length > 1 && (
-                        <span className="text-gold-bright shrink-0">•</span>
-                      )}
-                      {item}
-                    </li>
+                      <div className="flex-1 min-w-0 text-left">
+                        <h4 className="font-semibold text-white text-sm sm:text-base">{cert.title}</h4>
+                        {cert.specializationSlug ? (
+                          <p className="text-xs font-medium text-gold-bright mt-1 uppercase tracking-wide">
+                            Track: {cert.specializationSlug}
+                          </p>
+                        ) : null}
+                        {cert.caption ? (
+                          <p className="text-xs sm:text-sm text-white/85 mt-2 leading-relaxed">{cert.caption}</p>
+                        ) : null}
+                      </div>
+                      <div className="flex-shrink-0 w-full sm:w-[min(42%,280px)] sm:max-w-[280px] flex items-center justify-center mx-auto sm:mx-0 sm:ml-auto">
+                        <button
+                          type="button"
+                          onClick={() => openCertificateFullscreen(cert.image, cert.title)}
+                          className="group relative w-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-bright focus-visible:ring-offset-2 focus-visible:ring-offset-[#00275E] cursor-zoom-in"
+                          aria-label={`View ${cert.title} certificate full screen`}
+                        >
+                          <img
+                            src={cert.image}
+                            alt=""
+                            className="max-h-[min(320px,45vh)] w-full object-contain object-center rounded-lg bg-white/95 p-2 select-none pointer-events-none [-webkit-user-drag:none]"
+                            draggable={false}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          <span className="absolute inset-0 rounded-lg ring-0 group-hover:ring-2 group-hover:ring-white/40 transition-[box-shadow] pointer-events-none" aria-hidden />
+                        </button>
+                      </div>
+                    </article>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
-            {/* Row 4: Apply Now button - centered */}
+            {/* Apply Now button - centered */}
             <div className="p-6 sm:p-8 bg-offwhite/30 flex justify-center">
               <motion.button
                 type="button"
@@ -1236,6 +1320,43 @@ const UniversityDetail = () => {
 
 
         </div>
+
+        {certificateFullscreen ? (
+          <div
+            ref={certificateFullscreenRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={certificateFullscreen.title}
+            className="fixed inset-0 z-[300] flex flex-col bg-black select-none"
+            style={{
+              userSelect: 'none',
+              WebkitUserSelect: 'none',
+              WebkitTouchCallout: 'none',
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 bg-black/95 border-b border-white/10 shrink-0">
+              <p className="text-sm font-medium text-white truncate pr-2">{certificateFullscreen.title}</p>
+              <button
+                type="button"
+                onClick={() => void closeCertificateFullscreen()}
+                className="shrink-0 rounded-lg px-4 py-2 text-sm font-semibold text-[#050B23] bg-gold hover:bg-gold-bright transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-bright"
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex flex-1 items-center justify-center min-h-0 p-4 overflow-hidden">
+              <img
+                src={certificateFullscreen.src}
+                alt=""
+                className="max-h-full max-w-full object-contain select-none [-webkit-user-drag:none]"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+                onDragStart={(e) => e.preventDefault()}
+              />
+            </div>
+          </div>
+        ) : null}
       </motion.div>
     )
   }
