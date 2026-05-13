@@ -360,7 +360,7 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
                 </div>
 
                 {/* Drop your CV */}
-                <div>
+                {/* <div>
                   <label htmlFor="apply-cv" className="block text-sm font-medium text-navy mb-1">
                     Drop your CV <span className="text-red-500">*</span>
                   </label>
@@ -378,7 +378,7 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
                   {submitTried && errors.cv && (
                     <p className="mt-1 text-sm text-red-600">{errors.cv}</p>
                   )}
-                </div>
+                </div> */}
 
                 {/* What defines you (optional) */}
                 <div>
