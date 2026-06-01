@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUniversitiesByTab, type University } from '../data/universities'
+import { OptimizedImage } from '../components/OptimizedImage'
 
 const UNIVERSITY_TABS = [
   { id: 'undergraduate', label: 'Undergraduate Programs' },
@@ -302,8 +303,9 @@ const Universities = () => {
 
                     {/* Logo */}
                     <div className="mb-4 text-center">
-                      <img
+                      <OptimizedImage
                         src={uni.logo}
+                        webpSrc={uni.logoWebp}
                         alt={uni.name}
                         className="block w-auto h-auto max-w-[84px] sm:max-w-[96px] md:max-w-[120px] max-h-[62px] sm:max-h-[72px] md:max-h-[84px] object-contain mx-auto"
                       />

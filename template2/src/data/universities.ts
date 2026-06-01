@@ -2,12 +2,19 @@ import { TAB_TO_CATEGORIES } from './courses'
 import { coursesMasterData } from './courses'
 
 import VITLogo from '../assets/images/VIT.png'
+import VITLogoWebp from '../assets/images/VIT.webp'
 import NMIMSLogo from '../assets/images/NMIMS.png'
+import NMIMSLogoWebp from '../assets/images/NMIMS.webp'
 import ManipalLogo from '../assets/images/Manipal.png'
+import ManipalLogoWebp from '../assets/images/Manipal.webp'
 import SMULogo from '../assets/images/SMU.png'
+import SMULogoWebp from '../assets/images/SMU.webp'
 import AmityLogo from '../assets/images/Amity.png'
+import AmityLogoWebp from '../assets/images/Amity.webp'
 import DYPatilLogo from '../assets/images/DYPatil.png'
+import DYPatilLogoWebp from '../assets/images/DYPatil.webp'
 import BennetLogo from '../assets/images/Bennet.png'
+import BennetLogoWebp from '../assets/images/Bennet.webp'
 
 export type UniversityBenefits = {
   emi?: string
@@ -23,6 +30,7 @@ export type University = {
   courseIds: number[]
   /** Logo image URL or path (e.g. /logos/vit-online.png) */
   logo: string
+  logoWebp?: string
   admissionStatus?: string
   benefits?: UniversityBenefits
 }
@@ -35,7 +43,8 @@ export const universitiesData: University[] = [
     slug: "vit-online",
     location: "India",
     courseIds: [5, 6, 21],
-    logo: VITLogo
+    logo: VITLogo,
+    logoWebp: VITLogoWebp,
   },
   {
     id: 2,
@@ -44,7 +53,8 @@ export const universitiesData: University[] = [
     slug: "nmims-university",
     location: "India",
     courseIds: [1, 2, 5, 19, 20],
-    logo: NMIMSLogo
+    logo: NMIMSLogo,
+    logoWebp: NMIMSLogoWebp,
   },
   {
     id: 3,
@@ -53,7 +63,8 @@ export const universitiesData: University[] = [
     slug: "manipal-university-jaipur",
     location: "India",
     courseIds: [1, 2, 3, 22, 5, 6, 23, 24, 25],
-    logo: ManipalLogo
+    logo: ManipalLogo,
+    logoWebp: ManipalLogoWebp,
   },
   {
     id: 4,
@@ -62,7 +73,8 @@ export const universitiesData: University[] = [
     slug: "sikkim-manipal-university",
     location: "India",
     courseIds: [4, 1, 22, 5, 6, 26, 27, 28],
-    logo: SMULogo
+    logo: SMULogo,
+    logoWebp: SMULogoWebp,
   },
   {
     id: 5,
@@ -72,6 +84,7 @@ export const universitiesData: University[] = [
     location: "India",
     courseIds: [1, 2, 3, 4, 5, 6, 21, 22, 29],
     logo: AmityLogo,
+    logoWebp: AmityLogoWebp,
     admissionStatus: "Open",
     benefits: {
       emi: "No-cost EMI available",
@@ -90,7 +103,8 @@ export const universitiesData: University[] = [
     slug: "dy-patil-pune",
     location: "India",
     courseIds: [2, 5, 14, 6, 15, 16],
-    logo: DYPatilLogo
+    logo: DYPatilLogo,
+    logoWebp: DYPatilLogoWebp,
   },
   {
     id: 7,
@@ -99,7 +113,8 @@ export const universitiesData: University[] = [
     slug: "bennet-university",
     location: "India",
     courseIds: [2, 5],
-    logo: BennetLogo
+    logo: BennetLogo,
+    logoWebp: BennetLogoWebp,
   }
 ]
 

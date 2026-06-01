@@ -2,23 +2,32 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import ShinyText from '../animatedComponents/ShinyText'
 import trustedEducationImg from '../assets/images/trustededucation.png'
+import trustedEducationWebp from '../assets/images/trustededucation.webp'
 import careerFocusedImg from '../assets/images/careerfocused.png'
+import careerFocusedWebp from '../assets/images/careerfocused.webp'
 import successImg from '../assets/images/sucess.png'
+import successWebp from '../assets/images/sucess.webp'
 import valueDrivenImg from '../assets/images/valuedriven.png'
+import valueDrivenWebp from '../assets/images/valuedriven.webp'
 import supportImg from '../assets/images/support.png'
+import supportWebp from '../assets/images/support.webp'
 import personalizedImg from '../assets/images/personalized.png'
+import personalizedWebp from '../assets/images/personalized.webp'
 import easyApplyImg from '../assets/images/easyapply.png'
+import easyApplyWebp from '../assets/images/easyapply.webp'
 import globalEducationImg from '../assets/images/globaleducation.png'
+import globalEducationWebp from '../assets/images/globaleducation.webp'
+import { OptimizedImage } from '../components/OptimizedImage'
 
 const EDGE_IMAGES = [
-  trustedEducationImg,
-  careerFocusedImg,
-  successImg,
-  valueDrivenImg,
-  supportImg,
-  personalizedImg,
-  easyApplyImg,
-  globalEducationImg,
+  { src: trustedEducationImg, webp: trustedEducationWebp },
+  { src: careerFocusedImg, webp: careerFocusedWebp },
+  { src: successImg, webp: successWebp },
+  { src: valueDrivenImg, webp: valueDrivenWebp },
+  { src: supportImg, webp: supportWebp },
+  { src: personalizedImg, webp: personalizedWebp },
+  { src: easyApplyImg, webp: easyApplyWebp },
+  { src: globalEducationImg, webp: globalEducationWebp },
 ]
 
 const MEGA_RYSE_EDGE = [
@@ -179,7 +188,7 @@ const About = () => {
           </motion.div>
           <div className="space-y-12 sm:space-y-16 md:space-y-20">
             {MEGA_RYSE_EDGE.map((item, idx) => {
-              const img = (item as { image?: string }).image ?? EDGE_IMAGES[idx]
+              const visual = EDGE_IMAGES[idx]
               const imageLeft = idx % 2 === 0
               return (
                 <motion.article
@@ -197,7 +206,12 @@ const About = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className={`relative aspect-[4/3] min-h-[200px] sm:min-h-0 rounded-2xl overflow-hidden bg-gray-100 shadow-md min-w-0 ${!imageLeft ? 'md:col-start-2' : ''}`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <OptimizedImage
+                      src={visual.src}
+                      webpSrc={visual.webp}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                     <span className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gold text-white font-bold flex items-center justify-center text-sm shadow">
                       {idx + 1}
                     </span>

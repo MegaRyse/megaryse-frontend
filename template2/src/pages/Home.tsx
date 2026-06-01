@@ -35,9 +35,14 @@ function useIsTabletOrDesktop() {
   return isTabletOrDesktop
 }
 import HeroImg2 from '../assets/images/Hero_img2.png'
+import HeroImg2Webp from '../assets/images/Hero_img2.webp'
 import careerCounsellingImg from '../assets/images/career_counselling.png'
+import careerCounsellingWebp from '../assets/images/career_counselling.webp'
 import admissionProcessImg from '../assets/images/admission_process.png'
+import admissionProcessWebp from '../assets/images/admission_process.webp'
 import programsImg from '../assets/images/programs.png'
+import programsWebp from '../assets/images/programs.webp'
+import { OptimizedImage } from '../components/OptimizedImage'
 import WhatsAppFloat from '../components/WhatsAppFloat'
 import { coursesMasterData } from '../data/courses'
 import { universitiesData } from '../data/universities'
@@ -173,10 +178,10 @@ const FEATURES_DATA = [
 
 // Right visual images: [initial, feature0 career, feature1 programs, feature2 admission]
 const RIGHT_VISUAL_IMAGES = [
-  careerCounsellingImg,
-  careerCounsellingImg,
-  programsImg,
-  admissionProcessImg,
+  { src: careerCounsellingImg, webp: careerCounsellingWebp },
+  { src: careerCounsellingImg, webp: careerCounsellingWebp },
+  { src: programsImg, webp: programsWebp },
+  { src: admissionProcessImg, webp: admissionProcessWebp },
 ] as const
 
 const TESTIMONIALS_DATA = [
@@ -475,9 +480,11 @@ const Home = () => {
               className="flex justify-center lg:justify-start relative order-1 lg:order-1"
             >
               <div className="relative w-full max-w-md sm:max-w-lg">
-                <img
+                <OptimizedImage
                   src={HeroImg2}
+                  webpSrc={HeroImg2Webp}
                   alt="Hero"
+                  priority
                   className="w-full h-auto object-contain relative z-10"
                 />
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/15 blur-xl rounded-4xl"></div>
@@ -626,8 +633,9 @@ const Home = () => {
                           )}
                         </div>
                         <div className="mt-4 rounded-xl overflow-hidden bg-navy aspect-video max-h-40 sm:max-h-48 w-full">
-                          <img
-                            src={RIGHT_VISUAL_IMAGES[i + 1]}
+                          <OptimizedImage
+                            src={RIGHT_VISUAL_IMAGES[i + 1].src}
+                            webpSrc={RIGHT_VISUAL_IMAGES[i + 1].webp}
                             alt=""
                             className="w-full h-full object-cover"
                           />
@@ -792,7 +800,7 @@ const Home = () => {
                     className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
                   >
                     <div className="bg-navy rounded-3xl w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
-                      {RIGHT_VISUAL_IMAGES.map((imgSrc, idx) => {
+                      {RIGHT_VISUAL_IMAGES.map((visual, idx) => {
                         const isActive = idx === activeFeature + 1
                         return (
                           <motion.div
@@ -805,8 +813,9 @@ const Home = () => {
                             }}
                             transition={TRANSITION_SMOOTH}
                           >
-                            <img
-                              src={imgSrc}
+                            <OptimizedImage
+                              src={visual.src}
+                              webpSrc={visual.webp}
                               alt=""
                               className="w-full h-full object-cover rounded-3xl"
                             />
@@ -934,8 +943,9 @@ const Home = () => {
                     className="flex shrink-0 flex-col items-center text-center group"
                   >
                     <div className="mb-1 flex h-[108px] w-[168px] shrink-0 items-center justify-center sm:mb-2 sm:h-[124px] sm:w-[196px] md:h-[140px] md:w-[220px] lg:h-[156px] lg:w-[248px]">
-                      <img
+                      <OptimizedImage
                         src={uni.logo}
+                        webpSrc={uni.logoWebp}
                         alt={uni.name}
                         className="block h-full w-full object-contain object-center [max-width:none]"
                         style={{ width: '100%', height: '100%', objectFit: 'contain' }}

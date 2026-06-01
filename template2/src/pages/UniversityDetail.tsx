@@ -1298,7 +1298,7 @@ const UniversityDetail = () => {
                         >
                           <img
                             src={cert.image}
-                            alt=""
+                            alt={cert.title}
                             className="max-h-[min(320px,45vh)] w-full object-contain object-center rounded-lg bg-white/95 p-2 select-none pointer-events-none [-webkit-user-drag:none]"
                             draggable={false}
                             loading="lazy"

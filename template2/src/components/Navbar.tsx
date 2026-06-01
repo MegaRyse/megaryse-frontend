@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Logo from '../assets/images/logo_1.png'
+import LogoWebp from '../assets/images/logo_1.webp'
+import { OptimizedImage } from './OptimizedImage'
 import { useEnquireModal } from '../context/EnquireModalContext'
 
 const MOBILE_BREAKPOINT = 768
@@ -398,11 +400,12 @@ const Navbar = () => {
               className="flex items-center justify-center md:justify-start gap-3 origin-center"
             >
               <Link to="/" className="relative inline-flex items-center gap-3" aria-label="Home">
-                <img
+                <OptimizedImage
                   src={Logo}
+                  webpSrc={LogoWebp}
                   alt="MegaRyse Logo"
+                  priority
                   className="w-[150px] h-[150px] md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
-                  loading="lazy"
                 />
                 {/* Logo glow effect on hover */}
                 <motion.span
