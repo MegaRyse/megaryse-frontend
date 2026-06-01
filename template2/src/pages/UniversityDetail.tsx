@@ -916,49 +916,60 @@ const UniversityDetail = () => {
             />
           </motion.header>
 
+          <motion.section variants={SECTION_VARIANTS} className="mb-8">
+            <h2 className="text-center text-lg sm:text-xl font-bold text-[#00275E] mb-1">
+              At a Glance
+            </h2>
+            <p className="text-center text-xs sm:text-sm text-gray-500 mb-6 max-w-xl mx-auto">
+              Key details for this programme at a quick look.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {(
+                [
+                  { label: 'University', value: universityName },
+                  { label: 'Programme', value: course.title },
+                  { label: 'Mode', value: effectiveMode },
+                  { label: 'Duration', value: effectiveDuration },
+                ] as const
+              ).map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-white/40 bg-white/[0.12] px-4 py-4 sm:py-5 text-center shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl [-webkit-backdrop-filter:blur(18px)] transition-[border-color,background-color,box-shadow] duration-300 ease-out hover:border-white/55 hover:bg-white/[0.18] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)]"
+                >
+                  <p className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#00275E]/70">
+                    {item.label}
+                  </p>
+                  <p className="mt-3 border-t border-gold/35 pt-3 text-sm sm:text-base font-semibold text-gold leading-snug break-words">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
           <motion.section
             variants={SECTION_VARIANTS}
             className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-8"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-4 text-center">
-              Programe Overview
+            <h2 className="text-xl sm:text-2xl font-bold text-[#00275E] mb-2 text-center">
+              Programme Overview
             </h2>
-            <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-center min-w-0 max-md:justify-items-center">
-              <div className="space-y-4 max-md:text-center max-md:mx-auto min-w-0">
+            <p className="text-xs sm:text-sm text-gray-500 text-center max-w-2xl mx-auto mb-8">
+              What this programme covers and how it is delivered.
+            </p>
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="space-y-4 min-w-0">
                 {(isDyPatilCourse
                   ? [effectiveOverview.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim()]
                   : splitOverviewIntoParagraphs(effectiveOverview)
                 ).map((para, i) => (
                   <p
                     key={i}
-                    className="text-sm sm:text-base text-gray-600 leading-relaxed max-md:mx-auto"
+                    className="text-sm sm:text-base text-gray-600 leading-relaxed text-center mx-auto"
                   >
                     {para}
                   </p>
                 ))}
-              </div>
-              <div className="bg-offwhite rounded-xl border border-gold/30 p-4 sm:p-5">
-                <h3 className="text-sm sm:text-base font-semibold text-[#00275E] mb-3">
-                  At a Glance
-                </h3>
-                <dl className="space-y-2 text-xs sm:text-sm text-gray-700">
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-medium">University</dt>
-                    <dd className="text-right">{universityName}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-medium">Programme</dt>
-                    <dd className="text-right">{course.title}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-medium">Mode</dt>
-                    <dd className="text-right">{effectiveMode}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-medium">Duration</dt>
-                    <dd className="text-right">{effectiveDuration}</dd>
-                  </div>
-                </dl>
               </div>
             </div>
           </motion.section>
