@@ -435,7 +435,7 @@ const Home = () => {
   })
 
   const statsForSection = useMemo(() => {
-    const establishmentDate = new Date('2024-11-04')
+    const establishmentDate = new Date('2010-09-04')
     const now = new Date()
     let years = now.getFullYear() - establishmentDate.getFullYear()
     const months = now.getMonth() - establishmentDate.getMonth()
