@@ -34,14 +34,14 @@ function useIsTabletOrDesktop() {
   }, [])
   return isTabletOrDesktop
 }
-import HeroImg2 from '../assets/images/Hero_img2.png'
-import HeroImg2Webp from '../assets/images/Hero_img2.webp'
-import careerCounsellingImg from '../assets/images/career_counselling.png'
-import careerCounsellingWebp from '../assets/images/career_counselling.webp'
-import admissionProcessImg from '../assets/images/admission_process.png'
-import admissionProcessWebp from '../assets/images/admission_process.webp'
-import programsImg from '../assets/images/programs.png'
-import programsWebp from '../assets/images/programs.webp'
+import HeroImg3 from '../assets/images/hero3.PNG'
+import HeroImg3Webp from '../assets/images/hero3.webp'
+import expertCareerCounsellingImg from '../assets/images/expert_career_counselling.png'
+import expertCareerCounsellingWebp from '../assets/images/expert_career_counselling.webp'
+import seamlessAdmissionProcessImg from '../assets/images/seamless_admission_process.png'
+import seamlessAdmissionProcessWebp from '../assets/images/seamless_admission_process.webp'
+import wideRangeProgramsImg from '../assets/images/wide_range_of_programs.png'
+import wideRangeProgramsWebp from '../assets/images/wide_range_of_programs.webp'
 import { OptimizedImage } from '../components/OptimizedImage'
 import WhatsAppFloat from '../components/WhatsAppFloat'
 import { coursesMasterData } from '../data/courses'
@@ -176,12 +176,26 @@ const FEATURES_DATA = [
   { title: 'Seamless Admission Process', description: 'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.', icon: '✅', link: '/contact', linkText: 'Get Started' },
 ] as const
 
+type FeatureVisualImage = {
+  src: string
+  webp: string
+  objectFit?: 'cover' | 'contain'
+}
+
+function featureVisualImageClass(objectFit: 'cover' | 'contain' = 'cover', rounded = false) {
+  const roundedClass = rounded ? ' rounded-3xl' : ''
+  if (objectFit === 'contain') {
+    return `absolute inset-0 w-full h-full object-contain object-center${roundedClass}`
+  }
+  return `absolute inset-0 w-full h-full object-cover object-center scale-[1.04]${roundedClass}`
+}
+
 // Right visual images: [initial, feature0 career, feature1 programs, feature2 admission]
-const RIGHT_VISUAL_IMAGES = [
-  { src: careerCounsellingImg, webp: careerCounsellingWebp },
-  { src: careerCounsellingImg, webp: careerCounsellingWebp },
-  { src: programsImg, webp: programsWebp },
-  { src: admissionProcessImg, webp: admissionProcessWebp },
+const RIGHT_VISUAL_IMAGES: readonly FeatureVisualImage[] = [
+  { src: expertCareerCounsellingImg, webp: expertCareerCounsellingWebp },
+  { src: expertCareerCounsellingImg, webp: expertCareerCounsellingWebp },
+  { src: wideRangeProgramsImg, webp: wideRangeProgramsWebp },
+  { src: seamlessAdmissionProcessImg, webp: seamlessAdmissionProcessWebp },
 ] as const
 
 const TESTIMONIALS_DATA = [
@@ -479,15 +493,18 @@ const Home = () => {
               transition={{ duration: 0.8 }}
               className="flex justify-center lg:justify-start relative order-1 lg:order-1"
             >
-              <div className="relative w-full max-w-md sm:max-w-lg">
+              <div className="relative w-full max-w-[231px] sm:max-w-[294px] md:max-w-[336px] lg:max-w-[357px]">
                 <OptimizedImage
-                  src={HeroImg2}
-                  webpSrc={HeroImg2Webp}
-                  alt="Hero"
+                  src={HeroImg3}
+                  webpSrc={HeroImg3Webp}
+                  alt="Student celebrating academic success with MegaRyse"
                   priority
-                  className="w-full h-auto object-contain relative z-10"
+                  className="w-full h-auto object-contain relative z-10 drop-shadow-[0_16px_32px_rgba(0,39,94,0.22)]"
                 />
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/15 blur-xl rounded-4xl"></div>
+                <div
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-6 bg-navy/20 blur-2xl rounded-full"
+                  aria-hidden
+                />
               </div>
             </motion.div>
 
@@ -632,12 +649,12 @@ const Home = () => {
                             </Link>
                           )}
                         </div>
-                        <div className="mt-4 rounded-xl overflow-hidden bg-navy aspect-video max-h-40 sm:max-h-48 w-full">
+                        <div className="mt-4 rounded-xl overflow-hidden aspect-video max-h-40 sm:max-h-48 w-full relative bg-offwhite">
                           <OptimizedImage
                             src={RIGHT_VISUAL_IMAGES[i + 1].src}
                             webpSrc={RIGHT_VISUAL_IMAGES[i + 1].webp}
                             alt=""
-                            className="w-full h-full object-cover"
+                            className={featureVisualImageClass(RIGHT_VISUAL_IMAGES[i + 1].objectFit)}
                           />
                         </div>
                       </div>
@@ -799,25 +816,26 @@ const Home = () => {
                     }}
                     className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
                   >
-                    <div className="bg-navy rounded-3xl w-full h-full flex flex-col items-center justify-center relative overflow-hidden min-w-0">
+                    <div className="bg-offwhite rounded-3xl w-full h-full relative overflow-hidden min-w-0">
                       {RIGHT_VISUAL_IMAGES.map((visual, idx) => {
                         const isActive = idx === activeFeature + 1
                         return (
                           <motion.div
                             key={idx}
-                            className="absolute inset-0 flex items-center justify-center will-change-transform rounded-3xl overflow-hidden"
+                            className="absolute inset-0 overflow-hidden rounded-3xl will-change-[opacity]"
                             initial={false}
                             animate={{
                               opacity: isActive ? 1 : 0,
-                              scale: isActive ? 1 : 0.97,
+                              visibility: isActive ? 'visible' : 'hidden',
                             }}
                             transition={TRANSITION_SMOOTH}
+                            aria-hidden={!isActive}
                           >
                             <OptimizedImage
                               src={visual.src}
                               webpSrc={visual.webp}
                               alt=""
-                              className="w-full h-full object-cover rounded-3xl"
+                              className={featureVisualImageClass(visual.objectFit, true)}
                             />
                           </motion.div>
                         )
