@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
 import {
@@ -16,9 +16,24 @@ import {
   BarChart3,
   Database,
 } from 'lucide-react'
+import HeroImg3 from '../assets/images/hero3.PNG'
+import HeroImg3Webp from '../assets/images/hero3.webp'
+import { OptimizedImage } from '../components/OptimizedImage'
+import WhatsAppFloat from '../components/WhatsAppFloat'
+import { coursesMasterData } from '../data/courses'
+import { universitiesData } from '../data/universities'
+import VariableProximity from '../animatedComponents/VariableProximity'
+import ShinyText from '../animatedComponents/ShinyText'
+import { useEnquireModal } from '../context/EnquireModalContext'
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useIntersectionVisible } from '../hooks/useIntersectionVisible'
+import { DesktopFeaturesScroll } from '../components/home/DesktopFeaturesScroll'
+import {
+  FEATURES_DATA,
+  RIGHT_VISUAL_IMAGES,
+  featureVisualImageClass,
+} from '../components/home/featureVisuals'
 
-// Feature section: list layout for mobile + tablet (< 1024px); scroll animations only on desktop (>= 1024px).
-// Screens > 767px are unchanged for the animated section — we only switch which layout is shown.
 const FEATURE_ANIMATION_BREAKPOINT_PX = 1024
 
 function useIsTabletOrDesktop() {
@@ -34,21 +49,6 @@ function useIsTabletOrDesktop() {
   }, [])
   return isTabletOrDesktop
 }
-import HeroImg3 from '../assets/images/hero3.PNG'
-import HeroImg3Webp from '../assets/images/hero3.webp'
-import expertCareerCounsellingImg from '../assets/images/expert_career_counselling.png'
-import expertCareerCounsellingWebp from '../assets/images/expert_career_counselling.webp'
-import seamlessAdmissionProcessImg from '../assets/images/seamless_admission_process.png'
-import seamlessAdmissionProcessWebp from '../assets/images/seamless_admission_process.webp'
-import wideRangeProgramsImg from '../assets/images/wide_range_of_programs.png'
-import wideRangeProgramsWebp from '../assets/images/wide_range_of_programs.webp'
-import { OptimizedImage } from '../components/OptimizedImage'
-import WhatsAppFloat from '../components/WhatsAppFloat'
-import { coursesMasterData } from '../data/courses'
-import { universitiesData } from '../data/universities'
-import VariableProximity from '../animatedComponents/VariableProximity'
-import ShinyText from '../animatedComponents/ShinyText'
-import { useEnquireModal } from '../context/EnquireModalContext'
 
 const COURSE_ICON_CLASS = 'w-8 h-8 sm:w-10 sm:h-10'
 
@@ -75,7 +75,6 @@ function renderCourseIcon(courseId: number, fallback: string) {
 }
 
 // Shared transition configs (avoid new object refs every render)
-const TRANSITION_SMOOTH = { duration: 0.32, ease: [0.22, 0.5, 0.35, 0.98] as const }
 const STAT_CARD_HOVER = {
   y: -10,
   scale: 1.05,
@@ -114,45 +113,50 @@ function formatStatNumber(num: number, suffix: string): string {
 const AnimatedStatCard = memo(function AnimatedStatCard({
   stat,
   idx,
+  reduceMotion,
 }: {
   stat: { number: string; label: string; icon: string }
   idx: number
+  reduceMotion: boolean
 }) {
   const { value, suffix } = useMemo(() => parseStatNumber(stat.number), [stat.number])
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(() => (reduceMotion ? value : 0))
 
   useEffect(() => {
-    const duration = 2000
-    const steps = 60
-    const increment = value / steps
-    const stepDuration = duration / steps
-    let currentStep = 0
-    let intervalId: ReturnType<typeof setInterval> | null = null
+    if (reduceMotion) {
+      setCount(value)
+      return
+    }
 
-    const timer = setTimeout(() => {
-      intervalId = setInterval(() => {
-        currentStep++
-        if (currentStep <= steps) {
-          setCount(Math.min(Math.floor(increment * currentStep), value))
-        } else {
-          setCount(value)
-          if (intervalId) clearInterval(intervalId)
-        }
-      }, stepDuration)
-    }, idx * 100 + 600)
+    let frameId = 0
+    const delayMs = idx * 100 + 600
+    const durationMs = 2000
+    let startTime: number | null = null
+
+    const timeoutId = window.setTimeout(() => {
+      const tick = (time: number) => {
+        if (startTime === null) startTime = time
+        const elapsed = time - startTime
+        const progress = Math.min(elapsed / durationMs, 1)
+        setCount(Math.floor(value * progress))
+        if (progress < 1) frameId = requestAnimationFrame(tick)
+        else setCount(value)
+      }
+      frameId = requestAnimationFrame(tick)
+    }, delayMs)
 
     return () => {
-      clearTimeout(timer)
-      if (intervalId) clearInterval(intervalId)
+      window.clearTimeout(timeoutId)
+      cancelAnimationFrame(frameId)
     }
-  }, [value, idx])
+  }, [value, idx, reduceMotion])
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: idx * 0.1 }}
-      whileHover={STAT_CARD_HOVER}
+      transition={{ duration: reduceMotion ? 0 : 0.6, delay: reduceMotion ? 0 : idx * 0.1 }}
+      whileHover={reduceMotion ? undefined : STAT_CARD_HOVER}
       style={{ backgroundColor: '#00275E' }}
       className="rounded-2xl p-4 sm:p-6 shadow-lg text-center group relative overflow-hidden w-full max-w-xs"
     >
@@ -169,35 +173,6 @@ const AnimatedStatCard = memo(function AnimatedStatCard({
   )
 })
 
-// Static data outside component to avoid re-creating on every render
-const FEATURES_DATA = [
-  { title: 'Expert Career Counseling', description: 'Our experienced counselors provide personalized guidance tailored to your career aspirations and goals.', icon: '🎯', link: '/courses', linkText: 'Career Counseling Services' },
-  { title: 'Wide Range of Programs', description: 'Choose from hundreds of programs across management, technology, arts, and sciences from top universities.', icon: '📚', link: '/courses', linkText: 'Explore Programs' },
-  { title: 'Seamless Admission Process', description: 'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.', icon: '✅', link: '/contact', linkText: 'Get Started' },
-] as const
-
-type FeatureVisualImage = {
-  src: string
-  webp: string
-  objectFit?: 'cover' | 'contain'
-}
-
-function featureVisualImageClass(objectFit: 'cover' | 'contain' = 'cover', rounded = false) {
-  const roundedClass = rounded ? ' rounded-3xl' : ''
-  if (objectFit === 'contain') {
-    return `absolute inset-0 w-full h-full object-contain object-center${roundedClass}`
-  }
-  return `absolute inset-0 w-full h-full object-cover object-center scale-[1.04]${roundedClass}`
-}
-
-// Right visual images: [initial, feature0 career, feature1 programs, feature2 admission]
-const RIGHT_VISUAL_IMAGES: readonly FeatureVisualImage[] = [
-  { src: expertCareerCounsellingImg, webp: expertCareerCounsellingWebp },
-  { src: expertCareerCounsellingImg, webp: expertCareerCounsellingWebp },
-  { src: wideRangeProgramsImg, webp: wideRangeProgramsWebp },
-  { src: seamlessAdmissionProcessImg, webp: seamlessAdmissionProcessWebp },
-] as const
-
 const TESTIMONIALS_DATA = [
   { name: 'Heena', role: 'MBA Graduate', text: "MegaRyse helped me choose the perfect MBA program that aligned with my career goals. The expert guidance and seamless admission process made everything so easy. Today, I'm in a leadership role, thanks to their support!", rating: 5 },
   { name: 'Smirthi', role: 'BCA Student', text: 'I was confused about which course to pursue, but the counselors at MegaRyse made it simple. They guided me through the BCA program selection and enrollment process effortlessly. Highly recommended!', rating: 5 },
@@ -206,47 +181,10 @@ const TESTIMONIALS_DATA = [
 
 const DUPLICATED_TESTIMONIALS = [...TESTIMONIALS_DATA, ...TESTIMONIALS_DATA]
 
-// Feature section scroll constants (stable refs) — taller section + stretched ranges so user scrolls more
-const SHRINK_START = 0.2
-const SHRINK_END = 0.8
-const HIGHLIGHT_START = SHRINK_END
-const HOLD_EXTRA_VH = 180
-const END_HOLD_VH = 140
-const VISUAL_MIN_WIDTH_RATIO = 0.6
-const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
-const LEFT_MAX_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
-const FIXED_HEIGHT = '62vh'
-const LEFT_CARD_MIN_HEIGHT = '18vh'
-const LEFT_SECTION_WIDTH = LEFT_MAX_WIDTH
-const WIDTH_SETTLE_END = SHRINK_START + 0.16
-const REVEAL_END = SHRINK_START + 0.52
-const CARD_SLIDE_START = 0.03
-const CARD_SLIDE_DURATION = 0.26
-const CARD_SLIDE_OFFSET = 0.13
-const FEATURES_SECTION_HEIGHT = `${(FEATURES_DATA.length + 1) * 95 + HOLD_EXTRA_VH + END_HOLD_VH}vh`
-
-// Reusable animation variants (stable refs for Features section)
-const TITLE_VARIANTS = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.032, delayChildren: 0.01 } },
-}
-const WORD_HIDDEN = { opacity: 0, y: 8, filter: 'blur(2px)' as const }
-const WORD_VISIBLE = { opacity: 1, y: 0, filter: 'blur(0px)' as const, transition: { duration: 0.28, ease: [0.22, 0.5, 0.35, 0.98] } }
-const DESC_VARIANTS = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.022, delayChildren: 0.08 } },
-}
-const DESC_WORD_HIDDEN = { opacity: 0, y: 5 }
-const DESC_WORD_VISIBLE = { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 0.5, 0.35, 0.98] } }
-const LINK_ARROW_VARIANTS = { rest: { x: 0, scale: 1 }, hover: { x: 16, scale: 1.35 } }
-
-// Testimonial card animation config (transform-only for smooth GPU animation; visual hover via CSS)
-const TESTIMONIAL_CARD_IN_VIEW = { opacity: 1, scale: 1 }
-const TESTIMONIAL_CARD_INITIAL = { opacity: 0, scale: 0.96 }
+const TESTIMONIAL_CARD_IN_VIEW = { opacity: 1, y: 0 }
+const TESTIMONIAL_CARD_INITIAL = { opacity: 0, y: 12 }
 const TESTIMONIAL_CARD_VIEWPORT = { once: true, margin: '-50px' }
 const TESTIMONIAL_CARD_TRANSITION = { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }
-const TESTIMONIAL_CARD_WHILE_HOVER = { y: -6, scale: 1.02, zIndex: 10 }
-const TESTIMONIAL_CARD_HOVER_TRANSITION = { type: 'spring' as const, stiffness: 400, damping: 28 }
 const STARS = [1, 2, 3, 4, 5] as const
 
 type TestimonialItem = (typeof TESTIMONIALS_DATA)[number]
@@ -254,23 +192,20 @@ type TestimonialItem = (typeof TESTIMONIALS_DATA)[number]
 const TestimonialCard = memo(function TestimonialCard({
   testimonial,
   index,
+  reduceMotion,
 }: {
   testimonial: TestimonialItem
   index: number
+  reduceMotion: boolean
 }) {
-  const delay = Math.min(index * 0.08, 0.24)
+  const delay = Math.min(index * 0.06, 0.2)
   return (
     <motion.div
-      initial={TESTIMONIAL_CARD_INITIAL}
+      initial={reduceMotion ? false : TESTIMONIAL_CARD_INITIAL}
       whileInView={TESTIMONIAL_CARD_IN_VIEW}
       viewport={TESTIMONIAL_CARD_VIEWPORT}
-      whileHover={TESTIMONIAL_CARD_WHILE_HOVER}
-      transition={{
-        opacity: { ...TESTIMONIAL_CARD_TRANSITION, delay },
-        scale: { ...TESTIMONIAL_CARD_TRANSITION, delay },
-        y: TESTIMONIAL_CARD_HOVER_TRANSITION,
-      }}
-      className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_2px_22px_2px_rgba(0,0,0,0.1),inset_0_-2px_4px_rgba(255,255,255,0.1)] rounded-3xl p-4 sm:p-6 md:p-8 flex-shrink-0 w-[85vw] max-md:min-w-[240px] min-w-[280px] max-w-sm transition-[transform,box-shadow,background-color,border-color] duration-300 ease-out hover:bg-gold/10 hover:border-gold/30 hover:shadow-xl"
+      transition={{ ...TESTIMONIAL_CARD_TRANSITION, delay: reduceMotion ? 0 : delay }}
+      className="border border-navy/10 bg-white shadow-[0_2px_16px_rgba(0,39,94,0.08)] rounded-3xl p-4 sm:p-6 md:p-8 flex-shrink-0 w-[85vw] max-md:min-w-[240px] min-w-[280px] max-w-sm transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-1 hover:border-gold/30 hover:shadow-[0_8px_24px_rgba(0,39,94,0.12)]"
     >
       <div className="flex items-center gap-1 mb-4">
         {STARS.slice(0, testimonial.rating).map((_, i) => (
@@ -279,16 +214,14 @@ const TestimonialCard = memo(function TestimonialCard({
           </span>
         ))}
       </div>
-      <p className="text-navy/95 mb-6 leading-relaxed italic text-sm drop-shadow-lg">
-        "{testimonial.text}"
-      </p>
+      <p className="text-navy/90 mb-6 leading-relaxed italic text-sm">"{testimonial.text}"</p>
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+        <div className="w-14 h-14 bg-navy/10 border border-navy/10 rounded-full flex items-center justify-center text-navy font-bold text-lg flex-shrink-0">
           {testimonial.name[0]}
         </div>
         <div>
-          <div className="font-bold text-navy text-lg drop-shadow-md">{testimonial.name}</div>
-          <div className="text-sm text-yellow-500/80 drop-shadow-sm">{testimonial.role}</div>
+          <div className="font-bold text-navy text-lg">{testimonial.name}</div>
+          <div className="text-sm text-yellow-600/90">{testimonial.role}</div>
         </div>
       </div>
     </motion.div>
@@ -296,157 +229,15 @@ const TestimonialCard = memo(function TestimonialCard({
 })
 
 const Home = () => {
-  const featuresRef = useRef<HTMLDivElement | null>(null)
+  const heroSectionRef = useRef<HTMLElement | null>(null)
   const heroProximityRef = useRef<HTMLDivElement | null>(null)
+  const featuresMobileRef = useRef<HTMLDivElement | null>(null)
   const isTabletOrDesktop = useIsTabletOrDesktop()
+  const reduceMotion = usePrefersReducedMotion()
   const { openEnquireModal } = useEnquireModal()
 
-  // Active feature highlight state (-1 means "none highlighted yet")
-  const [activeFeature, setActiveFeature] = useState<number>(-1)
-
-  // When each left item's text should play inner animations (word/line stagger)
-  const [leftItemTextRevealed, setLeftItemTextRevealed] = useState<boolean[]>([false, false, false])
-
-  // Scroll progress for Features section (0 → 1 across full section)
-  const { scrollYProgress } = useScroll({
-    target: featuresRef,
-    offset: ['start start', 'end end'],
-  })
-
-  // Right visual: 100% until shrink, then shrink to 60% as left appears; then stay 60%
-  const visualWidth = useTransform(
-    scrollYProgress,
-    [0, SHRINK_START, WIDTH_SETTLE_END],
-    ['100%', '100%', VISUAL_MIN_WIDTH],
-  )
-
-  // Left column: as soon as shrink starts, go to max width (40%) and stay there
-  const leftWidth = useTransform(
-    scrollYProgress,
-    [SHRINK_START, WIDTH_SETTLE_END],
-    ['0%', LEFT_SECTION_WIDTH],
-  )
-
-  // Left opacity: ease-out feel via midpoint (0 → 0.6 → 1) over longer scroll range
-  const leftOpacity = useTransform(
-    scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.24, REVEAL_END],
-    [0, 0.65, 1],
-  )
-
-  // Left slide-in: same range, smoother over more scroll distance
-  const leftX = useTransform(
-    scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.24, REVEAL_END],
-    [-50, -20, 0],
-  )
-
-  // Left blur: reduced max (12px) for better perf; stretched range so sharp over more scroll
-  const leftBlur = useTransform(
-    scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.28],
-    [12, 0],
-  )
-
-  // Subtle scale: gentle zoom over same reveal range
-  const leftScale = useTransform(
-    scrollYProgress,
-    [SHRINK_START, REVEAL_END],
-    [0.97, 1],
-  )
-
-  const leftItem0Opacity = useTransform(
-    scrollYProgress,
-    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [0, 1],
-  )
-  const leftItem1Opacity = useTransform(
-    scrollYProgress,
-    [SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [0, 1],
-  )
-  const leftItem2Opacity = useTransform(
-    scrollYProgress,
-    [SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [0, 1],
-  )
-  const leftItem0X = useTransform(
-    scrollYProgress,
-    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [240, 0],
-  )
-  const leftItem1X = useTransform(
-    scrollYProgress,
-    [SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [240, 0],
-  )
-  const leftItem2X = useTransform(
-    scrollYProgress,
-    [SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START, SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [240, 0],
-  )
-
-  const leftItemOpacities = useMemo(
-    () => [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity],
-    [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity],
-  )
-  const leftItemXs = useMemo(
-    () => [leftItem0X, leftItem1X, leftItem2X],
-    [leftItem0X, leftItem1X, leftItem2X],
-  )
-
-  // Transform scroll progress (highlight phase) to feature index: 0 → first, 1 → second, 2 → third
-  const highlightIndex = useTransform(scrollYProgress, [HIGHLIGHT_START, 1], [0, 3])
-
-  // Sync activeFeature (left highlight + right visual) with scroll; only setState when index changes to reduce re-renders
-  const prevHighlightRef = useRef(-1)
-  useEffect(() => {
-    const updateFromScroll = (latest: number) => {
-      const clamped = Math.min(2, Math.max(0, Math.floor(latest)))
-      if (clamped !== prevHighlightRef.current) {
-        prevHighlightRef.current = clamped
-        setActiveFeature(clamped)
-      }
-    }
-    prevHighlightRef.current = Math.min(2, Math.max(0, Math.floor(highlightIndex.get())))
-    setActiveFeature(prevHighlightRef.current)
-    const unsubscribe = highlightIndex.on('change', updateFromScroll)
-    return unsubscribe
-  }, [highlightIndex])
-
-  // When left item opacity crosses threshold, allow inner text animations (word/line stagger)
-  useEffect(() => {
-    const check = (opacity: number, idx: number) => {
-      setLeftItemTextRevealed((prev) => {
-        if (prev[idx] || opacity < 0.75) return prev
-        const next = [...prev]
-        next[idx] = true
-        return next
-      })
-    }
-    const unsub0 = leftItem0Opacity.on('change', (v) => check(v, 0))
-    const unsub1 = leftItem1Opacity.on('change', (v) => check(v, 1))
-    const unsub2 = leftItem2Opacity.on('change', (v) => check(v, 2))
-    return () => {
-      unsub0()
-      unsub1()
-      unsub2()
-    }
-  }, [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity])
-
-  const [isHovered, setIsHovered] = useState(false)
-  const [isPausedByClick, setIsPausedByClick] = useState(false)
-  const x = useMotionValue(0)
-
-  const TESTIMONIALS_LEN = TESTIMONIALS_DATA.length
-  const TESTIMONIALS_SCROLL_RESET = -(TESTIMONIALS_LEN * 400)
-  useAnimationFrame((_time, delta) => {
-    if (!isHovered && !isPausedByClick) {
-      const speed = 0.1
-      x.set(x.get() - delta * speed)
-      if (x.get() <= TESTIMONIALS_SCROLL_RESET) x.set(0)
-    }
-  })
+  const heroVisible = useIntersectionVisible(heroSectionRef, { rootMargin: '100px' })
+  const featuresMobileVisible = useIntersectionVisible(featuresMobileRef, { rootMargin: '80px' })
 
   const statsForSection = useMemo(() => {
     const establishmentDate = new Date('2010-09-04')
@@ -469,17 +260,12 @@ const Home = () => {
     []
   )
 
-  const featuresSectionStyle = useMemo(() => ({ height: FEATURES_SECTION_HEIGHT }), [])
-  const testimonialTrackStyle = useMemo(() => ({ x, display: 'flex' as const }), [x])
-  const handleTestimonialMouseEnter = useCallback(() => setIsHovered(true), [])
-  const handleTestimonialMouseLeave = useCallback(() => setIsHovered(false), [])
-  const handleTestimonialClick = useCallback(() => setIsPausedByClick((prev) => !prev), [])
   const handleOpenEnquireModal = useCallback(() => openEnquireModal(), [openEnquireModal])
 
   return (
     <div className="w-full bg-offwhite">
       {/* Hero Section */}
-      <section className="relative pt-0 bg-offwhite overflow-hidden">
+      <section ref={heroSectionRef} className="relative pt-0 bg-offwhite overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-offwhite via-offwhite/95 to-offwhite"></div>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
@@ -488,9 +274,9 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
             {/* Image: on mobile only, show first (above text + buttons); tablet/desktop unchanged */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
+              initial={reduceMotion ? false : { opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: reduceMotion ? 0 : 0.8 }}
               className="flex justify-center lg:justify-start relative order-1 lg:order-1"
             >
               <div className="relative w-full max-w-[231px] sm:max-w-[294px] md:max-w-[336px] lg:max-w-[357px]">
@@ -510,15 +296,15 @@ const Home = () => {
 
             {/* Text + CTAs: on mobile only, show below image; tablet/desktop unchanged */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: reduceMotion ? 0 : 0.8 }}
               className="text-center lg:text-center max-w-4xl mx-auto order-2 lg:order-2"
             >
               <motion.div
-                initial={{ scale: 0.9 }}
+                initial={reduceMotion ? false : { scale: 0.9 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+                transition={{ duration: reduceMotion ? 0 : 0.6, delay: reduceMotion ? 0 : 0.2 }}
                 className="inline-block mb-4 sm:mb-6"
               >
                 <span className="bg-[#00275E] text-white px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold">
@@ -537,6 +323,8 @@ const Home = () => {
                   containerRef={heroProximityRef}
                   radius={300}
                   falloff="exponential"
+                  disabled={reduceMotion}
+                  paused={!heroVisible}
                 />
               </div>
               <p className="text-base sm:text-lg text-black mb-8 sm:mb-12 leading-relaxed max-w-3xl mx-auto lg:mx-0">
@@ -574,10 +362,10 @@ const Home = () => {
                     state={{ from: 'home' }}
                     className="block w-full max-w-xs"
                   >
-                    <AnimatedStatCard stat={stat} idx={idx} />
+                    <AnimatedStatCard stat={stat} idx={idx} reduceMotion={reduceMotion} />
                   </Link>
                 ) : (
-                  <AnimatedStatCard key={idx} stat={stat} idx={idx} />
+                  <AnimatedStatCard key={idx} stat={stat} idx={idx} reduceMotion={reduceMotion} />
                 )
               )}
             </div>
@@ -585,29 +373,36 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ========== FEATURES SECTION — list on mobile, scroll animations from tablet up ========== */}
-      <section ref={featuresRef} className="pb-16 md:pb-32">
+      {/* ========== FEATURES SECTION — list on mobile, scroll animations on desktop only ========== */}
+      <section className="pb-16 md:pb-32">
         <div className="max-w-container mx-auto w-full px-4 sm:px-6 lg:px-8">
-          {!isTabletOrDesktop ? (
-            /* Mobile + tablet (< 1024px): list layout — centered and aligned for a clean UI */
-            <div className="relative pt-12 sm:pt-14 md:pt-16 flex flex-col items-center">
+          {!isTabletOrDesktop || reduceMotion ? (
+            <div
+              ref={featuresMobileRef}
+              className="relative pt-12 sm:pt-14 md:pt-16 flex flex-col items-center"
+            >
               <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8">
                 <div className="text-center mb-10 sm:mb-12">
                   <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-navy">
                     Why Choose{' '}
                     <span className="relative inline-block">
-                      <ShinyText
-                        text="MegaRyse"
-                        speed={2}
-                        delay={0}
-                        color="#D9B23A"
-                        shineColor="#E8C547"
-                        spread={35}
-                        direction="right"
-                        yoyo
-                        pauseOnHover={false}
-                        disabled={false}
-                      />
+                      {reduceMotion ? (
+                        <span className="text-[#D9B23A]">MegaRyse</span>
+                      ) : (
+                        <ShinyText
+                          text="MegaRyse"
+                          speed={2}
+                          delay={0}
+                          color="#D9B23A"
+                          shineColor="#E8C547"
+                          spread={35}
+                          direction="right"
+                          yoyo
+                          pauseOnHover={false}
+                          disabled={false}
+                          paused={!featuresMobileVisible}
+                        />
+                      )}
                     </span>
                     ?
                   </h2>
@@ -617,7 +412,7 @@ const Home = () => {
                 </div>
                 <ul className="space-y-6 sm:space-y-8 w-full list-none p-0 m-0">
                   {FEATURES_DATA.map((f, i) => (
-                    <li key={i} className="w-full flex flex-col items-stretch">
+                    <li key={f.title} className="w-full flex flex-col items-stretch">
                       <div className="relative pl-5 sm:pl-6 border-l-2 border-gold/40 bg-white/60 rounded-2xl p-4 sm:p-5 shadow-sm w-full box-border">
                         <div className="flex flex-col gap-3 w-full min-w-0">
                           <h3 className="text-xl sm:text-2xl font-bold text-navy">
@@ -653,7 +448,7 @@ const Home = () => {
                           <OptimizedImage
                             src={RIGHT_VISUAL_IMAGES[i + 1].src}
                             webpSrc={RIGHT_VISUAL_IMAGES[i + 1].webp}
-                            alt=""
+                            alt={RIGHT_VISUAL_IMAGES[i + 1].alt}
                             className={featureVisualImageClass(RIGHT_VISUAL_IMAGES[i + 1].objectFit)}
                           />
                         </div>
@@ -664,187 +459,11 @@ const Home = () => {
               </div>
             </div>
           ) : (
-            /* Tablet and desktop: animated scroll section (unchanged logic) */
-            <div className="relative" style={featuresSectionStyle}>
-              <motion.div
-                style={{ position: 'sticky', top: 0, height: '100vh' }}
-                className="relative flex flex-col gap-10 pt-32"
-              >
-                <div className="px-6 sm:px-8 lg:px-10">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
-                    Why Choose{' '}
-                    <span className="relative inline-block">
-                      <ShinyText
-                        text="MegaRyse"
-                        speed={2}
-                        delay={0}
-                        color="#D9B23A"
-                        shineColor="#E8C547"
-                        spread={35}
-                        direction="right"
-                        yoyo
-                        pauseOnHover={false}
-                        disabled={false}
-                      />
-                    </span>
-                    ?
-                  </h2>
-                  <p className="text-center text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
-                    Your trusted partner in achieving academic and career excellence
-                  </p>
-                </div>
-
-                <div className="flex items-center relative flex-1 w-full min-w-0">
-                  <motion.div
-                    style={{
-                      width: leftWidth,
-                      opacity: leftOpacity,
-                      x: leftX,
-                      scale: leftScale,
-                      filter: `blur(${leftBlur}px)`,
-                      height: FIXED_HEIGHT,
-                      minWidth: 0,
-                    }}
-                    className="flex flex-col justify-start gap-6 h-full origin-left overflow-y-auto overflow-x-hidden transform-gpu flex-shrink-0"
-                  >
-                    <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-start gap-6 flex-1 min-h-0">
-                    {FEATURES_DATA.map((f, i) => (
-                      <motion.div
-                        key={i}
-                        className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-visible transform-gpu"
-                        style={{
-                          minHeight: LEFT_CARD_MIN_HEIGHT,
-                          width: '100%',
-                          opacity: leftItemOpacities[i],
-                          x: leftItemXs[i],
-                        }}
-                      >
-                        <motion.div
-                          className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${i === activeFeature ? 'bg-gold' : 'bg-transparent'}`}
-                          initial={false}
-                          animate={{
-                            scaleY: i === activeFeature ? 1 : 0.3,
-                            opacity: i === activeFeature ? 1 : 0,
-                          }}
-                          transition={TRANSITION_SMOOTH}
-                        />
-                        <div className="flex flex-col justify-start py-2 w-full max-w-full min-w-0">
-                          <motion.h3
-                            className="text-xl font-bold mb-1.5 text-navy transition-colors duration-300 break-words"
-                            variants={TITLE_VARIANTS}
-                            initial="hidden"
-                            animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
-                            whileHover={{ x: 4 }}
-                          >
-                            {`${f.icon} ${f.title}`.split(/\s+/).map((word, wi) => (
-                              <motion.span
-                                key={wi}
-                                className="inline-block mr-1.5 align-baseline will-change-transform"
-                                variants={{ hidden: WORD_HIDDEN, visible: WORD_VISIBLE }}
-                              >
-                                {word}
-                              </motion.span>
-                            ))}
-                          </motion.h3>
-                          <motion.p
-                            className={`text-sm leading-relaxed mb-1.5 transition-colors duration-300 break-words ${i === activeFeature ? 'text-navy' : 'text-text'}`}
-                            variants={DESC_VARIANTS}
-                            initial="hidden"
-                            animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
-                          >
-                            {f.description.split(/\s+/).map((word, wi) => (
-                              <motion.span
-                                key={wi}
-                                className="inline-block mr-1.5 align-baseline will-change-transform"
-                                variants={{ hidden: DESC_WORD_HIDDEN, visible: DESC_WORD_VISIBLE }}
-                              >
-                                {word}{' '}
-                              </motion.span>
-                            ))}
-                          </motion.p>
-                          <motion.span
-                            className="inline-block mt-1.5 text-sm"
-                            style={{ opacity: leftItemOpacities[i] }}
-                            initial="rest"
-                            whileHover="hover"
-                          >
-                            {f.link === '/contact' ? (
-                              <button
-                                type="button"
-                                onClick={handleOpenEnquireModal}
-                                className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer"
-                              >
-                                <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
-                                  {f.linkText}
-                                </span>
-                                <motion.span
-                                  className="inline-block no-underline"
-                                  aria-hidden
-                                  variants={LINK_ARROW_VARIANTS}
-                                  transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-                                >
-                                  →
-                                </motion.span>
-                              </button>
-                            ) : (
-                              <Link to={f.link} className="inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-300 cursor-pointer">
-                                <span className="underline decoration-2 underline-offset-2 decoration-gold/80 hover:decoration-gold-bright">
-                                  {f.linkText}
-                                </span>
-                                <motion.span
-                                  className="inline-block no-underline"
-                                  aria-hidden
-                                  variants={LINK_ARROW_VARIANTS}
-                                  transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-                                >
-                                  →
-                                </motion.span>
-                              </Link>
-                            )}
-                          </motion.span>
-                        </div>
-                      </motion.div>
-                    ))}
-                    </div>
-                  </motion.div>
-
-                  <motion.div
-                    style={{
-                      width: visualWidth,
-                      height: FIXED_HEIGHT,
-                      minWidth: 0,
-                    }}
-                    className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
-                  >
-                    <div className="bg-offwhite rounded-3xl w-full h-full relative overflow-hidden min-w-0">
-                      {RIGHT_VISUAL_IMAGES.map((visual, idx) => {
-                        const isActive = idx === activeFeature + 1
-                        return (
-                          <motion.div
-                            key={idx}
-                            className="absolute inset-0 overflow-hidden rounded-3xl will-change-[opacity]"
-                            initial={false}
-                            animate={{
-                              opacity: isActive ? 1 : 0,
-                              visibility: isActive ? 'visible' : 'hidden',
-                            }}
-                            transition={TRANSITION_SMOOTH}
-                            aria-hidden={!isActive}
-                          >
-                            <OptimizedImage
-                              src={visual.src}
-                              webpSrc={visual.webp}
-                              alt=""
-                              className={featureVisualImageClass(visual.objectFit, true)}
-                            />
-                          </motion.div>
-                        )
-                      })}
-                    </div>
-                  </motion.div>
-                </div>
-              </motion.div>
-            </div>
+            <DesktopFeaturesScroll
+              onOpenEnquireModal={handleOpenEnquireModal}
+              reduceMotion={reduceMotion}
+              shinyTextPaused={false}
+            />
           )}
         </div>
       </section>
@@ -853,23 +472,25 @@ const Home = () => {
       <section className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-6 sm:pb-8 md:pb-10 lg:pb-10 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: reduceMotion ? 0 : 0.6 }}
             className="text-center mb-10 sm:mb-12 md:mb-16"
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-4 sm:mb-6">
               Discover Your{' '}
               <span className="relative">
                 <span className="text-black">Perfect Program</span>
-                <motion.span
-                  className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                />
+                {!reduceMotion && (
+                  <motion.span
+                    className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                  />
+                )}
               </span>
             </h2>
             <p className="text-base sm:text-lg text-black max-w-2xl mx-auto px-2">
@@ -882,16 +503,21 @@ const Home = () => {
             {homepageCourses.map((course, idx) => (
               <motion.div
                 key={course.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.05 }}
-                whileHover={{
-                  y: -6,
-                  scale: 1.02,
-                  boxShadow: '0 20px 40px -12px rgba(0, 39, 94, 0.35), 0 0 0 1px rgba(255, 212, 71, 0.2)',
-                  transition: { duration: 0.25, ease: [0.22, 0.5, 0.35, 0.98] },
-                }}
+                transition={{ duration: reduceMotion ? 0 : 0.6, delay: reduceMotion ? 0 : idx * 0.05 }}
+                whileHover={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        y: -6,
+                        scale: 1.02,
+                        boxShadow:
+                          '0 20px 40px -12px rgba(0, 39, 94, 0.35), 0 0 0 1px rgba(255, 212, 71, 0.2)',
+                        transition: { duration: 0.25, ease: [0.22, 0.5, 0.35, 0.98] },
+                      }
+                }
                 className="bg-[#00275E] rounded-xl p-4 sm:p-5 shadow-md hover:shadow-xl transition-shadow relative overflow-hidden group cursor-default"
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-gold-bright/15 to-transparent rounded-bl-full" />
@@ -977,27 +603,32 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials Section — reduced top padding to sit closer to Our Universities */}
-      <section className="pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-12 sm:pb-16 md:pb-20 lg:pb-24 bg-offwhite">
+      {/* Testimonials Section */}
+      <section
+        className="pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-12 sm:pb-16 md:pb-20 lg:pb-24 bg-offwhite overflow-hidden"
+        aria-label="Success stories"
+      >
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-10 sm:mb-12 md:mb-16"
+            transition={{ duration: reduceMotion ? 0 : 0.6 }}
+            className="text-center mb-6 sm:mb-8 md:mb-10"
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-4 sm:mb-6">
               Success{' '}
               <span className="relative">
                 <span className="text-black">Stories</span>
-                <motion.span
-                  className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                />
+                {!reduceMotion && (
+                  <motion.span
+                    className="absolute bottom-1 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-gold-bright/50 to-transparent"
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                  />
+                )}
               </span>
             </h2>
             <p className="text-base sm:text-lg text-black px-2">
@@ -1005,21 +636,28 @@ const Home = () => {
             </p>
           </motion.div>
 
-          {/* Small screens (< 768px): inset container, horizontal auto-scroll, no negative margin */}
           <div
-            className="max-md:overflow-hidden max-md:rounded-2xl max-md:bg-offwhite md:overflow-x-auto md:overflow-y-hidden md:-mx-4 lg:-mx-8 md:px-4 lg:px-8"
-            onMouseEnter={handleTestimonialMouseEnter}
-            onMouseLeave={handleTestimonialMouseLeave}
-            onClick={handleTestimonialClick}
+            className="overflow-hidden py-4 max-md:pl-4 max-md:sm:pl-6"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Student testimonials"
           >
-            <motion.div
-              className="flex gap-4 max-md:gap-5 sm:max-md:gap-6 md:gap-6 lg:gap-8 py-4 max-md:py-5 will-change-transform min-w-max md:min-w-0 max-md:pl-4 max-md:sm:pl-6"
-              style={testimonialTrackStyle}
+            <div
+              className={`flex w-max gap-4 max-md:gap-5 sm:max-md:gap-6 md:gap-6 lg:gap-8 transform-gpu ${
+                reduceMotion
+                  ? 'flex-wrap justify-center max-w-full w-full'
+                  : 'will-change-transform motion-safe:animate-testimonial-scroll hover:[animation-play-state:paused] motion-reduce:animate-none'
+              }`}
             >
               {DUPLICATED_TESTIMONIALS.map((testimonial, idx) => (
-                <TestimonialCard key={idx} testimonial={testimonial} index={idx} />
+                <TestimonialCard
+                  key={`${testimonial.name}-${idx}`}
+                  testimonial={testimonial}
+                  index={idx}
+                  reduceMotion={reduceMotion}
+                />
               ))}
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>

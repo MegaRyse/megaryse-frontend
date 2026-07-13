@@ -35,10 +35,10 @@ export function OptimizedImage({
   }
 
   const { className, ...imgRest } = imgProps
-  const fillsContainer = className?.includes('absolute') || className?.includes('h-full')
+  const fillsContainer = Boolean(className?.includes('absolute inset-0'))
 
   return (
-    <picture className={fillsContainer ? 'absolute inset-0 block h-full w-full' : 'block'}>
+    <picture className={fillsContainer ? 'absolute inset-0 block h-full w-full' : 'block max-w-full max-h-full'}>
       <source srcSet={webpSrc} type="image/webp" />
       <img {...imgRest} className={className} />
     </picture>
