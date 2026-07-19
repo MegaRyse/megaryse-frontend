@@ -416,7 +416,7 @@ const Home = () => {
                       <div className="relative pl-5 sm:pl-6 border-l-2 border-gold/40 bg-white/60 rounded-2xl p-4 sm:p-5 shadow-sm w-full box-border">
                         <div className="flex flex-col gap-3 w-full min-w-0">
                           <h3 className="text-xl sm:text-2xl font-bold text-navy">
-                            {f.icon} {f.title}
+                            {f.title}
                           </h3>
                           <p className="text-base sm:text-lg leading-relaxed text-text">
                             {f.description}

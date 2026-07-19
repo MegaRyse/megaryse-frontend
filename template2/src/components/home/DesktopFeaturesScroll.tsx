@@ -285,7 +285,7 @@ export function DesktopFeaturesScroll({
                       initial="hidden"
                       animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
                     >
-                      {f.icon} {f.title}
+                      {f.title}
                     </motion.h3>
                     <motion.p
                       className={`text-sm leading-relaxed mb-1.5 break-words ${i === activeFeature ? 'text-navy' : 'text-text'}`}
