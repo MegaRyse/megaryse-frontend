@@ -1,6 +1,6 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { OptimizedImage } from '../OptimizedImage'
 import ShinyText from '../../animatedComponents/ShinyText'
 import {
@@ -9,32 +9,217 @@ import {
   featureVisualImageClass,
 } from './featureVisuals'
 
-const TRANSITION_SMOOTH = { duration: 0.4, ease: [0.22, 0.5, 0.35, 0.98] as const }
-
 const SHRINK_START = 0.2
-const SHRINK_END = 0.8
-const HIGHLIGHT_START = SHRINK_END
-const HOLD_EXTRA_VH = 60
-const END_HOLD_VH = 40
+const HOLD_EXTRA_VH = 120
+const END_HOLD_VH = 70
 const VISUAL_MIN_WIDTH_RATIO = 0.6
+const LEFT_WIDTH_RATIO = 1 - VISUAL_MIN_WIDTH_RATIO
 const VISUAL_MIN_WIDTH = `${VISUAL_MIN_WIDTH_RATIO * 100}%`
-const LEFT_SECTION_WIDTH = `${(1 - VISUAL_MIN_WIDTH_RATIO) * 100}%`
-const FIXED_HEIGHT = '62vh'
-const LEFT_CARD_MIN_HEIGHT = '18vh'
+const LEFT_SECTION_WIDTH = `${LEFT_WIDTH_RATIO * 100}%`
+const PANEL_HEIGHT_VH = 62
+const FEATURE_CARD_HEIGHT_PX = 172
 const WIDTH_SETTLE_END = SHRINK_START + 0.16
-const REVEAL_END = SHRINK_START + 0.52
-const CARD_SLIDE_START = 0.03
-const CARD_SLIDE_DURATION = 0.26
-const CARD_SLIDE_OFFSET = 0.13
-const FEATURES_SECTION_HEIGHT = `${(FEATURES_DATA.length + 1) * 55 + HOLD_EXTRA_VH + END_HOLD_VH}vh`
+const HOLD_AFTER_LAYOUT = 0.08
+const SELECTION_START = WIDTH_SETTLE_END + HOLD_AFTER_LAYOUT
+/** Re-enter / exit thresholds so card reveal can replay when scrolling through the section again */
+const REVEAL_ENTER_PROGRESS = WIDTH_SETTLE_END
+const REVEAL_EXIT_PROGRESS = WIDTH_SETTLE_END - 0.04
+/** Scrolling up from lower in the section — replay reveal when crossing below this (still above REVEAL_ENTER) */
+const REVEAL_SCROLL_UP_BAND = SELECTION_START + 0.14
+const FEATURES_SECTION_HEIGHT = `${(FEATURES_DATA.length + 1) * 80 + HOLD_EXTRA_VH + END_HOLD_VH}vh`
 
-const HIGHLIGHT_RANGE = 1 - HIGHLIGHT_START
-const VISUAL_SEGMENT = HIGHLIGHT_RANGE / FEATURES_DATA.length
-const VISUAL_CROSSFADE = Math.min(VISUAL_SEGMENT * 0.5, 0.045)
+const FEATURE_TO_VISUAL = [0, 2, 3] as const
 
-const BLOCK_REVEAL = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 0.5, 0.35, 0.98] } },
+const CARD_EXPAND_TRANSITION = {
+  duration: 0.32,
+  ease: [0.33, 1, 0.68, 1] as const,
+}
+
+const PANEL_HEIGHT_CSS_TRANSITION = 'height 0.32s cubic-bezier(0.33, 1, 0.68, 1)'
+
+const LEFT_LIST_VARIANTS = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+      delayChildren: 0.06,
+    },
+  },
+}
+
+const LEFT_CARD_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.35, ease: [0.22, 0.5, 0.35, 0.98] },
+  },
+}
+
+type FeatureItem = (typeof FEATURES_DATA)[number]
+
+type FeatureCardProps = {
+  feature: FeatureItem
+  index: number
+  isActive: boolean
+  isExpanded: boolean
+  measureKey: number
+  onToggleExpand: (index: number) => void
+  onOpenEnquireModal: () => void
+  onCardHeightSettled: () => void
+  linkClassName: string
+  reduceMotion: boolean
+}
+
+function FeatureCard({
+  feature,
+  index,
+  isActive,
+  isExpanded,
+  measureKey,
+  onToggleExpand,
+  onOpenEnquireModal,
+  onCardHeightSettled,
+  linkClassName,
+  reduceMotion,
+}: FeatureCardProps) {
+  const articleRef = useRef<HTMLElement>(null)
+  const descRef = useRef<HTMLParagraphElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const [needsReadMore, setNeedsReadMore] = useState(false)
+  const [cardHeight, setCardHeight] = useState(FEATURE_CARD_HEIGHT_PX)
+
+  useLayoutEffect(() => {
+    const article = articleRef.current
+    if (!article) return
+
+    if (isExpanded) {
+      article.style.height = 'auto'
+      const measured = Math.ceil(article.getBoundingClientRect().height)
+      article.style.height = `${FEATURE_CARD_HEIGHT_PX}px`
+      void article.offsetHeight
+      setCardHeight(Math.max(measured, FEATURE_CARD_HEIGHT_PX))
+      return
+    }
+
+    setCardHeight(FEATURE_CARD_HEIGHT_PX)
+  }, [isExpanded, measureKey])
+
+  useEffect(() => {
+    if (isExpanded) return
+    const id = requestAnimationFrame(() => {
+      const body = bodyRef.current
+      const desc = descRef.current
+      const title = titleRef.current
+      const bodyOverflow = !!body && body.scrollHeight > FEATURE_CARD_HEIGHT_PX - 40
+      const descOverflow = !!desc && desc.scrollHeight > desc.clientHeight + 1
+      const titleOverflow = !!title && title.scrollWidth > title.clientWidth + 1
+      setNeedsReadMore(bodyOverflow || descOverflow || titleOverflow)
+    })
+    return () => cancelAnimationFrame(id)
+  }, [feature.description, feature.title, isExpanded, measureKey])
+
+  return (
+    <motion.div variants={LEFT_CARD_VARIANTS} className="w-full flex-shrink-0">
+      <motion.article
+        ref={articleRef}
+        className="relative w-full box-border rounded-2xl transition-colors duration-300 transform-gpu bg-transparent py-3.5 sm:py-4 px-4 sm:px-5 pl-5 sm:pl-6 flex flex-col"
+        style={{ width: '100%', overflow: 'hidden' }}
+        initial={false}
+        animate={{ height: cardHeight }}
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : CARD_EXPAND_TRANSITION
+        }
+        onAnimationComplete={onCardHeightSettled}
+      >
+        <div
+          className={`absolute left-0 top-4 bottom-4 w-1 rounded-full transition-colors duration-300 ${
+            isActive ? 'bg-gold' : 'bg-transparent'
+          }`}
+          aria-hidden
+        />
+        <div
+          ref={bodyRef}
+          className={`flex flex-col gap-2 w-full min-w-0 pl-3 sm:pl-3.5 justify-start ${
+            isExpanded ? '' : 'h-full'
+          }`}
+        >
+          <h3
+            ref={titleRef}
+            className={`text-[15px] lg:text-base font-bold text-navy leading-tight shrink-0 ${
+              isExpanded ? 'break-words' : 'line-clamp-2'
+            }`}
+          >
+            {feature.title}
+          </h3>
+          <p
+            ref={descRef}
+            className={`text-sm leading-snug shrink-0 ${
+              isExpanded ? 'break-words leading-relaxed' : 'line-clamp-2'
+            } ${isActive ? 'text-navy/90' : 'text-text'}`}
+          >
+            {feature.description}
+          </p>
+
+          <AnimatePresence initial={false}>
+            {(needsReadMore || isExpanded) && (
+              <motion.button
+                type="button"
+                key="read-more"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-left text-xs sm:text-sm font-semibold text-gold hover:text-gold-bright transition-colors w-fit shrink-0 -mt-0.5"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onToggleExpand(index)
+                }}
+                aria-expanded={isExpanded}
+              >
+                {isExpanded ? 'Read less' : 'Read more'}
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          <div className="mt-auto pt-1 shrink-0">
+            {feature.link === '/contact' ? (
+              <button
+                type="button"
+                onClick={onOpenEnquireModal}
+                className={`${linkClassName} text-xs sm:text-sm pt-2`}
+              >
+                <span className="underline decoration-2 underline-offset-2 decoration-gold/80 group-hover:decoration-gold-bright">
+                  {feature.linkText}
+                </span>
+                <span
+                  className="inline-block no-underline transition-transform duration-200 group-hover:translate-x-1"
+                  aria-hidden
+                >
+                  →
+                </span>
+              </button>
+            ) : (
+              <Link to={feature.link} className={`${linkClassName} text-xs sm:text-sm pt-2 inline-flex`}>
+                <span className="underline decoration-2 underline-offset-2 decoration-gold/80 group-hover:decoration-gold-bright">
+                  {feature.linkText}
+                </span>
+                <span
+                  className="inline-block no-underline transition-transform duration-200 group-hover:translate-x-1"
+                  aria-hidden
+                >
+                  →
+                </span>
+              </Link>
+            )}
+          </div>
+        </div>
+      </motion.article>
+    </motion.div>
+  )
 }
 
 type DesktopFeaturesScrollProps = {
@@ -49,8 +234,18 @@ export function DesktopFeaturesScroll({
   shinyTextPaused,
 }: DesktopFeaturesScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null)
+  const rowRef = useRef<HTMLDivElement>(null)
+  const leftStackRef = useRef<HTMLDivElement>(null)
   const [activeFeature, setActiveFeature] = useState(0)
-  const [leftItemTextRevealed, setLeftItemTextRevealed] = useState<boolean[]>([false, false, false])
+  const [leftCardsVisible, setLeftCardsVisible] = useState(false)
+  const [leftColPx, setLeftColPx] = useState(0)
+  const [expandedFeature, setExpandedFeature] = useState<number | null>(null)
+  const [panelHeightPx, setPanelHeightPx] = useState(() =>
+    typeof window !== 'undefined' ? Math.round(window.innerHeight * (PANEL_HEIGHT_VH / 100)) : 500
+  )
+  const [sectionExtraPx, setSectionExtraPx] = useState(0)
+  const wasInRevealZoneRef = useRef(false)
+  const prevScrollProgressRef = useRef<number | null>(null)
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -69,112 +264,117 @@ export function DesktopFeaturesScroll({
     ['0%', LEFT_SECTION_WIDTH]
   )
 
-  const leftOpacity = useTransform(
-    scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.24, REVEAL_END],
-    [0, 0.65, 1]
+  const getBasePanelPx = useCallback(
+    () => Math.round(window.innerHeight * (PANEL_HEIGHT_VH / 100)),
+    []
   )
 
-  const leftX = useTransform(
-    scrollYProgress,
-    [SHRINK_START, SHRINK_START + 0.24, REVEAL_END],
-    [-28, -10, 0]
+  const syncPanelHeight = useCallback(() => {
+    const base = getBasePanelPx()
+    const stackH = leftStackRef.current?.scrollHeight ?? base
+    const nextPanel = Math.max(base, stackH)
+    setPanelHeightPx(nextPanel)
+    setSectionExtraPx(Math.max(0, nextPanel - base))
+  }, [getBasePanelPx])
+
+  useEffect(() => {
+    const el = rowRef.current
+    if (!el) return
+    const update = () => {
+      setLeftColPx(Math.max(0, Math.round(el.clientWidth * LEFT_WIDTH_RATIO)))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const applyRevealFromProgress = useCallback(
+    (v: number) => {
+      if (reduceMotion) {
+        setLeftCardsVisible(true)
+        wasInRevealZoneRef.current = true
+        prevScrollProgressRef.current = v
+        return
+      }
+
+      const triggerReveal = () => {
+        wasInRevealZoneRef.current = true
+        setLeftCardsVisible(false)
+        requestAnimationFrame(() => {
+          setLeftCardsVisible(true)
+        })
+      }
+
+      const hideReveal = () => {
+        wasInRevealZoneRef.current = false
+        setLeftCardsVisible(false)
+        setExpandedFeature(null)
+      }
+
+      const prev = prevScrollProgressRef.current
+      if (prev === null) {
+        prevScrollProgressRef.current = v
+        if (v >= REVEAL_ENTER_PROGRESS) {
+          triggerReveal()
+        } else {
+          hideReveal()
+        }
+        return
+      }
+
+      const scrollingUp = v < prev - 0.0005
+      const scrollingDown = v > prev + 0.0005
+      prevScrollProgressRef.current = v
+
+      if (v < REVEAL_EXIT_PROGRESS) {
+        hideReveal()
+        return
+      }
+
+      if (scrollingDown && prev < REVEAL_ENTER_PROGRESS && v >= REVEAL_ENTER_PROGRESS) {
+        triggerReveal()
+        return
+      }
+
+      if (
+        scrollingUp &&
+        prev > REVEAL_SCROLL_UP_BAND &&
+        v <= REVEAL_SCROLL_UP_BAND &&
+        v >= REVEAL_ENTER_PROGRESS
+      ) {
+        triggerReveal()
+      }
+    },
+    [reduceMotion]
   )
 
-  const leftItem0Opacity = useTransform(
-    scrollYProgress,
-    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [0, 1]
-  )
-  const leftItem1Opacity = useTransform(
-    scrollYProgress,
-    [
-      SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START,
-      SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION,
-    ],
-    [0, 1]
-  )
-  const leftItem2Opacity = useTransform(
-    scrollYProgress,
-    [
-      SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START,
-      SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION,
-    ],
-    [0, 1]
-  )
-  const leftItem0X = useTransform(
-    scrollYProgress,
-    [SHRINK_START + CARD_SLIDE_START, SHRINK_START + CARD_SLIDE_START + CARD_SLIDE_DURATION],
-    [120, 0]
-  )
-  const leftItem1X = useTransform(
-    scrollYProgress,
-    [
-      SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START,
-      SHRINK_START + CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION,
-    ],
-    [120, 0]
-  )
-  const leftItem2X = useTransform(
-    scrollYProgress,
-    [
-      SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START,
-      SHRINK_START + 2 * CARD_SLIDE_OFFSET + CARD_SLIDE_START + CARD_SLIDE_DURATION,
-    ],
-    [120, 0]
-  )
+  useEffect(() => {
+    applyRevealFromProgress(scrollYProgress.get())
+    const unsub = scrollYProgress.on('change', applyRevealFromProgress)
+    return unsub
+  }, [scrollYProgress, applyRevealFromProgress])
 
-  const visualOpacity0 = useTransform(
-    scrollYProgress,
-    [0, HIGHLIGHT_START, HIGHLIGHT_START + VISUAL_CROSSFADE],
-    [1, 1, 0]
-  )
-  const visualOpacity1 = useTransform(
-    scrollYProgress,
-    [
-      HIGHLIGHT_START + VISUAL_CROSSFADE * 0.5,
-      HIGHLIGHT_START + VISUAL_CROSSFADE,
-      HIGHLIGHT_START + VISUAL_SEGMENT,
-      HIGHLIGHT_START + VISUAL_SEGMENT + VISUAL_CROSSFADE,
-    ],
-    [0, 1, 1, 0]
-  )
-  const visualOpacity2 = useTransform(
-    scrollYProgress,
-    [
-      HIGHLIGHT_START + VISUAL_SEGMENT + VISUAL_CROSSFADE * 0.5,
-      HIGHLIGHT_START + VISUAL_SEGMENT + VISUAL_CROSSFADE,
-      HIGHLIGHT_START + VISUAL_SEGMENT * 2,
-      HIGHLIGHT_START + VISUAL_SEGMENT * 2 + VISUAL_CROSSFADE,
-    ],
-    [0, 1, 1, 0]
-  )
-  const visualOpacity3 = useTransform(
-    scrollYProgress,
-    [
-      HIGHLIGHT_START + VISUAL_SEGMENT * 2 + VISUAL_CROSSFADE * 0.5,
-      HIGHLIGHT_START + VISUAL_SEGMENT * 2 + VISUAL_CROSSFADE,
-      1,
-    ],
-    [0, 1, 1]
-  )
+  // Sync panel/section height when expand state changes (not on every ResizeObserver tick during animation)
+  useLayoutEffect(() => {
+    syncPanelHeight()
+  }, [expandedFeature, leftCardsVisible, leftColPx, syncPanelHeight])
 
-  const visualOpacities = useMemo(
-    () => [visualOpacity0, visualOpacity1, visualOpacity2, visualOpacity3],
-    [visualOpacity0, visualOpacity1, visualOpacity2, visualOpacity3]
-  )
+  useEffect(() => {
+    const onResize = () => syncPanelHeight()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [syncPanelHeight])
 
-  const leftItemOpacities = useMemo(
-    () => [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity],
-    [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity]
-  )
-  const leftItemXs = useMemo(
-    () => [leftItem0X, leftItem1X, leftItem2X],
-    [leftItem0X, leftItem1X, leftItem2X]
-  )
+  const handleCardHeightSettled = useCallback(() => {
+    syncPanelHeight()
+  }, [syncPanelHeight])
 
-  const highlightIndex = useTransform(scrollYProgress, [HIGHLIGHT_START, 1], [0, 3])
-
+  const highlightIndex = useTransform(
+    scrollYProgress,
+    [0, SELECTION_START, 1],
+    [0, 0, 3]
+  )
   const prevHighlightRef = useRef(-1)
   useEffect(() => {
     const updateFromScroll = (latest: number) => {
@@ -190,33 +390,30 @@ export function DesktopFeaturesScroll({
     return unsubscribe
   }, [highlightIndex])
 
-  useEffect(() => {
-    const check = (opacity: number, idx: number) => {
-      setLeftItemTextRevealed((prev) => {
-        if (prev[idx] || opacity < 0.75) return prev
-        const next = [...prev]
-        next[idx] = true
-        return next
-      })
-    }
-    const unsub0 = leftItem0Opacity.on('change', (v) => check(v, 0))
-    const unsub1 = leftItem1Opacity.on('change', (v) => check(v, 1))
-    const unsub2 = leftItem2Opacity.on('change', (v) => check(v, 2))
-    return () => {
-      unsub0()
-      unsub1()
-      unsub2()
-    }
-  }, [leftItem0Opacity, leftItem1Opacity, leftItem2Opacity])
+  const handleToggleExpand = useCallback((index: number) => {
+    setExpandedFeature((prev) => (prev === index ? null : index))
+  }, [])
+
+  const activeVisualIndex = FEATURE_TO_VISUAL[activeFeature] ?? 0
 
   const linkClassName =
     'group inline-flex items-center gap-2 font-semibold text-gold hover:text-gold-bright transition-colors duration-200 cursor-pointer'
 
   return (
-    <div ref={sectionRef} className="relative" style={{ height: FEATURES_SECTION_HEIGHT }}>
+    <div
+      ref={sectionRef}
+      className="relative"
+      style={{
+        height:
+          sectionExtraPx > 0
+            ? `calc(${FEATURES_SECTION_HEIGHT} + ${sectionExtraPx}px)`
+            : FEATURES_SECTION_HEIGHT,
+        transition: reduceMotion ? undefined : PANEL_HEIGHT_CSS_TRANSITION,
+      }}
+    >
       <motion.div
-        style={{ position: 'sticky', top: 0, height: '100vh' }}
-        className="relative flex flex-col gap-10 pt-32"
+        style={{ position: 'sticky', top: 0 }}
+        className="relative flex flex-col gap-10 pt-32 min-h-screen"
       >
         <div className="px-6 sm:px-8 lg:px-10">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
@@ -246,102 +443,62 @@ export function DesktopFeaturesScroll({
           </p>
         </div>
 
-        <div className="flex items-center relative flex-1 w-full min-w-0">
+        <div ref={rowRef} className="flex items-start relative flex-1 w-full min-w-0 pb-8">
           <motion.div
             style={{
               width: leftWidth,
-              opacity: leftOpacity,
-              x: leftX,
-              height: FIXED_HEIGHT,
               minWidth: 0,
+              height: panelHeightPx,
+              transition: reduceMotion ? undefined : PANEL_HEIGHT_CSS_TRANSITION,
             }}
-            className="flex flex-col justify-start gap-6 h-full origin-left overflow-hidden transform-gpu flex-shrink-0"
+            className="relative overflow-hidden flex-shrink-0 transform-gpu"
           >
-            <div className="pl-6 sm:pl-8 lg:pl-10 pr-6 sm:pr-4 lg:pr-4 flex flex-col justify-start gap-6 flex-1 min-h-0">
-              {FEATURES_DATA.map((f, i) => (
-                <motion.div
-                  key={f.title}
-                  className="w-full min-w-full flex-shrink-0 relative pl-6 border-l-2 border-transparent overflow-visible transform-gpu"
-                  style={{
-                    minHeight: LEFT_CARD_MIN_HEIGHT,
-                    width: '100%',
-                    opacity: leftItemOpacities[i],
-                    x: leftItemXs[i],
-                  }}
-                >
-                  <motion.div
-                    className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${i === activeFeature ? 'bg-gold' : 'bg-transparent'}`}
-                    initial={false}
-                    animate={{
-                      scaleY: i === activeFeature ? 1 : 0.3,
-                      opacity: i === activeFeature ? 1 : 0,
-                    }}
-                    transition={TRANSITION_SMOOTH}
+            {leftColPx > 0 ? (
+              <motion.div
+                ref={leftStackRef}
+                className="box-border pl-6 sm:pl-8 lg:pl-10 pr-4 lg:pr-5 flex flex-col justify-start gap-3.5 py-1"
+                style={{ width: leftColPx }}
+                variants={LEFT_LIST_VARIANTS}
+                initial={reduceMotion ? 'visible' : 'hidden'}
+                animate={leftCardsVisible || reduceMotion ? 'visible' : 'hidden'}
+              >
+                {FEATURES_DATA.map((f, i) => (
+                  <FeatureCard
+                    key={f.title}
+                    feature={f}
+                    index={i}
+                    isActive={i === activeFeature}
+                    isExpanded={expandedFeature === i}
+                    measureKey={leftColPx}
+                    onToggleExpand={handleToggleExpand}
+                    onOpenEnquireModal={onOpenEnquireModal}
+                    onCardHeightSettled={handleCardHeightSettled}
+                    linkClassName={linkClassName}
+                    reduceMotion={reduceMotion}
                   />
-                  <div className="flex flex-col justify-start py-2 w-full max-w-full min-w-0">
-                    <motion.h3
-                      className="text-xl font-bold mb-1.5 text-navy break-words"
-                      variants={BLOCK_REVEAL}
-                      initial="hidden"
-                      animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
-                    >
-                      {f.title}
-                    </motion.h3>
-                    <motion.p
-                      className={`text-sm leading-relaxed mb-1.5 break-words ${i === activeFeature ? 'text-navy' : 'text-text'}`}
-                      variants={BLOCK_REVEAL}
-                      initial="hidden"
-                      animate={leftItemTextRevealed[i] ? 'visible' : 'hidden'}
-                    >
-                      {f.description}
-                    </motion.p>
-                    <motion.span className="inline-block mt-1.5 text-sm" style={{ opacity: leftItemOpacities[i] }}>
-                      {f.link === '/contact' ? (
-                        <button type="button" onClick={onOpenEnquireModal} className={linkClassName}>
-                          <span className="underline decoration-2 underline-offset-2 decoration-gold/80 group-hover:decoration-gold-bright">
-                            {f.linkText}
-                          </span>
-                          <span
-                            className="inline-block no-underline transition-transform duration-200 group-hover:translate-x-1"
-                            aria-hidden
-                          >
-                            →
-                          </span>
-                        </button>
-                      ) : (
-                        <Link to={f.link} className={linkClassName}>
-                          <span className="underline decoration-2 underline-offset-2 decoration-gold/80 group-hover:decoration-gold-bright">
-                            {f.linkText}
-                          </span>
-                          <span
-                            className="inline-block no-underline transition-transform duration-200 group-hover:translate-x-1"
-                            aria-hidden
-                          >
-                            →
-                          </span>
-                        </Link>
-                      )}
-                    </motion.span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                ))}
+              </motion.div>
+            ) : null}
           </motion.div>
 
           <motion.div
             style={{
               width: visualWidth,
-              height: FIXED_HEIGHT,
               minWidth: 0,
+              height: panelHeightPx,
+              transition: reduceMotion ? undefined : PANEL_HEIGHT_CSS_TRANSITION,
             }}
-            className="flex items-center justify-center flex-shrink-0 min-w-0 box-border"
+            className="flex items-center justify-center flex-shrink-0 min-w-0 box-border sticky top-32"
           >
-            <div className="bg-offwhite rounded-3xl w-full h-full relative overflow-hidden min-w-0 transform-gpu">
+            <div className="bg-offwhite rounded-3xl w-full h-full min-h-[280px] relative overflow-hidden min-w-0 transform-gpu">
               {RIGHT_VISUAL_IMAGES.map((visual, idx) => (
-                <motion.div
+                <div
                   key={visual.alt + idx}
-                  className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none will-change-[opacity]"
-                  style={{ opacity: visualOpacities[idx] }}
+                  className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none"
+                  style={{
+                    opacity: idx === activeVisualIndex ? 1 : 0,
+                  }}
+                  aria-hidden={idx !== activeVisualIndex}
                 >
                   <OptimizedImage
                     src={visual.src}
@@ -349,7 +506,7 @@ export function DesktopFeaturesScroll({
                     alt={visual.alt}
                     className={featureVisualImageClass(visual.objectFit, true)}
                   />
-                </motion.div>
+                </div>
               ))}
             </div>
           </motion.div>
