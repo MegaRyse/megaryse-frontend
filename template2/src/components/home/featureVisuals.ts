@@ -17,7 +17,6 @@ export const FEATURES_DATA = [
     title: 'Expert Career Counseling',
     description:
       'Our experienced counselors provide personalized guidance tailored to your career aspirations and goals.',
-    // icon: '🎯',
     link: '/courses',
     linkText: 'Career Counseling Services',
   },
@@ -25,7 +24,6 @@ export const FEATURES_DATA = [
     title: 'Wide Range of Programs',
     description:
       'Choose from hundreds of programs across management, technology, arts, and sciences from top universities.',
-    // icon: '📚',
     link: '/courses',
     linkText: 'Explore Programs',
   },
@@ -33,7 +31,6 @@ export const FEATURES_DATA = [
     title: 'Seamless Admission Process',
     description:
       'We handle all the paperwork and documentation, making your admission process smooth and hassle-free.',
-    // icon: '✅',
     link: '/contact',
     linkText: 'Get Started',
   },
