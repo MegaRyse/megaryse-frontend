@@ -24,57 +24,110 @@ type AnimatedImageGalleryProps = {
   title?: string
 }
 
-function PreviewTile({
+const MARQUEE_SPEED = 0.04
+
+function MarqueeCard({
   image,
-  index,
   reduceMotion,
   onOpen,
 }: {
   image: GalleryImage
-  index: number
   reduceMotion: boolean
-  onOpen: (startIndex: number) => void
+  onOpen: () => void
 }) {
   return (
     <motion.button
       type="button"
-      aria-label={`Open gallery at image ${index + 1}`}
-      onClick={() => onOpen(index)}
-      initial={reduceMotion ? false : { opacity: 0, y: 28, scale: 0.96 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: '-40px', amount: 0.2 }}
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : { duration: 0.5, delay: Math.min(index * 0.06, 0.36), ease: EASE }
-      }
-      whileHover={
-        reduceMotion
-          ? undefined
-          : { y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(0, 39, 94, 0.16)' }
-      }
-      whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-      className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-navy/10 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A55E] focus-visible:ring-offset-2"
+      onClick={onOpen}
+      aria-label={image.alt}
+      whileHover={reduceMotion ? undefined : { y: -6 }}
+      whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+      transition={{ duration: 0.3, ease: EASE }}
+      className="group relative aspect-[4/3] w-[min(82vw,20rem)] flex-shrink-0 overflow-hidden rounded-2xl border border-gray-200/90 bg-gray-100 shadow-sm ring-1 ring-black/[0.04] transition-shadow duration-300 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 sm:w-[20rem] md:w-[22rem]"
     >
-      <motion.div
-        className="absolute inset-0"
-        variants={{ rest: { scale: 1 }, hover: { scale: 1.08 } }}
-        initial="rest"
-        whileHover="hover"
-        transition={{ duration: 0.45, ease: EASE }}
-      >
-        <OptimizedImage
-          src={image.src}
-          webpSrc={image.webpSrc}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      </motion.div>
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#00275E]/25 to-transparent opacity-60"
-        aria-hidden
+      <OptimizedImage
+        src={image.src}
+        webpSrc={image.webpSrc}
+        alt={image.alt}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
       />
     </motion.button>
+  )
+}
+
+function LifeAtMarquee({
+  images,
+  reduceMotion,
+  onOpen,
+}: {
+  images: GalleryImage[]
+  reduceMotion: boolean
+  onOpen: (index: number) => void
+}) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const halfWidthRef = useRef(0)
+  const [paused, setPaused] = useState(false)
+
+  const loop = images.length > 0 ? [...images, ...images] : []
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    const measure = () => {
+      halfWidthRef.current = el.scrollWidth / 2
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [images])
+
+  useAnimationFrame((_t, delta) => {
+    if (paused || reduceMotion || images.length < 2) return
+    const half = halfWidthRef.current
+    if (half <= 0) return
+    let next = x.get() - delta * MARQUEE_SPEED
+    if (next <= -half) next += half
+    x.set(next)
+  })
+
+  if (images.length === 0) return null
+
+  return (
+    <div
+      className="relative w-full"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div
+        className="overflow-hidden py-2 sm:py-3"
+        style={{
+          maskImage:
+            'linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)',
+          WebkitMaskImage:
+            'linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)',
+        }}
+      >
+        <motion.div
+          ref={trackRef}
+          className="flex w-max items-stretch gap-4 will-change-transform sm:gap-5"
+          style={{ x }}
+        >
+          {loop.map((image, idx) => {
+            const realIndex = idx % images.length
+            return (
+              <MarqueeCard
+                key={`${image.id}-marquee-${idx}`}
+                image={image}
+                reduceMotion={reduceMotion}
+                onOpen={() => onOpen(realIndex)}
+              />
+            )
+          })}
+        </motion.div>
+      </div>
+    </div>
   )
 }
 
@@ -180,42 +233,46 @@ function GalleryLightbox({
       role="dialog"
       aria-modal="true"
       aria-label="Image gallery"
-      className="fixed inset-0 z-[90] flex flex-col bg-[#0F162D]/92"
+      className="fixed inset-0 z-[90] flex flex-col bg-[#0F162D]/95 backdrop-blur-sm"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: reduceMotion ? 0 : 0.28 }}
+      onClick={onClose}
     >
-      <button
-        type="button"
-        aria-label="Close gallery"
-        className="absolute inset-0 cursor-default"
-        onClick={onClose}
-      />
-
-        // Top bar — counter + close only
-      <div className="relative z-20 flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <p className="text-sm font-medium text-white/80 tabular-nums">
-          {activeIndex + 1} / {images.length}
-        </p>
-        <motion.button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          whileHover={reduceMotion ? undefined : { scale: 1.05, y: -1 }}
-          whileTap={reduceMotion ? undefined : { scale: 0.96 }}
-          transition={SPRING}
-          className="rounded-full bg-[#C9A55E] px-4 py-1.5 text-xs font-semibold text-[#0F162D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      <header
+        className="relative z-30 shrink-0 border-b border-white/10 bg-gradient-to-b from-black/40 to-transparent px-4 py-3 sm:px-6 sm:py-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: EASE }}
+          className="mx-auto flex w-full max-w-6xl items-center gap-4"
         >
-          Close
-        </motion.button>
-      </div>
+          <motion.div
+            key={activeIndex}
+            initial={reduceMotion ? false : { opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold sm:text-xs">
+              Life at MegaRyse
+            </span>
+            <span className="hidden h-4 w-px shrink-0 bg-white/25 sm:block" aria-hidden />
+            <p className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-sm font-semibold tabular-nums text-white shadow-sm backdrop-blur-md">
+              <span className="text-gold-bright">{activeIndex + 1}</span>
+              <span className="mx-1.5 font-normal text-white/45">/</span>
+              <span className="text-white/90">{images.length}</span>
+            </p>
+          </motion.div>
+        </motion.div>
+      </header>
 
-      {/* Main stage — zoom in on open */}
-      <div
-        className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-3 sm:px-8"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+      <motion.div
+        role="presentation"
+        className="relative z-10 flex min-h-0 flex-1 cursor-pointer items-center justify-center px-3 py-4 sm:px-8"
       >
         <motion.button
           type="button"
@@ -235,20 +292,22 @@ function GalleryLightbox({
         <AnimatePresence mode="wait">
           <motion.div
             key={active.id}
-            className="relative flex max-h-[min(68vh,720px)] w-full max-w-5xl cursor-zoom-in items-center justify-center overflow-hidden rounded-2xl"
+            role="presentation"
+            className="relative flex max-h-[min(68vh,720px)] w-full max-w-5xl cursor-default items-center justify-center overflow-hidden rounded-2xl bg-transparent"
             initial={reduceMotion ? false : { opacity: 0, scale: 0.82 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0, scale: 0.9 }}
             transition={reduceMotion ? { duration: 0 } : SPRING}
-            onClick={(e) => {
-              e.stopPropagation()
-              cycleZoom()
-            }}
+            onClick={(e) => e.stopPropagation()}
           >
             <motion.div
-              className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-black/30"
+              className="relative aspect-[16/10] w-full cursor-zoom-in overflow-hidden rounded-2xl bg-transparent"
               animate={{ scale: zoom }}
               transition={SPRING}
+              onClick={(e) => {
+                e.stopPropagation()
+                cycleZoom()
+              }}
             >
               <OptimizedImage
                 src={active.src}
@@ -276,11 +335,11 @@ function GalleryLightbox({
         >
           ›
         </motion.button>
-      </div>
+      </motion.div>
 
-      {/* Auto-scrolling strip of ALL images */}
-      <div
-        className="relative z-20 overflow-hidden border-t border-white/10 py-4"
+      <motion.div
+        className="relative z-30 shrink-0 overflow-hidden border-t border-white/10 bg-black/25 py-4 backdrop-blur-md"
+        onClick={(e) => e.stopPropagation()}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -321,14 +380,14 @@ function GalleryLightbox({
             )
           })}
         </motion.div>
-      </div>
+      </motion.div>
     </motion.div>
   )
 }
 
 /**
- * About gallery: 10 unlabeled previews → click opens Framer Motion lightbox
- * with all images, auto-scroll, and zoom.
+ * About gallery (Life at MegaRyse): unlabeled previews → click opens
+ * Framer Motion lightbox with all images, auto-scroll, and zoom.
  */
 export function AnimatedImageGallery({
   previews = ABOUT_GALLERY_PREVIEWS,
@@ -372,20 +431,22 @@ export function AnimatedImageGallery({
             {titleLead ? `${titleLead} ` : ''}
             <span className="bg-gradient-gold bg-clip-text text-transparent">{titleAccent}</span>
           </h2>
+          <p className="mx-auto mt-4 max-w-3xl text-sm text-gray-600 sm:text-base md:text-lg">
+            Behind every learner success is a passionate team—counselling, onboarding, and supporting
+            students with teamwork, care, and relentless effort every day.
+          </p>
         </motion.div>
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-5 md:gap-5">
-          {previews.slice(0, 10).map((image, index) => (
-            <PreviewTile
-              key={image.id}
-              image={image}
-              index={index}
-              reduceMotion={reduceMotion}
-              onOpen={handleOpen}
-            />
-          ))}
-        </div>
       </div>
+
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: reduceMotion ? 0 : 0.5, ease: EASE }}
+        className="mx-auto w-full max-w-container overflow-hidden px-4 sm:px-6 lg:px-8"
+      >
+        <LifeAtMarquee images={previews} reduceMotion={reduceMotion} onOpen={handleOpen} />
+      </motion.div>
 
       <AnimatePresence>
         {open && allImages.length > 0 ? (

@@ -1,3 +1,6 @@
-# Drop all gallery images here (PNG/JPG/WebP).
-# They load automatically via import.meta.glob — no code changes needed.
-# First 10 appear as About page previews; all open in the lightbox.
+# Life at MegaRyse gallery
+
+Drop team / office photos here (`.png`, `.jpg`, `.jpeg`, `.webp`).
+
+These images power the **Life at MegaRyse** section on the About page.
+Do not place MegaRyse Edge illustration assets here.
