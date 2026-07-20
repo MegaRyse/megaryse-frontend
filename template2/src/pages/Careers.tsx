@@ -1,12 +1,18 @@
 import { motion } from 'framer-motion'
 import { useState, useCallback } from 'react'
+import { Lightbulb, TrendingUp, Users } from 'lucide-react'
 import { CareersFormModal } from '../components/careersFormModal'
 import ShinyText from '../animatedComponents/ShinyText'
+import { OptimizedImage } from '../components/OptimizedImage'
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import whyWorkWithUsBg from '../assets/images/careers/why-work-with-us-bg.jpg'
+
+type BenefitIconKey = 'culture' | 'growth' | 'collaborative'
 
 interface Benefit {
   title: string
   description: string
-  icon: string
+  iconKey: BenefitIconKey
 }
 
 interface Position {
@@ -52,22 +58,78 @@ const BENEFITS: Benefit[] = [
   {
     title: 'Innovative Work Culture',
     description: 'Be part of a team that is transforming education and making a real impact.',
-    icon: '💡',
+    iconKey: 'culture',
   },
   {
     title: 'Career Growth & Learning',
     description: 'Upskill, evolve, and grow with every opportunity.',
-    icon: '📈',
+    iconKey: 'growth',
   },
   {
     title: 'Collaborative Environment',
     description: 'Work alongside motivated, passionate professionals who support each other.',
-    icon: '🤝',
+    iconKey: 'collaborative',
   },
 ]
 
+const BENEFIT_ICONS: Record<
+  BenefitIconKey,
+  typeof Lightbulb
+> = {
+  culture: Lightbulb,
+  growth: TrendingUp,
+  collaborative: Users,
+}
+
+function BenefitAnimatedIcon({
+  iconKey,
+  isHovered,
+  reduceMotion,
+}: {
+  iconKey: BenefitIconKey
+  isHovered: boolean
+  reduceMotion: boolean
+}) {
+  const Icon = BENEFIT_ICONS[iconKey]
+
+  const iconMotion =
+    iconKey === 'culture'
+      ? { opacity: isHovered ? 1 : [0.85, 1, 0.85], scale: isHovered ? 1.1 : [1, 1.06, 1] }
+      : iconKey === 'growth'
+        ? { y: isHovered ? -4 : [0, -5, 0], scale: isHovered ? 1.08 : 1 }
+        : { scale: isHovered ? 1.12 : [1, 1.05, 1] }
+
+  return (
+    <motion.div
+      className={`mb-5 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-md ring-1 ring-white/40 ${
+        isHovered
+          ? 'bg-gradient-to-br from-gold-bright to-gold'
+          : 'bg-gradient-to-br from-gold to-gold-bright'
+      }`}
+      animate={reduceMotion ? undefined : isHovered ? { scale: 1.06, rotate: 2 } : { scale: 1 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+    >
+      <motion.div
+        animate={reduceMotion ? undefined : iconMotion}
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : {
+                duration: iconKey === 'growth' ? 1.6 : 2.4,
+                repeat: isHovered ? 0 : Infinity,
+                ease: 'easeInOut',
+              }
+        }
+      >
+        <Icon className="h-7 w-7 text-[#0F162D]" strokeWidth={2.25} aria-hidden />
+      </motion.div>
+    </motion.div>
+  )
+}
+
 const BenefitCard = ({ benefit, idx }: { benefit: Benefit; idx: number }) => {
   const [isHovered, setIsHovered] = useState(false)
+  const reduceMotion = usePrefersReducedMotion()
 
   return (
     <motion.div
@@ -75,24 +137,31 @@ const BenefitCard = ({ benefit, idx }: { benefit: Benefit; idx: number }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: idx * 0.1 }}
-      whileHover={{ y: -5 }}
+      whileHover={reduceMotion ? undefined : { y: -5 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="rounded-xl p-5 sm:p-6 md:p-8 shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer"
-      style={{
-        backgroundColor: isHovered ? '#00275E' : '#ffffff'
-      }}
+      className={`flex h-full min-h-0 cursor-pointer flex-col items-center rounded-2xl border p-5 text-center shadow-lg backdrop-blur-md transition-all duration-300 sm:p-6 md:p-7 ${
+        isHovered
+          ? 'border-gold/50 bg-[#00275E]/92 shadow-xl'
+          : 'border-white/35 bg-white/75 hover:border-white/50 hover:bg-white/85'
+      }`}
     >
-      <div className="text-5xl mb-4">{benefit.icon}</div>
-      <h3 
-        className="text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300"
-        style={{ color: isHovered ? '#ffffff' : '#111827' }}
+      <BenefitAnimatedIcon
+        iconKey={benefit.iconKey}
+        isHovered={isHovered}
+        reduceMotion={reduceMotion}
+      />
+      <h3
+        className={`mb-3 text-lg font-bold leading-snug transition-colors duration-300 sm:text-xl ${
+          isHovered ? 'text-white' : 'text-gray-900'
+        }`}
       >
         {benefit.title}
       </h3>
-      <p 
-        className="leading-relaxed transition-colors duration-300"
-        style={{ color: isHovered ? '#E5E7EB' : '#4B5563' }}
+      <p
+        className={`max-w-[18rem] flex-1 text-sm leading-relaxed transition-colors duration-300 sm:text-base ${
+          isHovered ? 'text-white/90' : 'text-gray-600'
+        }`}
       >
         {benefit.description}
       </p>
@@ -112,8 +181,10 @@ const Careers = () => {
 
   return (
     <div className="w-full bg-offwhite">
+      {/* Hero + Why Work With Us — fills first viewport (below sticky nav) on md+ */}
+      <div className="flex flex-col max-md:min-h-0 md:min-h-[calc(100svh-6rem)] lg:min-h-[calc(100svh-7rem)]">
       {/* Hero Section */}
-      <section className="relative pt-0 pb-0 sm:pt-0 sm:pb-0 md:pt-0 md:pb-0 bg-offwhite overflow-hidden">
+      <section className="relative shrink-0 overflow-hidden bg-offwhite pb-0 pt-0">
         {/* Animated background elements */}
         <motion.div
           className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 bg-gold-bright/5 rounded-full blur-3xl"
@@ -172,40 +243,50 @@ const Careers = () => {
               />
             </span></motion.h1>
             <motion.p
-              className="text-base sm:text-lg text-gray-600 px-2"
+              className="mx-auto max-w-2xl px-2 text-sm leading-relaxed text-gray-600 sm:text-[0.9375rem] md:max-w-3xl md:text-base"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
             >
-              At MegaRyse EduCntr, we’re driven by one mission—empowering students and professionals to achieve their career aspirations. If you’re seeking a fast-growing, purpose-driven workplace where your ideas matter and your impact is visible, you’ll feel right at home with us.
+              At MegaRyse EduCntr, we’re driven by one mission empowering students and professionals to achieve their career aspirations. If you’re seeking a fast growing, purpose driven workplace where your ideas matter and your impact is visible, you’ll feel right at home with us.
             </motion.p>
           </motion.div>
         </div>
       </section>
 
       {/* Why Work With Us */}
-      <section className="pt-6 pb-8 sm:pt-8 sm:pb-10 md:pt-10 md:pb-12 bg-offwhite">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-8 sm:mb-10 md:mb-12"
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Why Work With Us?</h2>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Join a team that's making a difference in education
-            </p>
-          </motion.div>
+      <section className="relative flex min-h-0 flex-1 flex-col px-4 pb-4 pt-2 sm:px-6 sm:pb-5 sm:pt-3 lg:px-8 lg:pb-6">
+        <div className="relative mx-auto flex h-full min-h-0 w-full max-w-container flex-1 flex-col overflow-hidden rounded-2xl shadow-xl ring-1 ring-black/10 sm:rounded-3xl">
+          <OptimizedImage
+            src={whyWorkWithUsBg}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/60" aria-hidden />
+          <div className="relative flex h-full min-h-0 flex-1 flex-col px-4 py-5 sm:px-6 sm:py-6 md:py-7 lg:px-8 lg:py-8">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mb-4 shrink-0 text-center sm:mb-5 md:mb-6"
+            >
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-3">Why Work With Us?</h2>
+              <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto px-1">
+                Join a team that's making a difference in education
+              </p>
+            </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-10 md:mb-12">
-            {BENEFITS.map((benefit, idx) => (
-              <BenefitCard key={idx} benefit={benefit} idx={idx} />
-            ))}
+            <div className="grid flex-1 grid-cols-1 content-center items-stretch gap-4 sm:gap-5 md:grid-cols-3 md:gap-6 lg:gap-8">
+              {BENEFITS.map((benefit, idx) => (
+                <BenefitCard key={idx} benefit={benefit} idx={idx} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
+      </div>
 
       {/* Current Openings */}
       <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 md:pt-10 md:pb-20 bg-offwhite">

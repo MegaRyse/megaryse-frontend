@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useAnimationFrame, useMotionValue } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
 import {
@@ -18,6 +18,10 @@ import {
 } from 'lucide-react'
 import HeroImg3 from '../assets/images/hero3.PNG'
 import HeroImg3Webp from '../assets/images/hero3.webp'
+import ctaJourneyBg from '../assets/images/home/cta-journey-bg.jpg'
+import testimonialAvatarHeena from '../assets/images/testimonials/heena.jpg'
+import testimonialAvatarSmirthi from '../assets/images/testimonials/smirthi.jpg'
+import testimonialAvatarAshok from '../assets/images/testimonials/ashok.jpg'
 import { OptimizedImage } from '../components/OptimizedImage'
 import WhatsAppFloat from '../components/WhatsAppFloat'
 import { coursesMasterData } from '../data/courses'
@@ -174,12 +178,43 @@ const AnimatedStatCard = memo(function AnimatedStatCard({
 })
 
 const TESTIMONIALS_DATA = [
-  { name: 'Heena', role: 'MBA Graduate', text: "MegaRyse helped me choose the perfect MBA program that aligned with my career goals. The expert guidance and seamless admission process made everything so easy. Today, I'm in a leadership role, thanks to their support!", rating: 5 },
-  { name: 'Smirthi', role: 'BCA Student', text: 'I was confused about which course to pursue, but the counselors at MegaRyse made it simple. They guided me through the BCA program selection and enrollment process effortlessly. Highly recommended!', rating: 5 },
-  { name: 'Ashok', role: 'Executive MBA', text: 'As a working professional, I needed a course that fit my schedule and career goals. MegaRyse recommended an Executive MBA, and it has truly boosted my career. Thank you for making my upskilling journey smooth!', rating: 5 },
-] as const
+  {
+    name: 'Heena',
+    role: 'MBA Graduate',
+    text: "MegaRyse helped me choose the perfect MBA program that aligned with my career goals. The expert guidance and seamless admission process made everything so easy. Today, I'm in a leadership role, thanks to their support!",
+    rating: 5,
+    avatar: testimonialAvatarHeena,
+  },
+  {
+    name: 'Smirthi',
+    role: 'BCA Student',
+    text: 'I was confused about which course to pursue, but the counselors at MegaRyse made it simple. They guided me through the BCA program selection and enrollment process effortlessly. Highly recommended!',
+    rating: 5,
+    avatar: testimonialAvatarSmirthi,
+  },
+  {
+    name: 'Ashok',
+    role: 'Executive MBA',
+    text: 'As a working professional, I needed a course that fit my schedule and career goals. MegaRyse recommended an Executive MBA, and it has truly boosted my career. Thank you for making my upskilling journey smooth!',
+    rating: 5,
+    avatar: testimonialAvatarAshok,
+  },
+]
 
-const DUPLICATED_TESTIMONIALS = [...TESTIMONIALS_DATA, ...TESTIMONIALS_DATA]
+type TestimonialItem = (typeof TESTIMONIALS_DATA)[number]
+
+/** How many times the review set is repeated in the track (must be ≥ 2 for seamless wrap). */
+const TESTIMONIAL_MARQUEE_LOOP_COPIES = 3
+
+function buildTestimonialMarqueeLoop(items: TestimonialItem[]) {
+  return Array.from({ length: TESTIMONIAL_MARQUEE_LOOP_COPIES }, () => items).flat()
+}
+
+const TESTIMONIALS_ROW_1 = buildTestimonialMarqueeLoop(TESTIMONIALS_DATA)
+const TESTIMONIALS_ROW_2 = buildTestimonialMarqueeLoop([...TESTIMONIALS_DATA].reverse())
+
+const TESTIMONIAL_TRACK_BASE =
+  'flex w-max gap-3 sm:gap-4 md:gap-5 transform-gpu'
 
 const TESTIMONIAL_CARD_IN_VIEW = { opacity: 1, y: 0 }
 const TESTIMONIAL_CARD_INITIAL = { opacity: 0, y: 12 }
@@ -187,46 +222,169 @@ const TESTIMONIAL_CARD_VIEWPORT = { once: true, margin: '-50px' }
 const TESTIMONIAL_CARD_TRANSITION = { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }
 const STARS = [1, 2, 3, 4, 5] as const
 
-type TestimonialItem = (typeof TESTIMONIALS_DATA)[number]
+const TESTIMONIAL_MARQUEE_SPEED = 0.045
+
+function normalizeMarqueeX(value: number, segment: number, direction: 'left' | 'right') {
+  if (segment <= 0) return value
+  if (direction === 'left') {
+    let v = value
+    while (v <= -segment) v += segment
+    while (v > 0) v -= segment
+    return v
+  }
+  let v = value
+  while (v >= 0) v -= segment
+  while (v < -segment) v += segment
+  return v
+}
 
 const TestimonialCard = memo(function TestimonialCard({
   testimonial,
   index,
   reduceMotion,
+  inMarquee = false,
 }: {
   testimonial: TestimonialItem
   index: number
   reduceMotion: boolean
+  inMarquee?: boolean
 }) {
   const delay = Math.min(index * 0.06, 0.2)
   return (
     <motion.div
-      initial={reduceMotion ? false : TESTIMONIAL_CARD_INITIAL}
-      whileInView={TESTIMONIAL_CARD_IN_VIEW}
+      initial={reduceMotion || inMarquee ? false : TESTIMONIAL_CARD_INITIAL}
+      whileInView={reduceMotion || inMarquee ? undefined : TESTIMONIAL_CARD_IN_VIEW}
       viewport={TESTIMONIAL_CARD_VIEWPORT}
       transition={{ ...TESTIMONIAL_CARD_TRANSITION, delay: reduceMotion ? 0 : delay }}
-      className="border border-navy/10 bg-white shadow-[0_2px_16px_rgba(0,39,94,0.08)] rounded-3xl p-4 sm:p-6 md:p-8 flex-shrink-0 w-[85vw] max-md:min-w-[240px] min-w-[280px] max-w-sm transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-1 hover:border-gold/30 hover:shadow-[0_8px_24px_rgba(0,39,94,0.12)]"
+      className="w-[68vw] max-w-[240px] min-w-[200px] flex-shrink-0 rounded-2xl border border-navy/10 bg-white p-3 shadow-[0_2px_12px_rgba(0,39,94,0.08)] transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-[0_6px_20px_rgba(0,39,94,0.12)] sm:w-[240px] sm:p-4"
     >
-      <div className="flex items-center gap-1 mb-4">
+      <div className="mb-2 flex items-center gap-0.5">
         {STARS.slice(0, testimonial.rating).map((_, i) => (
-          <span key={i} className="text-gold-bright text-xl">
+          <span key={i} className="text-base text-gold-bright sm:text-lg">
             ★
           </span>
         ))}
       </div>
-      <p className="text-navy/90 mb-6 leading-relaxed italic text-sm">"{testimonial.text}"</p>
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 bg-navy/10 border border-navy/10 rounded-full flex items-center justify-center text-navy font-bold text-lg flex-shrink-0">
-          {testimonial.name[0]}
+      <p className="mb-3 line-clamp-4 text-xs leading-relaxed text-navy/90 italic sm:mb-4 sm:text-sm">
+        "{testimonial.text}"
+      </p>
+      <div className="flex items-center gap-3">
+        <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-navy/10 bg-navy/10 sm:h-11 sm:w-11">
+          <OptimizedImage
+            src={testimonial.avatar}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
         </div>
-        <div>
-          <div className="font-bold text-navy text-lg">{testimonial.name}</div>
-          <div className="text-sm text-yellow-600/90">{testimonial.role}</div>
+        <div className="min-w-0">
+          <div className="truncate text-sm font-bold text-navy sm:text-base">{testimonial.name}</div>
+          <div className="truncate text-xs text-yellow-600/90 sm:text-sm">{testimonial.role}</div>
         </div>
       </div>
     </motion.div>
   )
 })
+
+function TestimonialMarqueeRow({
+  testimonials,
+  direction,
+  reduceMotion,
+  rowKey,
+}: {
+  testimonials: typeof TESTIMONIALS_ROW_1
+  direction: 'left' | 'right'
+  reduceMotion: boolean
+  rowKey: string
+}) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const segmentWidthRef = useRef(0)
+  const [paused, setPaused] = useState(false)
+  const scrollReadyRef = useRef(false)
+
+  useEffect(() => {
+    scrollReadyRef.current = false
+    const el = trackRef.current
+    if (!el) return
+
+    const measure = () => {
+      const segment = el.scrollWidth / TESTIMONIAL_MARQUEE_LOOP_COPIES
+      if (segment <= 0) return
+      segmentWidthRef.current = segment
+
+      if (!scrollReadyRef.current) {
+        x.set(direction === 'right' ? -segment : 0)
+        scrollReadyRef.current = true
+        return
+      }
+
+      x.set(normalizeMarqueeX(x.get(), segment, direction))
+    }
+
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [direction, testimonials, x])
+
+  useAnimationFrame((_t, delta) => {
+    if (paused || reduceMotion) return
+    const segment = segmentWidthRef.current
+    if (segment <= 0) return
+
+    if (direction === 'left') {
+      let next = x.get() - delta * TESTIMONIAL_MARQUEE_SPEED
+      if (next <= -segment) next += segment
+      x.set(next)
+      return
+    }
+
+    let next = x.get() + delta * TESTIMONIAL_MARQUEE_SPEED
+    if (next >= 0) next -= segment
+    x.set(next)
+  })
+
+  if (reduceMotion) {
+    return (
+      <div className="overflow-hidden py-2">
+        <div className={`${TESTIMONIAL_TRACK_BASE} flex-wrap justify-center max-w-full w-full`}>
+          {testimonials.map((testimonial, idx) => (
+            <TestimonialCard
+              key={`${rowKey}-${testimonial.name}-${idx}`}
+              testimonial={testimonial}
+              index={idx}
+              reduceMotion={reduceMotion}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="overflow-hidden py-2"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <motion.div
+        ref={trackRef}
+        className={`${TESTIMONIAL_TRACK_BASE} will-change-transform`}
+        style={{ x }}
+      >
+        {testimonials.map((testimonial, idx) => (
+          <TestimonialCard
+            key={`${rowKey}-${testimonial.name}-${idx}`}
+            testimonial={testimonial}
+            index={idx}
+            reduceMotion={reduceMotion}
+            inMarquee
+          />
+        ))}
+      </motion.div>
+    </div>
+  )
+}
 
 const Home = () => {
   const heroSectionRef = useRef<HTMLElement | null>(null)
@@ -603,6 +761,50 @@ const Home = () => {
         </div>
       </section>
 
+      {/* CTA Section — above Success Stories */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-r from-offwhite via-offwhite to-offwhite">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 lg:p-16 shadow-2xl text-center relative overflow-hidden"
+          >
+            <OptimizedImage
+              src={ctaJourneyBg}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/60" aria-hidden />
+            <div className="relative">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">
+                Ready to Start Your Journey?
+              </h2>
+              <p className="text-base sm:text-lg text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
+                Join thousands of successful professionals. Let's build your future together!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
+                <button
+                  type="button"
+                  onClick={handleOpenEnquireModal}
+                  className="w-full sm:w-auto inline-block text-center bg-gold text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
+                >
+                  Get Started Today
+                </button>
+                <Link
+                  to="/courses"
+                  className="w-full sm:w-auto inline-block text-center border-2 border-gold-bright text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:bg-gold-bright hover:text-navy transition-all duration-300"
+                >
+                  Browse Programs
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Testimonials Section */}
       <section
         className="pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-12 sm:pb-16 md:pb-20 lg:pb-24 bg-offwhite overflow-hidden"
@@ -637,66 +839,24 @@ const Home = () => {
           </motion.div>
 
           <div
-            className="overflow-hidden py-4 max-md:pl-4 max-md:sm:pl-6"
+            className="space-y-2 sm:space-y-4"
             role="region"
             aria-roledescription="carousel"
             aria-label="Student testimonials"
           >
-            <div
-              className={`flex w-max gap-4 max-md:gap-5 sm:max-md:gap-6 md:gap-6 lg:gap-8 transform-gpu ${
-                reduceMotion
-                  ? 'flex-wrap justify-center max-w-full w-full'
-                  : 'will-change-transform motion-safe:animate-testimonial-scroll hover:[animation-play-state:paused] motion-reduce:animate-none'
-              }`}
-            >
-              {DUPLICATED_TESTIMONIALS.map((testimonial, idx) => (
-                <TestimonialCard
-                  key={`${testimonial.name}-${idx}`}
-                  testimonial={testimonial}
-                  index={idx}
-                  reduceMotion={reduceMotion}
-                />
-              ))}
-            </div>
+            <TestimonialMarqueeRow
+              testimonials={TESTIMONIALS_ROW_1}
+              direction="left"
+              reduceMotion={reduceMotion}
+              rowKey="row1"
+            />
+            <TestimonialMarqueeRow
+              testimonials={TESTIMONIALS_ROW_2}
+              direction="right"
+              reduceMotion={reduceMotion}
+              rowKey="row2"
+            />
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-r from-offwhite via-offwhite to-offwhite">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="bg-[#00275E] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 lg:p-16 shadow-2xl text-center relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00275E] via-[#00275E] to-gold/10"></div>
-            <div className="relative">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">
-                Ready to Start Your Journey?
-              </h2>
-              <p className="text-base sm:text-lg text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
-                Join thousands of successful professionals. Let's build your future together!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-                <button
-                  type="button"
-                  onClick={handleOpenEnquireModal}
-                  className="w-full sm:w-auto inline-block text-center bg-gold text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-gold hover:to-gold-bright"
-                >
-                  Get Started Today
-                </button>
-                <Link
-                  to="/courses"
-                  className="w-full sm:w-auto inline-block text-center border-2 border-gold-bright text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-semibold text-base sm:text-lg hover:bg-gold-bright hover:text-navy transition-all duration-300"
-                >
-                  Browse Programs
-                </Link>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
 
