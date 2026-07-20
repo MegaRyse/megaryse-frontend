@@ -18,6 +18,7 @@ import easyApplyWebp from '../assets/images/easyapply.webp'
 import globalEducationImg from '../assets/images/globaleducation.png'
 import globalEducationWebp from '../assets/images/globaleducation.webp'
 import { OptimizedImage } from '../components/OptimizedImage'
+import { AnimatedImageGallery } from '../components/about/AnimatedImageGallery'
 
 const EDGE_IMAGES = [
   { src: trustedEducationImg, webp: trustedEducationWebp },
@@ -236,6 +237,9 @@ const About = () => {
           </div>
         </div>
       </section>
+
+      {/* Animated image gallery — drop assets into aboutGallery.ts */}
+      <AnimatedImageGallery />
 
       {/* Stats — same section padding and container as other pages */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">
