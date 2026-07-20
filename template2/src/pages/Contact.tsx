@@ -1,5 +1,9 @@
 import { useState, FormEvent, useCallback } from 'react'
 import { motion } from 'framer-motion'
+import contactHandshakeImg from '../assets/images/contact/contact-handshake.jpg'
+import { OptimizedImage } from '../components/OptimizedImage'
+
+const CONTACT_HERO_IMAGE = { width: 1024, height: 768 } as const
 
 const COUNTRIES = [
   'United States',
@@ -69,12 +73,12 @@ const Contact = () => {
       {/* Contact Section */}
       <section className="pt-16 pb-20 sm:pt-20 sm:pb-24 md:pt-24 md:pb-28 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-start">
+          <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:grid-cols-2 lg:items-stretch lg:gap-20">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col justify-start w-full"
+              className="flex h-full w-full flex-col"
             >
               <motion.div
                 initial={{ opacity: 0, x: -100 }}
@@ -86,7 +90,7 @@ const Contact = () => {
                   stiffness: 100,
                   damping: 20
                 }}
-                className="mb-12 w-full"
+                className="mb-8 w-full sm:mb-10"
               >
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
                   Get In Touch!
@@ -95,7 +99,38 @@ const Contact = () => {
                   Let's take your career to the next level!
                 </p>
               </motion.div>
-              <div className="space-y-6 w-full">
+
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.15,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="mb-6 w-full shrink-0 sm:mb-8"
+              >
+                <div
+                  className="relative mx-auto w-full max-w-lg overflow-hidden rounded-xl bg-gray-100 shadow-lg ring-1 ring-gray-200/80 sm:rounded-2xl lg:mx-0 lg:max-w-none"
+                  style={{
+                    aspectRatio: `${CONTACT_HERO_IMAGE.width} / ${CONTACT_HERO_IMAGE.height}`,
+                    maxHeight: 'min(42vh, 320px)',
+                  }}
+                >
+                  <OptimizedImage
+                    src={contactHandshakeImg}
+                    alt="MegaRyse counsellor welcoming a student at our office"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#00275E]/25 via-transparent to-transparent"
+                    aria-hidden
+                  />
+                </div>
+              </motion.div>
+
+              <div className="mt-6 w-full shrink-0 space-y-6 lg:mt-auto lg:pt-2">
                 <motion.div
                   initial={{ opacity: 0, x: -100 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -212,9 +247,9 @@ const Contact = () => {
                 stiffness: 100,
                 damping: 20
               }}
-              className="w-full"
+              className="flex h-full w-full flex-col"
             >
-              <div className="bg-[#00275E] rounded-xl p-8 sm:p-10 shadow-xl border border-gray-100 w-full">
+              <div className="flex h-full min-h-0 w-full flex-col rounded-xl border border-gray-100 bg-[#00275E] p-8 shadow-xl sm:p-10 lg:h-full">
                 {submitted ? (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -234,8 +269,13 @@ const Contact = () => {
                     <p className="text-white/90 text-base">We'll get back to you soon.</p>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-                    <div className="space-y-5">
+                  <form
+                    onSubmit={handleSubmit}
+                    action="https://formspree.io/f/YOUR_FORM_ID"
+                    method="POST"
+                    className="flex h-full min-h-0 flex-col"
+                  >
+                    <div className="flex flex-1 flex-col space-y-5">
                       <div>
                         <label htmlFor="name" className="block text-sm font-semibold text-white mb-2.5">
                           Name
@@ -355,20 +395,20 @@ const Contact = () => {
                         />
                         {errors.message && <p className="text-red-400 text-sm mt-1.5">{errors.message}</p>}
                       </div>
-
-                      <motion.button
-                        type="submit"
-                        className="w-full bg-gradient-gold text-gray-900 px-8 py-4 rounded-lg font-semibold text-base shadow-md hover:shadow-xl transition-all duration-300"
-                        whileHover={{ 
-                          scale: 1.02,
-                          boxShadow: '0 20px 40px rgba(213, 173, 54, 0.3)'
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                      >
-                        Send Message
-                      </motion.button>
                     </div>
+
+                    <motion.button
+                      type="submit"
+                      className="mt-5 w-full shrink-0 rounded-lg bg-gradient-gold px-8 py-4 text-base font-semibold text-gray-900 shadow-md transition-all duration-300 hover:shadow-xl lg:mt-auto lg:pt-6"
+                      whileHover={{
+                        scale: 1.02,
+                        boxShadow: '0 20px 40px rgba(213, 173, 54, 0.3)',
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    >
+                      Send Message
+                    </motion.button>
                   </form>
                 )}
               </div>
