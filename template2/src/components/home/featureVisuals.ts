@@ -42,28 +42,32 @@ export const RIGHT_VISUAL_IMAGES: readonly FeatureVisualImage[] = [
     src: expertCareerCounsellingImg,
     webp: expertCareerCounsellingWebp,
     alt: 'Career counselor guiding a student with university options',
+    objectFit: 'contain',
   },
   {
     src: expertCareerCounsellingImg,
     webp: expertCareerCounsellingWebp,
     alt: 'Career counselor guiding a student with university options',
+    objectFit: 'contain',
   },
   {
     src: wideRangeProgramsImg,
     webp: wideRangeProgramsWebp,
     alt: 'Students exploring diverse academic programs in a classroom',
+    objectFit: 'contain',
   },
   {
     src: seamlessAdmissionProcessImg,
     webp: seamlessAdmissionProcessWebp,
     alt: 'Admission consultation with documents and enrollment support',
+    objectFit: 'contain',
   },
 ] as const
 
 export function featureVisualImageClass(objectFit: 'cover' | 'contain' = 'cover', rounded = false) {
-  const roundedClass = rounded ? ' rounded-3xl' : ''
+  const roundedClass = rounded ? ' rounded-2xl md:rounded-3xl' : ''
   if (objectFit === 'contain') {
-    return `absolute inset-0 w-full h-full object-contain object-center${roundedClass}`
+    return `absolute inset-0 w-full h-full object-contain object-center p-1.5 sm:p-2${roundedClass}`
   }
-  return `absolute inset-0 w-full h-full object-cover object-center scale-[1.04]${roundedClass}`
+  return `absolute inset-0 w-full h-full object-cover object-center${roundedClass}`
 }

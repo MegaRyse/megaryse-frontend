@@ -111,18 +111,24 @@ const About = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px', amount: 0.15 }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mt-6 w-full px-4 sm:mt-8 sm:px-6 md:mt-10 lg:px-8"
+          className="relative mt-4 flex w-full justify-center px-4 sm:mt-6 sm:px-6 md:mt-8 lg:px-8 [--about-chrome:11rem] md:[--about-chrome:14rem] lg:[--about-chrome:16rem]"
         >
+          {/*
+            Fits in one viewport: width AND height constrained.
+            When the screen is short, max-height wins and width shrinks with it (aspect locked).
+            When the screen is narrow, width wins and height shrinks with it.
+          */}
           <div
-            className="relative mx-auto w-full max-w-container overflow-hidden bg-gray-100 shadow-lg rounded-xl sm:rounded-2xl"
+            className="relative overflow-hidden rounded-xl bg-gray-100 shadow-lg sm:rounded-2xl"
             style={{
               aspectRatio: `${ABOUT_INTRO_IMAGE.width} / ${ABOUT_INTRO_IMAGE.height}`,
-              maxHeight: 'min(52vh, 560px)',
+              width: 'min(100%, 1200px, calc((100svh - var(--about-chrome)) * 4 / 3))',
+              maxHeight: 'calc(100svh - var(--about-chrome))',
             }}
           >
             <motion.div
               className="absolute inset-0"
-              initial={{ scale: 1.08 }}
+              initial={{ scale: 1.06 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
@@ -217,7 +223,7 @@ const About = () => {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, margin: '-40px' }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className={`relative w-full rounded-2xl overflow-hidden bg-gray-100 shadow-md min-w-0 ${!imageLeft ? 'md:col-start-2' : ''}`}
+                    className={`relative w-full max-h-[min(52vh,420px)] md:max-h-[min(56vh,480px)] rounded-2xl overflow-hidden bg-gray-50 shadow-md min-w-0 ${!imageLeft ? 'md:col-start-2' : ''}`}
                     style={{ aspectRatio: `${visual.width} / ${visual.height}` }}
                   >
                     <OptimizedImage
@@ -226,7 +232,7 @@ const About = () => {
                       alt=""
                       width={visual.width}
                       height={visual.height}
-                      className="absolute inset-0 h-full w-full object-cover object-center"
+                      className="absolute inset-0 h-full w-full object-contain object-center"
                     />
                     <span className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gold text-white font-bold flex items-center justify-center text-sm shadow">
                       {idx + 1}

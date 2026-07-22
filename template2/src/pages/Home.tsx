@@ -428,8 +428,8 @@ const Home = () => {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-bright/5 rounded-full blur-3xl"></div>
 
-        <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 pt-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
+        <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8 sm:pb-10 md:pb-12 lg:min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 xl:gap-12 items-center lg:min-h-[min(70svh,640px)]">
             {/* Image: on mobile only, show first (above text + buttons); tablet/desktop unchanged */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, x: -30 }}
@@ -437,13 +437,13 @@ const Home = () => {
               transition={{ duration: reduceMotion ? 0 : 0.8 }}
               className="flex justify-center lg:justify-start relative order-1 lg:order-1"
             >
-              <div className="relative w-full max-w-[231px] sm:max-w-[294px] md:max-w-[336px] lg:max-w-[357px]">
+              <div className="relative w-full max-w-[min(52vw,231px)] sm:max-w-[min(40vw,294px)] md:max-w-[min(36vw,336px)] lg:max-w-[min(28vw,357px)] xl:max-w-[357px]">
                 <OptimizedImage
                   src={HeroImg3}
                   webpSrc={HeroImg3Webp}
                   alt="Student celebrating academic success with MegaRyse"
                   priority
-                  className="w-full h-auto object-contain relative z-10 drop-shadow-[0_16px_32px_rgba(0,39,94,0.22)]"
+                  className="w-full h-auto max-h-[min(42svh,420px)] object-contain relative z-10 drop-shadow-[0_16px_32px_rgba(0,39,94,0.22)]"
                 />
                 <div
                   className="absolute bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-6 bg-navy/20 blur-2xl rounded-full"
@@ -471,7 +471,7 @@ const Home = () => {
               </motion.div>
               <div
                 ref={heroProximityRef}
-                className="relative text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-6 sm:mb-8 leading-tight text-center"
+                className="relative text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-4 sm:mb-6 md:mb-8 leading-tight text-center"
               >
                 <VariableProximity
                   label="Transform Your Future with World-Class Education"
@@ -532,12 +532,12 @@ const Home = () => {
       </section>
 
       {/* ========== FEATURES SECTION — list on mobile, scroll animations on desktop only ========== */}
-      <section className="pb-16 md:pb-32">
-        <div className="max-w-container mx-auto w-full px-4 sm:px-6 lg:px-8">
+      <section className="pb-10 sm:pb-14 md:pb-20 overflow-x-hidden">
+        <div className="max-w-container mx-auto w-full px-4 sm:px-6 lg:px-8 min-w-0">
           {!isTabletOrDesktop || reduceMotion ? (
             <div
               ref={featuresMobileRef}
-              className="relative pt-12 sm:pt-14 md:pt-16 flex flex-col items-center"
+              className="relative pt-10 sm:pt-12 md:pt-14 flex flex-col items-center"
             >
               <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8">
                 <div className="text-center mb-10 sm:mb-12">
