@@ -186,7 +186,6 @@ const Navbar = () => {
   // STYLING CONSTANTS
   const textColorClass = 'text-navy font-bold'
   const activeTextColorClass = 'text-navy font-extrabold'
-  const hoverTextColorClass = 'text-navy font-bold'
 
   // EVENT HANDLERS
   
@@ -207,7 +206,7 @@ const Navbar = () => {
     return NAV_ITEMS.map((item) => {
       const isItemHovered = debouncedHoveredItem === item.path
       const isItemActive = isActive(item.path)
-      
+
       return (
         <Link
           key={item.path}
@@ -217,109 +216,77 @@ const Navbar = () => {
           className="relative px-3.5 py-1.5 rounded-full group whitespace-nowrap flex-shrink-0"
           aria-label={`Navigate to ${item.label}`}
         >
-          {/* Permanent glossy background for each nav item */}
-          <div 
-            className="absolute inset-0 rounded-full bg-white/40 backdrop-blur-sm shadow-md"
-            style={{ 
-              transform: 'translateZ(0)', 
-              backfaceVisibility: 'hidden', // Prevent flickering
-              willChange: 'opacity, transform' // Performance hint
-            }}
-          />
-          
-          {/* Enhanced gradient background on hover/active */}
+          {/* Soft gold pill — only on hover / active */}
           <motion.div
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-gold/20 via-gold-bright/30 to-gold/20 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
+            className="absolute inset-0 rounded-full bg-gold/15"
+            initial={false}
             animate={{
               opacity: isItemHovered || isItemActive ? 1 : 0,
+              scale: isItemHovered || isItemActive ? 1 : 0.92,
             }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            style={{ 
-              transform: 'translateZ(0)', 
-              backfaceVisibility: 'hidden',
-              willChange: 'opacity'
-            }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           />
-          
-          {/* Navigation item text */}
-          <span 
-            className={`relative z-10 text-sm font-bold transition-all duration-200 whitespace-nowrap inline-block md:text-xs lg:text-sm ${
+
+          <span
+            className={`relative z-10 text-sm font-bold transition-colors duration-200 whitespace-nowrap inline-block md:text-xs lg:text-sm ${
               isItemActive
                 ? activeTextColorClass
                 : isItemHovered
-                ? hoverTextColorClass
-                : textColorClass
+                  ? 'text-navy font-extrabold'
+                  : textColorClass
             }`}
             style={{ fontWeight: 700 }}
           >
             {item.label}
           </span>
-          
-          {/* Active route indicator with animated glow */}
-          {isItemActive && (
-            <motion.div
-              layoutId="activeTab"
-              className="absolute -bottom-1 left-2 right-2 h-1 bg-gradient-to-r from-gold via-gold-bright to-gold rounded-b-full z-20"
-              initial={false}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            >
-              <motion.div
-                className="absolute inset-0 bg-gold-bright blur-sm"
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </motion.div>
-          )}
-          
-          {/* Shine effect on hover - smooth left-to-right animation */}
-          {isItemHovered && (
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full pointer-events-none"
-              initial={{ x: '-100%' }}
-              animate={{ x: '100%' }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
-              style={{ 
-                transform: 'translateZ(0)', 
-                backfaceVisibility: 'hidden'
-              }}
-            />
-          )}
+
+          {/* Gold underline — slides in on hover; stays for active route */}
+          <motion.span
+            className="pointer-events-none absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-gradient-to-r from-gold via-gold-bright to-gold"
+            initial={false}
+            animate={{
+              width: isItemActive || isItemHovered ? '70%' : '0%',
+              opacity: isItemActive || isItemHovered ? 1 : 0,
+            }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          />
         </Link>
       )
     })
   }
 
   const renderMobileNavItems = () => {
-    return NAV_ITEMS.map((item, idx) => (
-      <motion.div
-        key={item.path}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: idx * 0.1 }}
-      >
-        <Link
-          to={item.path}
-          onClick={closeMobileMenu}
-          className={`block relative px-3 py-2.5 rounded-xl text-base font-medium transition-all duration-300 sm:px-4 ${
-            isActive(item.path)
-              ? 'text-navy font-bold bg-gradient-to-r from-gold/25 to-gold-bright/25 shadow-sm'
-              : 'text-navy hover:bg-white/60 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
-          }`}
-          aria-label={`Navigate to ${item.label}`}
+    return NAV_ITEMS.map((item, idx) => {
+      const active = isActive(item.path)
+      return (
+        <motion.div
+          key={item.path}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: idx * 0.1 }}
         >
-          {item.label}
-          {/* Active indicator for mobile */}
-          {isActive(item.path) && (
-            <motion.div
-              layoutId="mobileActiveTab"
-              className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-bright to-gold rounded-r"
-              initial={false}
+          <Link
+            to={item.path}
+            onClick={closeMobileMenu}
+            className={`group relative block overflow-hidden rounded-xl px-3 py-2.5 text-base font-medium transition-colors duration-200 sm:px-4 ${
+              active
+                ? 'bg-gold/20 font-bold text-navy'
+                : 'text-navy hover:bg-gold/10 active:bg-gold/15'
+            }`}
+            aria-label={`Navigate to ${item.label}`}
+          >
+            <span className="relative z-10">{item.label}</span>
+            {/* Gold accent bar — left edge */}
+            <span
+              className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-gold to-gold-bright transition-opacity duration-200 ${
+                active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}
+              aria-hidden
             />
-          )}
-        </Link>
-      </motion.div>
-    ))
+          </Link>
+        </motion.div>
+      )
+    })
   }
 
   return (
@@ -389,7 +356,13 @@ const Navbar = () => {
           </button>
 
           {/* LOGO SECTION — mobile: center, shrinks when user scrolls; desktop: left */}
-          <div className="order-2 flex-1 flex justify-center md:order-none md:flex-initial md:justify-start flex-shrink-0 py-0 md:py-0">
+          {/* When mobile menu is open, disable logo pointer events so the oversized logo
+              cannot intercept taps on the first menu item (Home). */}
+          <div
+            className={`order-2 flex-1 flex justify-center md:order-none md:flex-initial md:justify-start flex-shrink-0 py-0 md:py-0 ${
+              isOpen ? 'max-md:pointer-events-none' : ''
+            }`}
+          >
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -474,7 +447,7 @@ const Navbar = () => {
               type="button"
               key="mobile-menu-backdrop"
               aria-label="Close menu"
-              className="fixed inset-0 z-30 bg-[#050B23]/40 backdrop-blur-[4px] md:hidden"
+              className="fixed inset-0 z-[55] bg-[#050B23]/40 backdrop-blur-[4px] md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -490,7 +463,7 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-              className="fixed left-3 top-[6.85rem] z-40 flex w-[80vw] max-w-[80vw] flex-col md:hidden sm:left-4"
+              className="fixed left-3 top-[6.85rem] z-[70] flex w-[80vw] max-w-[80vw] flex-col md:hidden sm:left-4"
             >
               {/* Arrow tip centered under menu / X (≈ padding + p-2 + half icon from panel left) */}
               <span
