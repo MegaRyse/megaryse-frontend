@@ -67,9 +67,36 @@ function LifeAtMarquee({
   const trackRef = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
   const halfWidthRef = useRef(0)
-  const [paused, setPaused] = useState(false)
+  const dragRef = useRef<{
+    pointerId: number
+    startX: number
+    startValue: number
+    moved: boolean
+  } | null>(null)
+  const suppressClickRef = useRef(false)
+  const [hovered, setHovered] = useState(false)
+  const [dragging, setDragging] = useState(false)
+  const paused = hovered || dragging
 
   const loop = images.length > 0 ? [...images, ...images] : []
+
+  const wrapX = useCallback((value: number) => {
+    const half = halfWidthRef.current
+    if (half <= 0) return value
+    let wrapped = value
+    while (wrapped <= -half) wrapped += half
+    while (wrapped > 0) wrapped -= half
+    return wrapped
+  }, [])
+
+  const finishDrag = useCallback((target: HTMLDivElement, pointerId: number) => {
+    const drag = dragRef.current
+    if (!drag || drag.pointerId !== pointerId) return
+    suppressClickRef.current = drag.moved
+    dragRef.current = null
+    setDragging(false)
+    if (target.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId)
+  }, [])
 
   useEffect(() => {
     const el = trackRef.current
@@ -97,11 +124,38 @@ function LifeAtMarquee({
   return (
     <div
       className="relative w-full"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <div
-        className="overflow-hidden py-2 sm:py-3"
+        className="cursor-grab touch-pan-y select-none overflow-hidden py-2 active:cursor-grabbing sm:py-3"
+        onPointerDown={(event) => {
+          if (event.button !== 0) return
+          dragRef.current = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startValue: x.get(),
+            moved: false,
+          }
+          suppressClickRef.current = false
+          setDragging(true)
+          event.currentTarget.setPointerCapture(event.pointerId)
+        }}
+        onPointerMove={(event) => {
+          const drag = dragRef.current
+          if (!drag || drag.pointerId !== event.pointerId) return
+          const delta = event.clientX - drag.startX
+          if (Math.abs(delta) > 6) drag.moved = true
+          x.set(wrapX(drag.startValue + delta))
+        }}
+        onPointerUp={(event) => finishDrag(event.currentTarget, event.pointerId)}
+        onPointerCancel={(event) => finishDrag(event.currentTarget, event.pointerId)}
+        onClickCapture={(event) => {
+          if (!suppressClickRef.current) return
+          event.preventDefault()
+          event.stopPropagation()
+          suppressClickRef.current = false
+        }}
         style={{
           maskImage:
             'linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)',
@@ -148,6 +202,7 @@ function GalleryLightbox({
   const stripRef = useRef<HTMLDivElement>(null)
   const stripX = useMotionValue(0)
   const stripWidthRef = useRef(0)
+  const imagePointerStartRef = useRef<number | null>(null)
 
   const active = images[activeIndex] ?? images[0]
   const zoom = ZOOM_LEVELS[zoomStep] ?? 1
@@ -301,12 +356,32 @@ function GalleryLightbox({
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div
-              className="relative aspect-[16/10] w-full cursor-zoom-in overflow-hidden rounded-2xl bg-transparent"
+              className="relative aspect-[16/10] w-full touch-none cursor-zoom-in overflow-hidden rounded-2xl bg-transparent"
               animate={{ scale: zoom }}
               transition={SPRING}
-              onClick={(e) => {
+              onPointerDown={(e) => {
                 e.stopPropagation()
+                imagePointerStartRef.current = e.clientX
+                e.currentTarget.setPointerCapture(e.pointerId)
+              }}
+              onPointerUp={(e) => {
+                e.stopPropagation()
+                const startX = imagePointerStartRef.current
+                imagePointerStartRef.current = null
+                if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+                  e.currentTarget.releasePointerCapture(e.pointerId)
+                }
+                if (startX === null) return
+                const delta = e.clientX - startX
+                if (Math.abs(delta) >= 45) {
+                  if (delta > 0) goPrev()
+                  else goNext()
+                  return
+                }
                 cycleZoom()
+              }}
+              onPointerCancel={() => {
+                imagePointerStartRef.current = null
               }}
             >
               <OptimizedImage
