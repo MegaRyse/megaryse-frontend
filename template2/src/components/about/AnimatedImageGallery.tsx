@@ -5,6 +5,7 @@ import {
   useMotionValue,
 } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { OptimizedImage } from '../OptimizedImage'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import type { GalleryImage } from '../../data/aboutGallery'
@@ -139,13 +140,15 @@ function LifeAtMarquee({
           }
           suppressClickRef.current = false
           setDragging(true)
-          event.currentTarget.setPointerCapture(event.pointerId)
         }}
         onPointerMove={(event) => {
           const drag = dragRef.current
           if (!drag || drag.pointerId !== event.pointerId) return
           const delta = event.clientX - drag.startX
-          if (Math.abs(delta) > 6) drag.moved = true
+          if (Math.abs(delta) > 6 && !drag.moved) {
+            drag.moved = true
+            event.currentTarget.setPointerCapture(event.pointerId)
+          }
           x.set(wrapX(drag.startValue + delta))
         }}
         onPointerUp={(event) => finishDrag(event.currentTarget, event.pointerId)}
@@ -523,17 +526,22 @@ export function AnimatedImageGallery({
         <LifeAtMarquee images={previews} reduceMotion={reduceMotion} onOpen={handleOpen} />
       </motion.div>
 
-      <AnimatePresence>
-        {open && allImages.length > 0 ? (
-          <GalleryLightbox
-            key="gallery-lightbox"
-            images={allImages}
-            startIndex={startIndex}
-            onClose={handleClose}
-            reduceMotion={reduceMotion}
-          />
-        ) : null}
-      </AnimatePresence>
+      {typeof document !== 'undefined'
+        ? createPortal(
+            <AnimatePresence>
+              {open && allImages.length > 0 ? (
+                <GalleryLightbox
+                  key="gallery-lightbox"
+                  images={allImages}
+                  startIndex={startIndex}
+                  onClose={handleClose}
+                  reduceMotion={reduceMotion}
+                />
+              ) : null}
+            </AnimatePresence>,
+            document.body
+          )
+        : null}
     </section>
   )
 }
