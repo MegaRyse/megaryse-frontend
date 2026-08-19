@@ -50,7 +50,8 @@ function MarqueeCard({
         src={image.src}
         webpSrc={image.webpSrc}
         alt={image.alt}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        draggable={false}
+        className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover transition-transform duration-500 ease-out group-hover:scale-105"
       />
     </motion.button>
   )
