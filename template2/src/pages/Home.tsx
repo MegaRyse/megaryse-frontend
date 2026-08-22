@@ -42,14 +42,16 @@ import {
   featureVisualImageClass,
 } from '../components/home/featureVisuals'
 
-const FEATURE_ANIMATION_BREAKPOINT_PX = 1024
+const FEATURE_ANIMATION_BREAKPOINT_PX = 1280
+const FEATURE_DESKTOP_MEDIA_QUERY =
+  `(min-width: ${FEATURE_ANIMATION_BREAKPOINT_PX}px) and (hover: hover) and (pointer: fine)`
 
 function useIsTabletOrDesktop() {
   const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth >= FEATURE_ANIMATION_BREAKPOINT_PX : true
+    typeof window !== 'undefined' ? window.matchMedia(FEATURE_DESKTOP_MEDIA_QUERY).matches : true
   )
   useEffect(() => {
-    const m = window.matchMedia(`(min-width: ${FEATURE_ANIMATION_BREAKPOINT_PX}px)`)
+    const m = window.matchMedia(FEATURE_DESKTOP_MEDIA_QUERY)
     const update = () => setIsTabletOrDesktop(m.matches)
     update()
     m.addEventListener('change', update)
