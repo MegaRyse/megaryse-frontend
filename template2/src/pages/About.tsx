@@ -18,6 +18,8 @@ import easyApplyWebp from '../assets/images/easyapply.webp'
 import globalEducationImg from '../assets/images/globaleducation.png'
 import globalEducationWebp from '../assets/images/globaleducation.webp'
 import experienceTeamImg from '../assets/images/about/experience-team.png'
+import directorImg from '../assets/images/about/director.png'
+import directorWebp from '../assets/images/about/director.webp'
 import { OptimizedImage } from '../components/OptimizedImage'
 import { AnimatedImageGallery } from '../components/about/AnimatedImageGallery'
 
@@ -180,6 +182,69 @@ const About = () => {
             </motion.p>
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* Our Director */}
+      <section className="bg-offwhite py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="mx-auto w-full max-w-container px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-12 lg:gap-16">
+            <motion.div
+              initial={{ opacity: 0, x: -28 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px', amount: 0.2 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="relative mx-auto w-full max-w-sm md:max-w-md"
+            >
+              <div className="absolute -inset-3 rounded-[1.75rem] bg-gradient-to-br from-gold/25 via-gold-bright/10 to-blue-custom/10 blur-sm" />
+              <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-gray-100 shadow-xl ring-1 ring-black/5">
+                <OptimizedImage
+                  src={directorImg}
+                  webpSrc={directorWebp}
+                  alt="Director of MegaRyse EduCntr"
+                  width={768}
+                  height={1024}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#00275E]/35 to-transparent"
+                  aria-hidden
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 28 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px', amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="min-w-0 text-center md:text-left"
+            >
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gold sm:text-sm">
+                Leadership with purpose
+              </p>
+              <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
+                Our <span className="bg-gradient-gold bg-clip-text text-transparent">Director</span>
+              </h2>
+              <div className="mt-6 space-y-4 text-sm leading-relaxed text-gray-600 sm:text-base md:text-lg">
+                <p>
+                  At the heart of MegaRyse EduCntr is a clear belief: every learner deserves access
+                  to credible education, honest guidance, and opportunities that create meaningful
+                  career growth.
+                </p>
+                <p>
+                  Our Director leads this vision with empathy, integrity, and a strong commitment
+                  to student success. Her learner-first approach shapes everything we do—from
+                  building trusted university partnerships to creating flexible learning pathways
+                  and ensuring every student receives personal support throughout their journey.
+                </p>
+              </div>
+              <blockquote className="mt-7 rounded-2xl border-l-4 border-gold bg-offwhite px-5 py-4 text-left text-sm font-medium italic leading-relaxed text-navy shadow-sm sm:text-base">
+                “Education should do more than award a qualification, it should give every learner
+                the confidence and opportunity to rise.”
+              </blockquote>
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* MegaRyse Edge — same section padding as Home; min-w-0 on text column */}

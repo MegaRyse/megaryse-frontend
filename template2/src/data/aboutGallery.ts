@@ -29,6 +29,7 @@ const LIFE_AT_CAPTIONS: string[] = [
   'Support that never stops',
   'Building futures side by side',
   'Culture of ambition & care',
+  'Celebrating every moment together',
 ]
 
 /** Native dimensions — keeps preview tiles aligned to each asset. */
@@ -42,6 +43,7 @@ const GALLERY_DIMENSIONS: Record<string, { width: number; height: number }> = {
   '07-life-at.png': { width: 768, height: 1024 },
   '08-life-at.png': { width: 768, height: 1024 },
   '09-life-at.png': { width: 1024, height: 768 },
+  '10-life-at.png': { width: 1024, height: 859 },
 }
 
 const galleryModules = import.meta.glob<{ default: string }>(
