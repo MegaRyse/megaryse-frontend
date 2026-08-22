@@ -1,6 +1,7 @@
-import { motion, useAnimationFrame, useMotionValue } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Landmark,
   Briefcase,
@@ -19,9 +20,12 @@ import {
 import HeroImg3 from '../assets/images/hero3.PNG'
 import HeroImg3Webp from '../assets/images/hero3.webp'
 import ctaJourneyBg from '../assets/images/home/cta-journey-bg.jpg'
-import testimonialAvatarHeena from '../assets/images/testimonials/heena.jpg'
-import testimonialAvatarSmirthi from '../assets/images/testimonials/smirthi.jpg'
-import testimonialAvatarAshok from '../assets/images/testimonials/ashok.jpg'
+import testimonialUshaRani from '../assets/images/testimonials/usha-rani.webp'
+import testimonialVaishnavi from '../assets/images/testimonials/vaishnavi.webp'
+import testimonialVignesh from '../assets/images/testimonials/vignesh.webp'
+import testimonialAashish from '../assets/images/testimonials/aashish.webp'
+import testimonialPooja from '../assets/images/testimonials/pooja.webp'
+import testimonialPavan from '../assets/images/testimonials/pavan.webp'
 import { OptimizedImage } from '../components/OptimizedImage'
 import WhatsAppFloat from '../components/WhatsAppFloat'
 import { coursesMasterData } from '../data/courses'
@@ -177,44 +181,58 @@ const AnimatedStatCard = memo(function AnimatedStatCard({
   )
 })
 
-const TESTIMONIALS_DATA = [
-  {
-    name: 'Heena',
-    role: 'MBA Graduate',
-    text: "MegaRyse helped me choose the perfect MBA program that aligned with my career goals. The expert guidance and seamless admission process made everything so easy. Today, I'm in a leadership role, thanks to their support!",
-    rating: 5,
-    avatar: testimonialAvatarHeena,
-  },
-  {
-    name: 'Smirthi',
-    role: 'BCA Student',
-    text: 'I was confused about which course to pursue, but the counselors at MegaRyse made it simple. They guided me through the BCA program selection and enrollment process effortlessly. Highly recommended!',
-    rating: 5,
-    avatar: testimonialAvatarSmirthi,
-  },
-  {
-    name: 'Ashok',
-    role: 'Executive MBA',
-    text: 'As a working professional, I needed a course that fit my schedule and career goals. MegaRyse recommended an Executive MBA, and it has truly boosted my career. Thank you for making my upskilling journey smooth!',
-    rating: 5,
-    avatar: testimonialAvatarAshok,
-  },
-]
-
-type TestimonialItem = (typeof TESTIMONIALS_DATA)[number]
-
-/** How many times the review set is repeated in the track (must be ≥ 2 for seamless wrap). */
-const TESTIMONIAL_MARQUEE_LOOP_COPIES = 3
-
-function buildTestimonialMarqueeLoop(items: TestimonialItem[]) {
-  return Array.from({ length: TESTIMONIAL_MARQUEE_LOOP_COPIES }, () => items).flat()
+type TestimonialItem = {
+  name: string
+  role: string
+  text: string
+  rating: number
+  avatar?: string
 }
 
-const TESTIMONIALS_ROW_1 = buildTestimonialMarqueeLoop(TESTIMONIALS_DATA)
-const TESTIMONIALS_ROW_2 = buildTestimonialMarqueeLoop([...TESTIMONIALS_DATA].reverse())
-
-const TESTIMONIAL_TRACK_BASE =
-  'flex w-max gap-3 sm:gap-4 md:gap-5 transform-gpu'
+const TESTIMONIALS_DATA: TestimonialItem[] = [
+  {
+    name: 'Usha Rani S',
+    role: 'MBA Graduate',
+    text: 'Joining the MBA program through MegaRyse EduCntr was one of the best choices I made for my career. The classes helped me develop practical business skills, while the faculty provided valuable guidance and insights. I also connected with wonderful peers from diverse professional backgrounds, which broadened my perspective on leadership. Today, I feel more confident leading teams, making decisions, and solving complex challenges at work.',
+    rating: 5,
+    avatar: testimonialUshaRani,
+  },
+  {
+    name: 'Vaishnavi',
+    role: 'MBA Graduate',
+    text: 'The MBA program with MegaRyse EduCntr taught me valuable skills and gave me the confidence to take the next step in my career. The practical learning and guidance helped me grow professionally, and I was fortunate to secure a better job shortly after graduating. Truly a great investment in my career!',
+    rating: 5,
+    avatar: testimonialVaishnavi,
+  },
+  {
+    name: 'Vignesh',
+    role: 'MBA Graduate',
+    text: 'It was a great experience with MegaRyse EduCntr. The MBA program contributed significantly to my professional growth and helped me build the skills and confidence needed to take the next step in my career. I recently received a promotion, and I truly believe the MBA played an important role in achieving it. A valuable investment in my career!',
+    rating: 5,
+    avatar: testimonialVignesh,
+  },
+  {
+    name: 'Aashish',
+    role: 'MBA Graduate',
+    text: 'I truly attribute my recent promotion to what I learned through the MBA program at MegaRyse EduCntr. During my interview, I was able to apply the soft skills and leadership insights gained from the early MBA courses, particularly when discussing generational differences in the workplace. The practical learning helped me approach the interview with greater confidence and demonstrate how I could effectively lead a diverse team. I believe that made a real difference in securing the promotion. Thank you, MegaRyse EduCntr!',
+    rating: 5,
+    avatar: testimonialAashish,
+  },
+  {
+    name: 'Pooja',
+    role: 'MBA Student',
+    text: 'Excellent support from MegaRyse EduCntr throughout the admission process. The team was responsive, helpful, and made the entire process simple and hassle-free. Quick responses, clear guidance, and zero confusion—highly recommended!',
+    rating: 5,
+    avatar: testimonialPooja,
+  },
+  {
+    name: 'Pavan',
+    role: 'MBA Student',
+    text: 'The university comparison support from MegaRyse EduCntr made my admission journey so much easier. They helped me choose the right university and guided me through the process. I was also able to secure a scholarship that I wasn’t even aware of. Highly recommended!',
+    rating: 5,
+    avatar: testimonialPavan,
+  },
+]
 
 const TESTIMONIAL_CARD_IN_VIEW = { opacity: 1, y: 0 }
 const TESTIMONIAL_CARD_INITIAL = { opacity: 0, y: 12 }
@@ -222,41 +240,31 @@ const TESTIMONIAL_CARD_VIEWPORT = { once: true, margin: '-50px' }
 const TESTIMONIAL_CARD_TRANSITION = { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }
 const STARS = [1, 2, 3, 4, 5] as const
 
-const TESTIMONIAL_MARQUEE_SPEED = 0.045
-
-function normalizeMarqueeX(value: number, segment: number, direction: 'left' | 'right') {
-  if (segment <= 0) return value
-  if (direction === 'left') {
-    let v = value
-    while (v <= -segment) v += segment
-    while (v > 0) v -= segment
-    return v
-  }
-  let v = value
-  while (v >= 0) v -= segment
-  while (v < -segment) v += segment
-  return v
-}
-
 const TestimonialCard = memo(function TestimonialCard({
   testimonial,
   index,
   reduceMotion,
-  inMarquee = false,
+  onOpen,
+  isDuplicate = false,
 }: {
   testimonial: TestimonialItem
   index: number
   reduceMotion: boolean
-  inMarquee?: boolean
+  onOpen: () => void
+  isDuplicate?: boolean
 }) {
   const delay = Math.min(index * 0.06, 0.2)
   return (
-    <motion.div
-      initial={reduceMotion || inMarquee ? false : TESTIMONIAL_CARD_INITIAL}
-      whileInView={reduceMotion || inMarquee ? undefined : TESTIMONIAL_CARD_IN_VIEW}
+    <motion.button
+      type="button"
+      onClick={onOpen}
+      tabIndex={isDuplicate ? -1 : 0}
+      aria-label={`Read full testimonial from ${testimonial.name}`}
+      initial={reduceMotion ? false : TESTIMONIAL_CARD_INITIAL}
+      whileInView={reduceMotion ? undefined : TESTIMONIAL_CARD_IN_VIEW}
       viewport={TESTIMONIAL_CARD_VIEWPORT}
       transition={{ ...TESTIMONIAL_CARD_TRANSITION, delay: reduceMotion ? 0 : delay }}
-      className="w-[68vw] max-w-[240px] min-w-[200px] flex-shrink-0 rounded-2xl border border-navy/10 bg-white p-3 shadow-[0_2px_12px_rgba(0,39,94,0.08)] transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-[0_6px_20px_rgba(0,39,94,0.12)] sm:w-[240px] sm:p-4"
+      className="flex h-[230px] w-full min-w-0 flex-col rounded-2xl border border-navy/10 bg-white p-4 text-left shadow-[0_2px_12px_rgba(0,39,94,0.08)] transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-[0_6px_20px_rgba(0,39,94,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold sm:h-[240px] sm:p-5"
     >
       <div className="mb-2 flex items-center gap-0.5">
         {STARS.slice(0, testimonial.rating).map((_, i) => (
@@ -265,124 +273,260 @@ const TestimonialCard = memo(function TestimonialCard({
           </span>
         ))}
       </div>
-      <p className="mb-3 line-clamp-4 text-xs leading-relaxed text-navy/90 italic sm:mb-4 sm:text-sm">
+      <p className="mb-3 h-[3.75rem] flex-none overflow-hidden text-sm leading-5 text-navy/90 italic [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
         "{testimonial.text}"
       </p>
+      <span className="mb-3 text-xs font-semibold text-yellow-700">Read full story</span>
       <div className="flex items-center gap-3">
         <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-navy/10 bg-navy/10 sm:h-11 sm:w-11">
-          <OptimizedImage
-            src={testimonial.avatar}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {testimonial.avatar ? (
+            <OptimizedImage
+              src={testimonial.avatar}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-sm font-bold text-navy">
+              {testimonial.name.charAt(0)}
+            </span>
+          )}
         </div>
         <div className="min-w-0">
           <div className="truncate text-sm font-bold text-navy sm:text-base">{testimonial.name}</div>
           <div className="truncate text-xs text-yellow-600/90 sm:text-sm">{testimonial.role}</div>
         </div>
       </div>
-    </motion.div>
+    </motion.button>
   )
 })
 
-function TestimonialMarqueeRow({
+function TestimonialCarousel({
   testimonials,
-  direction,
   reduceMotion,
-  rowKey,
+  onOpen,
 }: {
-  testimonials: typeof TESTIMONIALS_ROW_1
-  direction: 'left' | 'right'
+  testimonials: TestimonialItem[]
   reduceMotion: boolean
-  rowKey: string
+  onOpen: (testimonial: TestimonialItem) => void
 }) {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const x = useMotionValue(0)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{
+    pointerId: number
+    startX: number
+    scrollLeft: number
+    moved: boolean
+  } | null>(null)
+  const suppressClickRef = useRef(false)
   const segmentWidthRef = useRef(0)
-  const [paused, setPaused] = useState(false)
   const scrollReadyRef = useRef(false)
+  const [paused, setPaused] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    scrollReadyRef.current = false
-    const el = trackRef.current
-    if (!el) return
-
+    const viewport = viewportRef.current
+    if (!viewport) return
     const measure = () => {
-      const segment = el.scrollWidth / TESTIMONIAL_MARQUEE_LOOP_COPIES
-      if (segment <= 0) return
-      segmentWidthRef.current = segment
-
-      if (!scrollReadyRef.current) {
-        x.set(direction === 'right' ? -segment : 0)
+      const duplicateStart = viewport.children[testimonials.length] as HTMLElement | undefined
+      segmentWidthRef.current = duplicateStart?.offsetLeft ?? viewport.scrollWidth / 2
+      if (!scrollReadyRef.current && segmentWidthRef.current > 0) {
+        viewport.scrollLeft = segmentWidthRef.current
         scrollReadyRef.current = true
-        return
       }
-
-      x.set(normalizeMarqueeX(x.get(), segment, direction))
     }
-
     measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [direction, testimonials, x])
+    const observer = new ResizeObserver(measure)
+    observer.observe(viewport)
+    return () => observer.disconnect()
+  }, [testimonials.length])
 
-  useAnimationFrame((_t, delta) => {
-    if (paused || reduceMotion) return
-    const segment = segmentWidthRef.current
-    if (segment <= 0) return
-
-    if (direction === 'left') {
-      let next = x.get() - delta * TESTIMONIAL_MARQUEE_SPEED
-      if (next <= -segment) next += segment
-      x.set(next)
-      return
-    }
-
-    let next = x.get() + delta * TESTIMONIAL_MARQUEE_SPEED
-    if (next >= 0) next -= segment
-    x.set(next)
-  })
-
-  if (reduceMotion) {
-    return (
-      <div className="overflow-hidden py-2">
-        <div className={`${TESTIMONIAL_TRACK_BASE} flex-wrap justify-center max-w-full w-full`}>
-          {testimonials.map((testimonial, idx) => (
-            <TestimonialCard
-              key={`${rowKey}-${testimonial.name}-${idx}`}
-              testimonial={testimonial}
-              index={idx}
-              reduceMotion={reduceMotion}
-            />
-          ))}
-        </div>
-      </div>
+  useEffect(() => {
+    const viewport = viewportRef.current
+    if (!viewport) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: '100px' }
     )
-  }
+    observer.observe(viewport)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (reduceMotion || !isVisible || testimonials.length < 2) return
+    let frameId = 0
+    let previousTime = performance.now()
+    const speed = 0.055
+
+    const tick = (time: number) => {
+      const delta = Math.min(time - previousTime, 50)
+      previousTime = time
+      const viewport = viewportRef.current
+      const segment = segmentWidthRef.current
+      if (!paused && viewport && segment > 0) {
+        let next = viewport.scrollLeft - delta * speed
+        if (next <= 0) next += segment
+        viewport.scrollLeft = next
+      }
+      frameId = requestAnimationFrame(tick)
+    }
+    frameId = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(frameId)
+    }
+  }, [isVisible, paused, reduceMotion, testimonials.length])
+
+  const finishDrag = useCallback((target: HTMLDivElement, pointerId: number) => {
+    const drag = dragRef.current
+    if (!drag || drag.pointerId !== pointerId) return
+    suppressClickRef.current = drag.moved
+    dragRef.current = null
+    setPaused(false)
+    if (target.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId)
+  }, [])
 
   return (
     <div
-      className="overflow-hidden py-2"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      ref={viewportRef}
+      className="grid cursor-grab touch-pan-x auto-cols-[88%] grid-flow-col items-stretch gap-4 overflow-x-auto overscroll-x-contain pb-3 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:auto-cols-[70%] sm:gap-5 md:auto-cols-[47%] xl:auto-cols-[32%]"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Student testimonials"
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
+      onPointerDown={(event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return
+        dragRef.current = {
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          scrollLeft: event.currentTarget.scrollLeft,
+          moved: false,
+        }
+        suppressClickRef.current = false
+        setPaused(true)
+      }}
+      onPointerMove={(event) => {
+        const drag = dragRef.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        if (Math.abs(event.clientX - drag.startX) > 6 && !drag.moved) {
+          drag.moved = true
+          event.currentTarget.setPointerCapture(event.pointerId)
+        }
+        event.currentTarget.scrollLeft = drag.scrollLeft - (event.clientX - drag.startX)
+      }}
+      onPointerUp={(event) => finishDrag(event.currentTarget, event.pointerId)}
+      onPointerCancel={(event) => finishDrag(event.currentTarget, event.pointerId)}
+      onClickCapture={(event) => {
+        if (!suppressClickRef.current) return
+        event.preventDefault()
+        event.stopPropagation()
+        suppressClickRef.current = false
+      }}
+    >
+      {[...testimonials, ...testimonials].map((testimonial, idx) => {
+        const isDuplicate = idx >= testimonials.length
+        return (
+        <div
+          key={`${testimonial.name}-${idx}`}
+          className="min-w-0"
+          aria-hidden={isDuplicate || undefined}
+        >
+          <TestimonialCard
+            testimonial={testimonial}
+            index={idx % testimonials.length}
+            reduceMotion={reduceMotion}
+            onOpen={() => onOpen(testimonial)}
+            isDuplicate={isDuplicate}
+          />
+        </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function TestimonialDialog({
+  testimonial,
+  onClose,
+  reduceMotion,
+}: {
+  testimonial: TestimonialItem
+  onClose: () => void
+  reduceMotion: boolean
+}) {
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [onClose])
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/75 p-4 backdrop-blur-sm sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Testimonial from ${testimonial.name}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.2 }}
+      onClick={onClose}
     >
       <motion.div
-        ref={trackRef}
-        className={`${TESTIMONIAL_TRACK_BASE} will-change-transform`}
-        style={{ x }}
+        className="relative max-h-[85dvh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-gold/20 bg-offwhite p-6 shadow-2xl sm:p-8"
+        initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={reduceMotion ? undefined : { opacity: 0, y: 12, scale: 0.98 }}
+        transition={{ duration: reduceMotion ? 0 : 0.25, ease: [0.22, 1, 0.36, 1] }}
+        onClick={(event) => event.stopPropagation()}
       >
-        {testimonials.map((testimonial, idx) => (
-          <TestimonialCard
-            key={`${rowKey}-${testimonial.name}-${idx}`}
-            testimonial={testimonial}
-            index={idx}
-            reduceMotion={reduceMotion}
-            inMarquee
-          />
-        ))}
+        <button
+          type="button"
+          aria-label="Close testimonial"
+          onClick={onClose}
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-navy/10 text-xl text-navy transition hover:bg-navy hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+        >
+          ×
+        </button>
+
+        <div className="mb-5 flex items-center gap-0.5 pr-12">
+          {STARS.slice(0, testimonial.rating).map((_, index) => (
+            <span key={index} className="text-xl text-gold-bright">
+              ★
+            </span>
+          ))}
+        </div>
+
+        <p className="text-base italic leading-relaxed text-navy/90 sm:text-lg">
+          “{testimonial.text}”
+        </p>
+
+        <div className="mt-7 flex items-center gap-3 border-t border-navy/10 pt-5">
+          <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-navy/10 bg-navy/10">
+            {testimonial.avatar ? (
+              <OptimizedImage
+                src={testimonial.avatar}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center font-bold text-navy">
+                {testimonial.name.charAt(0)}
+              </span>
+            )}
+          </div>
+          <div>
+            <p className="font-bold text-navy">{testimonial.name}</p>
+            <p className="text-sm text-yellow-700">{testimonial.role}</p>
+          </div>
+        </div>
       </motion.div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -392,6 +536,7 @@ const Home = () => {
   const featuresMobileRef = useRef<HTMLDivElement | null>(null)
   const isTabletOrDesktop = useIsTabletOrDesktop()
   const reduceMotion = usePrefersReducedMotion()
+  const [selectedTestimonial, setSelectedTestimonial] = useState<TestimonialItem | null>(null)
   const { openEnquireModal } = useEnquireModal()
 
   const heroVisible = useIntersectionVisible(heroSectionRef, { rootMargin: '100px' })
@@ -838,27 +983,29 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <div
-            className="space-y-2 sm:space-y-4"
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="Student testimonials"
-          >
-            <TestimonialMarqueeRow
-              testimonials={TESTIMONIALS_ROW_1}
-              direction="left"
-              reduceMotion={reduceMotion}
-              rowKey="row1"
-            />
-            <TestimonialMarqueeRow
-              testimonials={TESTIMONIALS_ROW_2}
-              direction="right"
-              reduceMotion={reduceMotion}
-              rowKey="row2"
-            />
-          </div>
+          <TestimonialCarousel
+            testimonials={TESTIMONIALS_DATA}
+            reduceMotion={reduceMotion}
+            onOpen={setSelectedTestimonial}
+          />
         </div>
       </section>
+
+      {typeof document !== 'undefined'
+        ? createPortal(
+            <AnimatePresence>
+              {selectedTestimonial ? (
+                <TestimonialDialog
+                  key={selectedTestimonial.name}
+                  testimonial={selectedTestimonial}
+                  onClose={() => setSelectedTestimonial(null)}
+                  reduceMotion={reduceMotion}
+                />
+              ) : null}
+            </AnimatePresence>,
+            document.body
+          )
+        : null}
 
       <WhatsAppFloat />
     </div>

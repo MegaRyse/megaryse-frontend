@@ -41,7 +41,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-gold-bright/20 text-center text-white/80 text-sm">
-          <p>&copy; 2024 MegaRyse. All rights reserved.</p>
+          <p>&copy; 2026 MegaRyse. All rights reserved.</p>
         </div>
       </div>
     </footer>

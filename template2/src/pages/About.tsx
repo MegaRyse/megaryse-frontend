@@ -63,7 +63,7 @@ const About = () => {
   }, [])
 
   return (
-    <div className="w-full bg-offwhite">
+    <div className="w-full overflow-x-clip bg-offwhite">
       {/* Hero — title, full-width image, then description */}
       <section className="relative bg-offwhite overflow-visible pb-12 sm:pb-16 md:pb-20 lg:pb-24">
         <motion.div

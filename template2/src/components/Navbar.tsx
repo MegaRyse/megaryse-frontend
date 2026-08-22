@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Logo from '../assets/images/logo_1.png'
@@ -18,11 +18,6 @@ const MOBILE_NAVBAR_PADDING_BOTTOM_REM = 0.125
 /** Horizontal padding of navbar container in rem. */
 const MOBILE_NAVBAR_PADDING_X_REM = 0.75
 
-/** Scroll range: animation target reaches 1 when user has scrolled this fraction of viewport height */
-const SCROLL_RANGE_VH = 0.2
-/** Lerp factor for slow, visible animation (0.02–0.04 = slow catch-up even when scrolling fast) */
-const ANIM_LERP = 0.028
-const LEAVE_LERP = 0.06
 /** On mobile/tablet: show navbar gradient + blur only after user has scrolled past this (px) */
 const SCROLL_THRESHOLD_FOR_NAV_BG = 16
 const NAV_ITEMS = [
@@ -38,14 +33,7 @@ const MOBILE_NAV_GRADIENT =
 
 function useMobileScrollCollapse() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT)
-  const [isMobileOrTablet, setIsMobileOrTablet] = useState(() => typeof window !== 'undefined' && window.innerWidth < TABLET_BREAKPOINT)
   const [scrolledForNavBg, setScrolledForNavBg] = useState(false)
-  const [animatedProgress, setAnimatedProgress] = useState(0)
-  const [animatedLeaveProgress, setAnimatedLeaveProgress] = useState(0)
-  const progressRef = useRef(0)
-  const leaveProgressRef = useRef(0)
-  const animatedRef = useRef(0)
-  const animatedLeaveRef = useRef(0)
 
   useEffect(() => {
     const update = () => {
@@ -53,26 +41,9 @@ function useMobileScrollCollapse() {
       const mobile = w < MOBILE_BREAKPOINT
       const mobileOrTablet = w < TABLET_BREAKPOINT
       setIsMobile(mobile)
-      setIsMobileOrTablet(mobileOrTablet)
 
-      const H = window.innerHeight
-      const maxScroll = SCROLL_RANGE_VH * H
       const scrollY = window.scrollY
-
-      if (mobileOrTablet) {
-        setScrolledForNavBg(scrollY > SCROLL_THRESHOLD_FOR_NAV_BG)
-        if (mobile) {
-          const p = maxScroll <= 0 ? 0 : Math.min(1, scrollY / maxScroll)
-          progressRef.current = p
-        } else {
-          progressRef.current = 0
-        }
-        leaveProgressRef.current = 0
-      } else {
-        setScrolledForNavBg(false)
-        progressRef.current = 0
-        leaveProgressRef.current = 0
-      }
+      setScrolledForNavBg(mobileOrTablet && scrollY > SCROLL_THRESHOLD_FOR_NAV_BG)
     }
     update()
     window.addEventListener('scroll', update, { passive: true })
@@ -83,66 +54,9 @@ function useMobileScrollCollapse() {
     }
   }, [])
 
-  useEffect(() => {
-    animatedRef.current = animatedProgress
-  }, [animatedProgress])
-  useEffect(() => {
-    animatedLeaveRef.current = animatedLeaveProgress
-  }, [animatedLeaveProgress])
-
-  useEffect(() => {
-    if (!isMobile) {
-      setAnimatedProgress(0)
-      animatedRef.current = 0
-    }
-    if (!isMobileOrTablet) {
-      setAnimatedLeaveProgress(0)
-      animatedLeaveRef.current = 0
-    }
-    let rafId: number
-    const tick = () => {
-      if (isMobile) {
-        const target = progressRef.current
-        const current = animatedRef.current
-        const diff = target - current
-        if (Math.abs(diff) < 0.001) {
-          if (current !== target) {
-            animatedRef.current = target
-            setAnimatedProgress(target)
-          }
-        } else {
-          const next = current + diff * ANIM_LERP
-          animatedRef.current = next
-          setAnimatedProgress(next)
-        }
-      }
-      if (isMobileOrTablet) {
-        const leaveTarget = leaveProgressRef.current
-        const leaveCurrent = animatedLeaveRef.current
-        const leaveDiff = leaveTarget - leaveCurrent
-        if (Math.abs(leaveDiff) < 0.002) {
-          if (leaveCurrent !== leaveTarget) {
-            animatedLeaveRef.current = leaveTarget
-            setAnimatedLeaveProgress(leaveTarget)
-          }
-        } else {
-          const nextLeave = leaveCurrent + leaveDiff * LEAVE_LERP
-          animatedLeaveRef.current = nextLeave
-          setAnimatedLeaveProgress(nextLeave)
-        }
-      }
-      rafId = requestAnimationFrame(tick)
-    }
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [isMobile, isMobileOrTablet])
-
-  // On mobile/tablet: no scroll animations (progress and leaveProgress stay 0). scrolledForNavBg = show gradient+blur after scroll.
   return {
     isMobile,
-    isMobileOrTablet,
-    progress: isMobileOrTablet ? 0 : animatedProgress,
-    leaveProgress: isMobileOrTablet ? 0 : animatedLeaveProgress,
+    progress: 0,
     scrolledForNavBg,
   }
 }

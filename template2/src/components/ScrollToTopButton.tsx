@@ -9,6 +9,7 @@ export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false)
   const [isIdle, setIsIdle] = useState(false)
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const scrollFrameRef = useRef<number | null>(null)
 
   const checkScroll = useCallback(() => {
     setVisible(window.scrollY > SCROLL_THRESHOLD_PX)
@@ -24,13 +25,20 @@ export default function ScrollToTopButton() {
 
   useEffect(() => {
     const onScroll = () => {
-      checkScroll()
-      resetIdleTimer()
+      if (scrollFrameRef.current !== null) return
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        checkScroll()
+        resetIdleTimer()
+        scrollFrameRef.current = null
+      })
     }
     checkScroll()
     resetIdleTimer()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current)
+    }
   }, [checkScroll, resetIdleTimer])
 
   useEffect(() => {

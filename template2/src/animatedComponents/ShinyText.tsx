@@ -35,10 +35,23 @@ const ShinyText: React.FC<ShinyTextProps> = ({
   const elapsedRef = useRef(0)
   const lastTimeRef = useRef<number | null>(null)
   const directionRef = useRef(direction === 'left' ? 1 : -1)
+  const spanRef = useRef<HTMLSpanElement>(null)
+  const [isInView, setIsInView] = useState(false)
 
   const animationDuration = speed * 1000
   const delayDuration = delay * 1000
-  const shouldAnimate = !disabled && !paused && !isPaused
+  const shouldAnimate = !disabled && !paused && !isPaused && isInView
+
+  useEffect(() => {
+    const element = spanRef.current
+    if (!element || disabled) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { rootMargin: '100px' }
+    )
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [disabled])
 
   useAnimationFrame((time: number) => {
     if (!shouldAnimate) {
@@ -116,6 +129,7 @@ const ShinyText: React.FC<ShinyTextProps> = ({
 
   return (
     <motion.span
+      ref={spanRef}
       className={`inline-block align-baseline ${className}`}
       style={{
         ...gradientStyle,

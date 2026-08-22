@@ -7,7 +7,6 @@ import {
   CSSProperties,
   HTMLAttributes,
 } from 'react'
-import { motion } from 'framer-motion'
 
 function useAnimationFrame(callback: () => void, enabled: boolean) {
   const callbackRef = useRef(callback)
@@ -96,6 +95,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
   const animationEnabled = !disabled && !paused
   const mousePositionRef = useMousePositionRef(containerRef, hasPointerMovedRef, animationEnabled)
   const lastPositionRef = useRef<{ x: number | null; y: number | null }>({ x: null, y: null })
+  const letterCentersRef = useRef<Array<{ x: number; y: number } | null>>([])
 
   const parsedSettings = useMemo(() => {
     const parseSettings = (settingsStr: string) =>
@@ -119,6 +119,45 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
     }))
   }, [fromFontVariationSettings, toFontVariationSettings])
 
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || disabled) return
+    let cancelled = false
+
+    const measureLetters = () => {
+      if (cancelled) return
+      const containerRect = container.getBoundingClientRect()
+      letterCentersRef.current = letterRefs.current.map((letterRef) => {
+        if (!letterRef) return null
+        const rect = letterRef.getBoundingClientRect()
+        return {
+          x: rect.left + rect.width / 2 - containerRect.left,
+          y: rect.top + rect.height / 2 - containerRect.top,
+        }
+      })
+    }
+
+    const frameId = requestAnimationFrame(measureLetters)
+    const observer = new ResizeObserver(measureLetters)
+    observer.observe(container)
+    void document.fonts?.ready.then(measureLetters)
+
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(frameId)
+      observer.disconnect()
+    }
+  }, [containerRef, disabled, label])
+
+  useEffect(() => {
+    if (animationEnabled) return
+    letterRefs.current.forEach((letterRef) => {
+      if (letterRef) letterRef.style.fontVariationSettings = fromFontVariationSettings
+    })
+    hasPointerMovedRef.current = false
+    lastPositionRef.current = { x: null, y: null }
+  }, [animationEnabled, fromFontVariationSettings])
+
   const calculateDistance = (x1: number, y1: number, x2: number, y2: number) =>
     Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
@@ -138,27 +177,17 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
   useAnimationFrame(() => {
     if (!animationEnabled || !containerRef?.current) return
 
-    if (!hasPointerMovedRef.current) {
-      letterRefs.current.forEach((letterRef) => {
-        if (letterRef) letterRef.style.fontVariationSettings = fromFontVariationSettings
-      })
-      return
-    }
+    if (!hasPointerMovedRef.current) return
 
     const { x, y } = mousePositionRef.current
     if (lastPositionRef.current.x === x && lastPositionRef.current.y === y) return
     lastPositionRef.current = { x, y }
 
-    const containerRect = containerRef.current.getBoundingClientRect()
+    letterRefs.current.forEach((letterRef, index) => {
+      const center = letterCentersRef.current[index]
+      if (!letterRef || !center) return
 
-    letterRefs.current.forEach((letterRef) => {
-      if (!letterRef) return
-
-      const rect = letterRef.getBoundingClientRect()
-      const letterCenterX = rect.left + rect.width / 2 - containerRect.left
-      const letterCenterY = rect.top + rect.height / 2 - containerRect.top
-
-      const distance = calculateDistance(x, y, letterCenterX, letterCenterY)
+      const distance = calculateDistance(x, y, center.x, center.y)
 
       if (distance >= radius) {
         letterRef.style.fontVariationSettings = fromFontVariationSettings
@@ -203,7 +232,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
           {word.split('').map((letter) => {
             const currentLetterIndex = letterIndex++
             return (
-              <motion.span
+              <span
                 key={currentLetterIndex}
                 ref={(el) => {
                   letterRefs.current[currentLetterIndex] = el
@@ -215,7 +244,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
                 aria-hidden="true"
               >
                 {letter}
-              </motion.span>
+              </span>
             )
           })}
           {wordIndex < words.length - 1 && <span className="inline-block">&nbsp;</span>}

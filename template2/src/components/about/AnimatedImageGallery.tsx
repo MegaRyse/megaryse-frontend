@@ -78,6 +78,7 @@ function LifeAtMarquee({
   const suppressClickRef = useRef(false)
   const [hovered, setHovered] = useState(false)
   const [dragging, setDragging] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
   const paused = hovered || dragging
 
   const loop = images.length > 0 ? [...images, ...images] : []
@@ -112,8 +113,19 @@ function LifeAtMarquee({
     return () => ro.disconnect()
   }, [images])
 
+  useEffect(() => {
+    const element = trackRef.current
+    if (!element) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: '100px' }
+    )
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
   useAnimationFrame((_t, delta) => {
-    if (paused || reduceMotion || images.length < 2) return
+    if (paused || reduceMotion || !isVisible || images.length < 2) return
     const half = halfWidthRef.current
     if (half <= 0) return
     let next = x.get() - delta * MARQUEE_SPEED
