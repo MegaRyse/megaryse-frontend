@@ -17,7 +17,6 @@ import {
 const SPRING = { type: 'spring' as const, stiffness: 360, damping: 24 }
 const EASE = [0.22, 1, 0.36, 1] as const
 const AUTO_SCROLL_MS = 3200
-const ZOOM_LEVELS = [1, 1.55, 2.1] as const
 
 type AnimatedImageGalleryProps = {
   previews?: GalleryImage[]
@@ -213,7 +212,6 @@ function GalleryLightbox({
   reduceMotion: boolean
 }) {
   const [activeIndex, setActiveIndex] = useState(startIndex)
-  const [zoomStep, setZoomStep] = useState(0)
   const [paused, setPaused] = useState(false)
   const stripRef = useRef<HTMLDivElement>(null)
   const stripX = useMotionValue(0)
@@ -221,24 +219,18 @@ function GalleryLightbox({
   const imagePointerStartRef = useRef<number | null>(null)
 
   const active = images[activeIndex] ?? images[0]
-  const zoom = ZOOM_LEVELS[zoomStep] ?? 1
 
   const goTo = useCallback(
     (next: number) => {
       const len = images.length
       if (len === 0) return
       setActiveIndex(((next % len) + len) % len)
-      setZoomStep(0)
     },
     [images.length]
   )
 
   const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo])
   const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo])
-
-  const cycleZoom = useCallback(() => {
-    setZoomStep((z) => (z + 1) % ZOOM_LEVELS.length)
-  }, [])
 
   // Lock body scroll
   useEffect(() => {
@@ -255,21 +247,16 @@ function GalleryLightbox({
       if (e.key === 'Escape') onClose()
       if (e.key === 'ArrowRight') goNext()
       if (e.key === 'ArrowLeft') goPrev()
-      if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault()
-        cycleZoom()
-      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose, goNext, goPrev, cycleZoom])
+  }, [onClose, goNext, goPrev])
 
   // Auto-advance slides
   useEffect(() => {
     if (paused || reduceMotion || images.length < 2) return
     const id = window.setInterval(() => {
       setActiveIndex((i) => (i + 1) % images.length)
-      setZoomStep(0)
     }, AUTO_SCROLL_MS)
     return () => window.clearInterval(id)
   }, [paused, reduceMotion, images.length])
@@ -343,89 +330,90 @@ function GalleryLightbox({
 
       <motion.div
         role="presentation"
-        className="relative z-10 flex min-h-0 flex-1 cursor-pointer items-center justify-center px-3 py-4 sm:px-8"
+        className="relative z-10 flex min-h-0 flex-1 cursor-pointer flex-col items-center justify-center px-3 py-4 sm:px-8"
       >
-        <motion.button
-          type="button"
-          aria-label="Previous image"
-          onClick={(e) => {
-            e.stopPropagation()
-            goPrev()
-          }}
-          whileHover={reduceMotion ? undefined : { scale: 1.08, x: -2 }}
-          whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-          transition={SPRING}
-          className="absolute left-2 z-20 hidden h-11 w-11 items-center justify-center rounded-full bg-white/15 text-xl text-white backdrop-blur-sm sm:flex sm:left-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A55E]"
+        <div
+          className="flex w-full max-w-5xl flex-col items-center"
+          onClick={(e) => e.stopPropagation()}
         >
-          ‹
-        </motion.button>
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active.id}
-            role="presentation"
-            className="relative flex max-h-[min(68vh,720px)] w-full max-w-5xl cursor-default items-center justify-center overflow-hidden rounded-2xl bg-transparent"
-            initial={reduceMotion ? false : { opacity: 0, scale: 0.82 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={reduceMotion ? undefined : { opacity: 0, scale: 0.9 }}
-            transition={reduceMotion ? { duration: 0 } : SPRING}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <AnimatePresence mode="wait">
             <motion.div
-              className="relative aspect-[16/10] w-full touch-none cursor-zoom-in overflow-hidden rounded-2xl bg-transparent"
-              animate={{ scale: zoom }}
-              transition={SPRING}
-              onPointerDown={(e) => {
-                e.stopPropagation()
-                imagePointerStartRef.current = e.clientX
-                e.currentTarget.setPointerCapture(e.pointerId)
-              }}
-              onPointerUp={(e) => {
-                e.stopPropagation()
-                const startX = imagePointerStartRef.current
-                imagePointerStartRef.current = null
-                if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-                  e.currentTarget.releasePointerCapture(e.pointerId)
-                }
-                if (startX === null) return
-                const delta = e.clientX - startX
-                if (Math.abs(delta) >= 45) {
-                  if (delta > 0) goPrev()
-                  else goNext()
-                  return
-                }
-                cycleZoom()
-              }}
-              onPointerCancel={() => {
-                imagePointerStartRef.current = null
-              }}
+              key={active.id}
+              role="presentation"
+              className="relative flex max-h-[min(68vh,720px)] w-full cursor-default items-center justify-center overflow-hidden rounded-2xl bg-transparent"
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.82 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={reduceMotion ? undefined : { opacity: 0, scale: 0.9 }}
+              transition={reduceMotion ? { duration: 0 } : SPRING}
             >
-              <OptimizedImage
-                src={active.src}
-                webpSrc={active.webpSrc}
-                alt={active.alt}
-                priority
-                className="absolute inset-0 h-full w-full object-contain"
-                draggable={false}
-              />
+              <div
+                className="relative aspect-[16/10] w-full touch-none overflow-hidden rounded-2xl bg-transparent"
+                onPointerDown={(e) => {
+                  e.stopPropagation()
+                  imagePointerStartRef.current = e.clientX
+                  e.currentTarget.setPointerCapture(e.pointerId)
+                }}
+                onPointerUp={(e) => {
+                  e.stopPropagation()
+                  const startX = imagePointerStartRef.current
+                  imagePointerStartRef.current = null
+                  if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+                    e.currentTarget.releasePointerCapture(e.pointerId)
+                  }
+                  if (startX === null) return
+                  const delta = e.clientX - startX
+                  if (Math.abs(delta) >= 45) {
+                    if (delta > 0) goPrev()
+                    else goNext()
+                  }
+                }}
+                onPointerCancel={() => {
+                  imagePointerStartRef.current = null
+                }}
+              >
+                <OptimizedImage
+                  src={active.src}
+                  webpSrc={active.webpSrc}
+                  alt={active.alt}
+                  priority
+                  className="absolute inset-0 h-full w-full object-contain"
+                  draggable={false}
+                />
+              </div>
             </motion.div>
-          </motion.div>
-        </AnimatePresence>
+          </AnimatePresence>
 
-        <motion.button
-          type="button"
-          aria-label="Next image"
-          onClick={(e) => {
-            e.stopPropagation()
-            goNext()
-          }}
-          whileHover={reduceMotion ? undefined : { scale: 1.08, x: 2 }}
-          whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-          transition={SPRING}
-          className="absolute right-2 z-20 hidden h-11 w-11 items-center justify-center rounded-full bg-white/15 text-xl text-white backdrop-blur-sm sm:flex sm:right-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A55E]"
-        >
-          ›
-        </motion.button>
+          <div className="mt-3 flex items-center justify-center gap-8">
+            <motion.button
+              type="button"
+              aria-label="Previous image"
+              onClick={(e) => {
+                e.stopPropagation()
+                goPrev()
+              }}
+              whileHover={reduceMotion ? undefined : { scale: 1.08, x: -2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+              transition={SPRING}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-xl text-white backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A55E]"
+            >
+              ‹
+            </motion.button>
+            <motion.button
+              type="button"
+              aria-label="Next image"
+              onClick={(e) => {
+                e.stopPropagation()
+                goNext()
+              }}
+              whileHover={reduceMotion ? undefined : { scale: 1.08, x: 2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+              transition={SPRING}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-xl text-white backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A55E]"
+            >
+              ›
+            </motion.button>
+          </div>
+        </div>
       </motion.div>
 
       <motion.div
@@ -478,7 +466,7 @@ function GalleryLightbox({
 
 /**
  * About gallery (Life at MegaRyse): unlabeled previews → click opens
- * Framer Motion lightbox with all images, auto-scroll, and zoom.
+ * Framer Motion lightbox with all images, auto-scroll, and prev/next controls.
  */
 export function AnimatedImageGallery({
   previews = ABOUT_GALLERY_PREVIEWS,

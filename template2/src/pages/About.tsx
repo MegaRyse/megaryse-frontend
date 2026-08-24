@@ -123,7 +123,7 @@ const About = () => {
             }}
           >
             <motion.div
-              className="absolute inset-0"
+              className="absolute inset-0 min-[700px]:max-[1366px]:origin-top"
               initial={{ scale: 1.08 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true, margin: '-40px' }}
@@ -135,7 +135,7 @@ const About = () => {
                 width={ABOUT_INTRO_IMAGE.width}
                 height={ABOUT_INTRO_IMAGE.height}
                 priority
-                className="absolute inset-0 h-full w-full object-cover object-center"
+                className="absolute inset-0 h-full w-full object-cover object-center min-[700px]:max-[1366px]:object-[center_28%]"
               />
             </motion.div>
             <motion.div

@@ -36,6 +36,12 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (max-width: 1366px) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 img,
 picture {
   max-width: 100%;

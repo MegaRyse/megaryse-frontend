@@ -42,9 +42,8 @@ import {
   featureVisualImageClass,
 } from '../components/home/featureVisuals'
 
-const FEATURE_ANIMATION_BREAKPOINT_PX = 1280
-const FEATURE_DESKTOP_MEDIA_QUERY =
-  `(min-width: ${FEATURE_ANIMATION_BREAKPOINT_PX}px) and (hover: hover) and (pointer: fine)`
+const FEATURE_ANIMATION_BREAKPOINT_PX = 768
+const FEATURE_DESKTOP_MEDIA_QUERY = `(min-width: ${FEATURE_ANIMATION_BREAKPOINT_PX}px)`
 
 function useIsTabletOrDesktop() {
   const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(() =>
@@ -311,136 +310,40 @@ function TestimonialCarousel({
   reduceMotion: boolean
   onOpen: (testimonial: TestimonialItem) => void
 }) {
-  const viewportRef = useRef<HTMLDivElement>(null)
-  const dragRef = useRef<{
-    pointerId: number
-    startX: number
-    scrollLeft: number
-    moved: boolean
-  } | null>(null)
-  const suppressClickRef = useRef(false)
-  const segmentWidthRef = useRef(0)
-  const scrollReadyRef = useRef(false)
-  const [paused, setPaused] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const viewport = viewportRef.current
-    if (!viewport) return
-    const measure = () => {
-      const duplicateStart = viewport.children[testimonials.length] as HTMLElement | undefined
-      segmentWidthRef.current = duplicateStart?.offsetLeft ?? viewport.scrollWidth / 2
-      if (!scrollReadyRef.current && segmentWidthRef.current > 0) {
-        viewport.scrollLeft = segmentWidthRef.current
-        scrollReadyRef.current = true
-      }
-    }
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(viewport)
-    return () => observer.disconnect()
-  }, [testimonials.length])
-
-  useEffect(() => {
-    const viewport = viewportRef.current
-    if (!viewport) return
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { rootMargin: '100px' }
-    )
-    observer.observe(viewport)
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (reduceMotion || !isVisible || testimonials.length < 2) return
-    let frameId = 0
-    let previousTime = performance.now()
-    const speed = 0.055
-
-    const tick = (time: number) => {
-      const delta = Math.min(time - previousTime, 50)
-      previousTime = time
-      const viewport = viewportRef.current
-      const segment = segmentWidthRef.current
-      if (!paused && viewport && segment > 0) {
-        let next = viewport.scrollLeft - delta * speed
-        if (next <= 0) next += segment
-        viewport.scrollLeft = next
-      }
-      frameId = requestAnimationFrame(tick)
-    }
-    frameId = requestAnimationFrame(tick)
-    return () => {
-      cancelAnimationFrame(frameId)
-    }
-  }, [isVisible, paused, reduceMotion, testimonials.length])
-
-  const finishDrag = useCallback((target: HTMLDivElement, pointerId: number) => {
-    const drag = dragRef.current
-    if (!drag || drag.pointerId !== pointerId) return
-    suppressClickRef.current = drag.moved
-    dragRef.current = null
-    setPaused(false)
-    if (target.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId)
-  }, [])
-
+  const items = [...testimonials, ...testimonials]
   return (
     <div
-      ref={viewportRef}
-      className="grid cursor-grab touch-pan-x auto-cols-[88%] grid-flow-col items-stretch gap-4 overflow-x-auto overscroll-x-contain pb-3 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:auto-cols-[70%] sm:gap-5 md:auto-cols-[47%] xl:auto-cols-[32%]"
+      className="w-full min-w-0 overflow-hidden py-1"
       role="region"
       aria-roledescription="carousel"
       aria-label="Student testimonials"
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setPaused(false)}
-      onPointerDown={(event) => {
-        if (event.pointerType !== 'mouse' || event.button !== 0) return
-        dragRef.current = {
-          pointerId: event.pointerId,
-          startX: event.clientX,
-          scrollLeft: event.currentTarget.scrollLeft,
-          moved: false,
-        }
-        suppressClickRef.current = false
-        setPaused(true)
-      }}
-      onPointerMove={(event) => {
-        const drag = dragRef.current
-        if (!drag || drag.pointerId !== event.pointerId) return
-        if (Math.abs(event.clientX - drag.startX) > 6 && !drag.moved) {
-          drag.moved = true
-          event.currentTarget.setPointerCapture(event.pointerId)
-        }
-        event.currentTarget.scrollLeft = drag.scrollLeft - (event.clientX - drag.startX)
-      }}
-      onPointerUp={(event) => finishDrag(event.currentTarget, event.pointerId)}
-      onPointerCancel={(event) => finishDrag(event.currentTarget, event.pointerId)}
-      onClickCapture={(event) => {
-        if (!suppressClickRef.current) return
-        event.preventDefault()
-        event.stopPropagation()
-        suppressClickRef.current = false
-      }}
     >
-      {[...testimonials, ...testimonials].map((testimonial, idx) => {
-        const isDuplicate = idx >= testimonials.length
-        return (
-        <div
-          key={`${testimonial.name}-${idx}`}
-          className="min-w-0"
-          aria-hidden={isDuplicate || undefined}
-        >
-          <TestimonialCard
-            testimonial={testimonial}
-            index={idx % testimonials.length}
-            reduceMotion={reduceMotion}
-            onOpen={() => onOpen(testimonial)}
-            isDuplicate={isDuplicate}
-          />
-        </div>
-        )
-      })}
+      <div
+        className={`flex w-max gap-4 sm:gap-5 ${
+          reduceMotion
+            ? ''
+            : 'motion-safe:animate-partner-scroll-fast md:motion-safe:animate-partner-scroll hover:[animation-play-state:paused]'
+        }`}
+      >
+        {items.map((testimonial, idx) => {
+          const isDuplicate = idx >= testimonials.length
+          return (
+            <div
+              key={`${testimonial.name}-${idx}`}
+              className="w-[min(88vw,20.5rem)] shrink-0 sm:w-[min(70vw,22rem)] md:w-[20.5rem]"
+              aria-hidden={isDuplicate || undefined}
+            >
+              <TestimonialCard
+                testimonial={testimonial}
+                index={idx % testimonials.length}
+                reduceMotion={reduceMotion}
+                onOpen={() => onOpen(testimonial)}
+                isDuplicate={isDuplicate}
+              />
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
