@@ -1,9 +1,5 @@
 import { useState, FormEvent, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import contactHandshakeImg from '../assets/images/contact/contact-handshake.jpg'
-import { OptimizedImage } from '../components/OptimizedImage'
-
-const CONTACT_HERO_IMAGE = { width: 1024, height: 768 } as const
 
 const COUNTRIES = [
   'United States',
@@ -73,12 +69,12 @@ const Contact = () => {
       {/* Contact Section */}
       <section className="pt-16 pb-20 sm:pt-20 sm:pb-24 md:pt-24 md:pb-28 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:grid-cols-2 lg:items-stretch lg:gap-20">
+          <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:grid-cols-2 lg:items-start lg:gap-20">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex h-full w-full flex-col"
+              className="flex w-full flex-col"
             >
               <motion.div
                 initial={{ opacity: 0, x: -100 }}
@@ -100,37 +96,7 @@ const Contact = () => {
                 </p>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.15,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="mb-6 w-full shrink-0 sm:mb-8"
-              >
-                <div
-                  className="relative mx-auto w-full max-w-lg overflow-hidden rounded-xl bg-gray-100 shadow-lg ring-1 ring-gray-200/80 sm:rounded-2xl lg:mx-0 lg:max-w-none"
-                  style={{
-                    aspectRatio: `${CONTACT_HERO_IMAGE.width} / ${CONTACT_HERO_IMAGE.height}`,
-                    maxHeight: 'min(42vh, 320px)',
-                  }}
-                >
-                  <OptimizedImage
-                    src={contactHandshakeImg}
-                    alt="MegaRyse counsellor welcoming a student at our office"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#00275E]/25 via-transparent to-transparent"
-                    aria-hidden
-                  />
-                </div>
-              </motion.div>
-
-              <div className="mt-6 w-full shrink-0 space-y-6 lg:mt-auto lg:pt-2">
+              <div className="w-full space-y-6">
                 <motion.div
                   initial={{ opacity: 0, x: -100 }}
                   whileInView={{ opacity: 1, x: 0 }}
