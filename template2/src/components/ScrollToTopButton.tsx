@@ -4,49 +4,57 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const SCROLL_THRESHOLD_PX = 200
 const IDLE_TIMEOUT_MS = 3000
-const IDLE_CHECK_INTERVAL_MS = 400
 
 export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false)
   const [isIdle, setIsIdle] = useState(false)
-  const lastActivityRef = useRef(Date.now())
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const scrollFrameRef = useRef<number | null>(null)
 
   const checkScroll = useCallback(() => {
     setVisible(window.scrollY > SCROLL_THRESHOLD_PX)
   }, [])
 
-  const markActive = useCallback(() => {
-    lastActivityRef.current = Date.now()
+  const resetIdleTimer = useCallback(() => {
     setIsIdle(false)
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
+    idleTimerRef.current = setTimeout(() => {
+      setIsIdle(true)
+    }, IDLE_TIMEOUT_MS)
   }, [])
 
   useEffect(() => {
     const onScroll = () => {
-      checkScroll()
-      markActive()
+      if (scrollFrameRef.current !== null) return
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        checkScroll()
+        resetIdleTimer()
+        scrollFrameRef.current = null
+      })
     }
     checkScroll()
+    resetIdleTimer()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [checkScroll, markActive])
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current)
+    }
+  }, [checkScroll, resetIdleTimer])
 
   useEffect(() => {
-    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll']
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart']
     events.forEach((ev) => {
-      window.addEventListener(ev, markActive, { passive: true })
+      window.addEventListener(ev, resetIdleTimer, { passive: true })
     })
     return () => {
-      events.forEach((ev) => window.removeEventListener(ev, markActive))
+      events.forEach((ev) => window.removeEventListener(ev, resetIdleTimer))
     }
-  }, [markActive])
+  }, [resetIdleTimer])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Date.now() - lastActivityRef.current >= IDLE_TIMEOUT_MS) {
-        setIsIdle(true)
-      }
-    }, IDLE_CHECK_INTERVAL_MS)
-    return () => clearInterval(interval)
+    return () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
+    }
   }, [])
 
   const scrollToTop = () => {

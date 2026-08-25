@@ -1,27 +1,42 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
+const COUNTRIES = [
+  'United States',
+  'United Kingdom',
+  'Canada',
+  'Australia',
+  'Germany',
+  'France',
+  'Singapore',
+  'India',
+  'Other',
+]
+const INTAKES = ['Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026', 'Not Sure Yet']
+const RESET_DELAY_MS = 3000
+const INITIAL_FORM_DATA = {
+  name: '',
+  email: '',
+  phone: '',
+  country: '',
+  intake: '',
+  message: '',
+}
+
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    country: '',
-    intake: '',
-    message: '',
-  })
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }))
     }
-  }
+  }, [errors])
 
-  const validate = () => {
+  const validate = useCallback(() => {
     const newErrors: Record<string, string> = {}
     if (!formData.name.trim()) newErrors.name = 'Name is required'
     if (!formData.email.trim()) {
@@ -36,40 +51,30 @@ const Contact = () => {
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault()
     if (validate()) {
       setSubmitted(true)
       setTimeout(() => {
         setSubmitted(false)
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          country: '',
-          intake: '',
-          message: '',
-        })
-      }, 3000)
+        setFormData(INITIAL_FORM_DATA)
+      }, RESET_DELAY_MS)
     }
-  }
-
-  const countries = ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Singapore', 'India', 'Other']
-  const intakes = ['Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026', 'Not Sure Yet']
+  }, [validate])
 
   return (
     <div className="w-full bg-offwhite">
       {/* Contact Section */}
       <section className="pt-16 pb-20 sm:pt-20 sm:pb-24 md:pt-24 md:pb-28 bg-offwhite">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-start">
+          <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:grid-cols-2 lg:items-start lg:gap-20">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col justify-start w-full"
+              className="flex w-full flex-col"
             >
               <motion.div
                 initial={{ opacity: 0, x: -100 }}
@@ -81,7 +86,7 @@ const Contact = () => {
                   stiffness: 100,
                   damping: 20
                 }}
-                className="mb-12 w-full"
+                className="mb-8 w-full sm:mb-10"
               >
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
                   Get In Touch!
@@ -90,7 +95,8 @@ const Contact = () => {
                   Let's take your career to the next level!
                 </p>
               </motion.div>
-              <div className="space-y-6 w-full">
+
+              <div className="w-full space-y-6">
                 <motion.div
                   initial={{ opacity: 0, x: -100 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -207,9 +213,9 @@ const Contact = () => {
                 stiffness: 100,
                 damping: 20
               }}
-              className="w-full"
+              className="flex h-full w-full flex-col"
             >
-              <div className="bg-[#00275E] rounded-xl p-8 sm:p-10 shadow-xl border border-gray-100 w-full">
+              <div className="flex h-full min-h-0 w-full flex-col rounded-xl border border-gray-100 bg-[#00275E] p-8 shadow-xl sm:p-10 lg:h-full">
                 {submitted ? (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -229,8 +235,13 @@ const Contact = () => {
                     <p className="text-white/90 text-base">We'll get back to you soon.</p>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-                    <div className="space-y-5">
+                  <form
+                    onSubmit={handleSubmit}
+                    action="https://formspree.io/f/YOUR_FORM_ID"
+                    method="POST"
+                    className="flex h-full min-h-0 flex-col"
+                  >
+                    <div className="flex flex-1 flex-col space-y-5">
                       <div>
                         <label htmlFor="name" className="block text-sm font-semibold text-white mb-2.5">
                           Name
@@ -300,7 +311,7 @@ const Contact = () => {
                             } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
                           >
                             <option value="">Select Country</option>
-                            {countries.map((country) => (
+                            {COUNTRIES.map((country) => (
                               <option key={country} value={country}>
                                 {country}
                               </option>
@@ -323,7 +334,7 @@ const Contact = () => {
                             } focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all`}
                           >
                             <option value="">Select Intake</option>
-                            {intakes.map((intake) => (
+                            {INTAKES.map((intake) => (
                               <option key={intake} value={intake}>
                                 {intake}
                               </option>
@@ -350,20 +361,20 @@ const Contact = () => {
                         />
                         {errors.message && <p className="text-red-400 text-sm mt-1.5">{errors.message}</p>}
                       </div>
-
-                      <motion.button
-                        type="submit"
-                        className="w-full bg-gradient-gold text-gray-900 px-8 py-4 rounded-lg font-semibold text-base shadow-md hover:shadow-xl transition-all duration-300"
-                        whileHover={{ 
-                          scale: 1.02,
-                          boxShadow: '0 20px 40px rgba(213, 173, 54, 0.3)'
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                      >
-                        Send Message
-                      </motion.button>
                     </div>
+
+                    <motion.button
+                      type="submit"
+                      className="mt-5 w-full shrink-0 rounded-lg bg-gradient-gold px-8 py-4 text-base font-semibold text-gray-900 shadow-md transition-all duration-300 hover:shadow-xl lg:mt-auto lg:pt-6"
+                      whileHover={{
+                        scale: 1.02,
+                        boxShadow: '0 20px 40px rgba(213, 173, 54, 0.3)',
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    >
+                      Send Message
+                    </motion.button>
                   </form>
                 )}
               </div>

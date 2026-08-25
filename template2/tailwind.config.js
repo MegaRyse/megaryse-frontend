@@ -30,9 +30,21 @@ export default {
           '0%': { transform: 'translateX(-50%)' },
           '100%': { transform: 'translateX(0)' },
         },
+        'testimonial-scroll': {
+          '0%': { transform: 'translate3d(0, 0, 0)' },
+          '100%': { transform: 'translate3d(-50%, 0, 0)' },
+        },
+        'testimonial-scroll-reverse': {
+          '0%': { transform: 'translate3d(-50%, 0, 0)' },
+          '100%': { transform: 'translate3d(0, 0, 0)' },
+        },
       },
       animation: {
         'partner-scroll': 'partner-scroll 25s linear infinite',
+        /** Same keyframes as partner-scroll; shorter duration for small screens (Home.tsx). */
+        'partner-scroll-fast': 'partner-scroll 12s linear infinite',
+        'testimonial-scroll': 'testimonial-scroll 50s linear infinite',
+        'testimonial-scroll-reverse': 'testimonial-scroll-reverse 50s linear infinite',
       },
     },
   },

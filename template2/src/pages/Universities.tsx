@@ -1,9 +1,62 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUniversitiesByTab, type University } from '../data/universities'
+import { OptimizedImage } from '../components/OptimizedImage'
 
-const LOGOS = ['🏛️', '🎓', '📚', '🌟', '💎', '🏆', '💻', '🌍']
+const UNIVERSITY_TABS = [
+  { id: 'undergraduate', label: 'Undergraduate Programs' },
+  { id: 'postgraduate', label: 'Postgraduate Programs' },
+  { id: 'professional', label: 'Professional & Certification Courses' },
+] as const
+
+// Animation variants matching Courses.tsx
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+}
+
+// Unique card entrance animation - stacking effect
+const CARD_VARIANTS = {
+  hidden: {
+    opacity: 0,
+    y: 60,
+    scale: 0.8,
+    rotateX: -15
+  },
+  visible: (idx: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    rotateX: 0,
+    transition: {
+      duration: 0.6,
+      delay: idx * 0.15,
+      type: "spring",
+      stiffness: 100,
+      damping: 20
+    }
+  })
+}
 
 const Universities = () => {
   const navigate = useNavigate()
@@ -12,61 +65,17 @@ const Universities = () => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const [hoveredButton, setHoveredButton] = useState<number | null>(null)
 
-  const currentUniversities = getUniversitiesByTab(activeTab)
+  const currentUniversities = useMemo(() => getUniversitiesByTab(activeTab), [activeTab])
 
-  // Animation variants matching Courses.tsx
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  }
-
-  // Unique card entrance animation - stacking effect
-  const cardVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 60,
-      scale: 0.8,
-      rotateX: -15
-    },
-    visible: (idx: number) => ({
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      rotateX: 0,
-      transition: {
-        duration: 0.6,
-        delay: idx * 0.15,
-        type: "spring",
-        stiffness: 100,
-        damping: 20
-      }
-    })
-  }
-
-  const handleUniversitySelect = (uni: University) => {
+  const handleUniversitySelect = useCallback((uni: University) => {
     navigate('/courses', {
-      state: { universityName: uni.name, universitySlug: uni.slug },
+      state: {
+        universityName: uni.name,
+        universitySlug: uni.slug,
+        selectedTab: activeTab,
+      },
     })
-  }
+  }, [navigate, activeTab])
 
   return (
     <div className="w-full bg-offwhite">
@@ -135,18 +144,14 @@ const Universities = () => {
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="flex flex-wrap justify-center gap-3 sm:gap-4"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             animate="visible"
           >
-            {[
-              { id: 'undergraduate', label: 'Undergraduate Programs' },
-              { id: 'postgraduate', label: 'Postgraduate Programs' },
-              { id: 'professional', label: 'Professional & Certification Courses' },
-            ].map((tab) => (
+            {UNIVERSITY_TABS.map((tab) => (
               <motion.div
                 key={tab.id}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className={`relative rounded-lg p-[2px] overflow-hidden w-full sm:w-auto ${
                   activeTab === tab.id ? 'bg-gradient-gold' : ''
                 }`}
@@ -260,7 +265,7 @@ const Universities = () => {
               <motion.div
                     key={`${activeTab}-${uni.id}`}
                     custom={idx}
-                    variants={cardVariants}
+                    variants={CARD_VARIANTS}
                     initial="hidden"
                     animate="visible"
                     whileHover={{ 
@@ -297,12 +302,17 @@ const Universities = () => {
                     />
 
                     {/* Logo */}
-                    <div className="text-5xl mb-4 text-center">
-                      {LOGOS[uni.id % LOGOS.length]}
+                    <div className="mb-4 text-center">
+                      <OptimizedImage
+                        src={uni.logo}
+                        webpSrc={uni.logoWebp}
+                        alt={uni.name}
+                        className="block w-auto h-auto max-w-[84px] sm:max-w-[96px] md:max-w-[120px] max-h-[62px] sm:max-h-[72px] md:max-h-[84px] object-contain mx-auto"
+                      />
                     </div>
 
                     {/* University Name */}
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 text-center">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 text-center leading-tight">
                       {uni.name}
                     </h3>
 

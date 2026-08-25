@@ -2,23 +2,37 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import ShinyText from '../animatedComponents/ShinyText'
 import trustedEducationImg from '../assets/images/trustededucation.png'
+import trustedEducationWebp from '../assets/images/trustededucation.webp'
 import careerFocusedImg from '../assets/images/careerfocused.png'
+import careerFocusedWebp from '../assets/images/careerfocused.webp'
 import successImg from '../assets/images/sucess.png'
+import successWebp from '../assets/images/sucess.webp'
 import valueDrivenImg from '../assets/images/valuedriven.png'
+import valueDrivenWebp from '../assets/images/valuedriven.webp'
 import supportImg from '../assets/images/support.png'
+import supportWebp from '../assets/images/support.webp'
 import personalizedImg from '../assets/images/personalized.png'
+import personalizedWebp from '../assets/images/personalized.webp'
 import easyApplyImg from '../assets/images/easyapply.png'
+import easyApplyWebp from '../assets/images/easyapply.webp'
 import globalEducationImg from '../assets/images/globaleducation.png'
+import globalEducationWebp from '../assets/images/globaleducation.webp'
+import experienceTeamImg from '../assets/images/about/experience-team.png'
+import directorImg from '../assets/images/about/director.png'
+import directorWebp from '../assets/images/about/director.webp'
+import { OptimizedImage } from '../components/OptimizedImage'
+import { AnimatedImageGallery } from '../components/about/AnimatedImageGallery'
 
+/** Native asset dimensions — container aspect ratio matches each image to avoid letterboxing. */
 const EDGE_IMAGES = [
-  trustedEducationImg,
-  careerFocusedImg,
-  successImg,
-  valueDrivenImg,
-  supportImg,
-  personalizedImg,
-  easyApplyImg,
-  globalEducationImg,
+  { src: trustedEducationImg, webp: trustedEducationWebp, width: 1280, height: 826 },
+  { src: careerFocusedImg, webp: careerFocusedWebp, width: 1280, height: 1165 },
+  { src: successImg, webp: successWebp, width: 1280, height: 990 },
+  { src: valueDrivenImg, webp: valueDrivenWebp, width: 1280, height: 1008 },
+  { src: supportImg, webp: supportWebp, width: 1280, height: 871 },
+  { src: personalizedImg, webp: personalizedWebp, width: 1280, height: 910 },
+  { src: easyApplyImg, webp: easyApplyWebp, width: 1280, height: 894 },
+  { src: globalEducationImg, webp: globalEducationWebp, width: 1280, height: 844 },
 ]
 
 const MEGA_RYSE_EDGE = [
@@ -31,6 +45,8 @@ const MEGA_RYSE_EDGE = [
   { title: 'Simple, Stress-Free Admissions', description: "We handle the complexities so you don't have to—making the entire admission process smooth, fast, and hassle-free.", image: easyApplyImg },
   { title: 'Learn Without Boundaries', description: 'With our digital-first approach, you can access quality education anytime, anywhere, and progress at a pace that suits you.', image: globalEducationImg },
 ]
+
+const ABOUT_INTRO_IMAGE = { width: 1024, height: 768 } as const
 
 const STATS = [
   { number: '10k+', label: 'Students Enrolled' },
@@ -47,28 +63,27 @@ const About = () => {
   }, [])
 
   return (
-    <div className="w-full bg-offwhite">
-      {/* Hero — off-white background */}
-      <section className="relative pt-0 pb-0 sm:pt-0 sm:pb-0 md:pt-0 md:pb-0 bg-offwhite overflow-visible">
-        <div className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
+    <div className="w-full overflow-x-clip bg-offwhite">
+      {/* Hero — title, full-width image, then description */}
+      <section className="relative bg-offwhite overflow-visible pb-12 sm:pb-16 md:pb-20 lg:pb-24">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px', amount: 0.2 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative max-w-container mx-auto px-4 sm:px-6 lg:px-8 overflow-visible text-center"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px', amount: 0.2 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center overflow-visible py-0"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-1 px-4 sm:px-6 pt-0 pb-1 tracking-tight leading-[1.6] [word-spacing:0.08em] overflow-visible"
+            style={{ minHeight: '1.6em' }}
           >
-            <motion.h1
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-1 px-4 sm:px-6 pt-0 pb-1 tracking-tight leading-[1.6] [word-spacing:0.08em] overflow-visible"
-              style={{ minHeight: '1.6em' }}
-            >
-              <span className="inline-block overflow-visible pb-[0.15em]">
-                About{' '}
-                <ShinyText
+            <span className="inline-block overflow-visible pb-[0.15em]">
+              About{' '}
+              <ShinyText
                 text="MegaRyse EduCntr"
                 speed={2}
                 delay={0}
@@ -80,81 +95,153 @@ const About = () => {
                 pauseOnHover={false}
                 disabled={false}
               />
-              </span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-base sm:text-lg md:text-xl text-gray-600 px-2 mb-0 pb-0"
+            </span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-base sm:text-lg md:text-xl text-gray-600 px-2 mb-0"
+          >
+            Igniting MBA careers with elite global programs.
+          </motion.p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px', amount: 0.15 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mt-6 w-full px-4 sm:mt-8 sm:px-6 md:mt-10 lg:px-8"
+        >
+          <div
+            className="relative mx-auto w-full max-w-container overflow-hidden bg-gray-100 shadow-lg rounded-xl sm:rounded-2xl"
+            style={{
+              aspectRatio: `${ABOUT_INTRO_IMAGE.width} / ${ABOUT_INTRO_IMAGE.height}`,
+              maxHeight: 'min(52vh, 560px)',
+            }}
+          >
+            <motion.div
+              className="absolute inset-0 min-[700px]:max-[1366px]:origin-top"
+              initial={{ scale: 1.08 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
             >
-              Igniting MBA careers with elite global programs.
+              <OptimizedImage
+                src={experienceTeamImg}
+                alt="MegaRyse team at work"
+                width={ABOUT_INTRO_IMAGE.width}
+                height={ABOUT_INTRO_IMAGE.height}
+                priority
+                className="absolute inset-0 h-full w-full object-cover object-center min-[700px]:max-[1366px]:object-[center_28%]"
+              />
+            </motion.div>
+            <motion.div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#00275E]/35 via-transparent to-transparent"
+              aria-hidden
+            />
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px', amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-container mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-12 md:mt-14 min-w-0 text-center"
+        >
+          <motion.div className="w-full space-y-6 sm:space-y-8">
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="text-base sm:text-lg text-gray-600 leading-relaxed"
+            >
+              MegaRyse EduCntr is a next-generation EdTech startup committed to redefining higher education through accredited online degree and certification programs designed for today's fast-evolving career landscape. We understand the needs of modern learners balancing work, personal commitments, and career growth and create learning pathways that are flexible, accessible, and outcome driven.
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="text-base sm:text-lg text-gray-600 leading-relaxed"
+            >
+              By partnering with leading universities and institutions, MegaRyse EduCntr delivers high-quality, industry-relevant programs that combine academic excellence with real-world applicability. Our offerings are structured to be affordable without compromising on credibility, ensuring learners gain recognized qualifications that add real value to their professional journey.
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="text-base sm:text-lg text-gray-600 leading-relaxed"
+            >
+              From personalized counseling and seamless enrollment to continuous learner support, we guide students at every stage of their educational journey. At MegaRyse EduCntr, our mission is simple: to empower working professionals and aspiring learners with the right education, skills, and confidence to rise higher in their careers.
             </motion.p>
           </motion.div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Intro + Experience — two-column on large, stacked on small; min-w-0 to prevent overflow */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">
-        <div className="max-w-container mx-auto w-full px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-start min-w-0">
-            <motion.aside
-              initial={{ opacity: 0, x: -24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-50px', amount: 0.2 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:col-span-4 space-y-6 min-w-0"
-            >
-              <div className="bg-gradient-to-br from-gold to-gold-bright rounded-2xl p-6 sm:p-8 text-center shadow-lg border border-gold-bright/30 w-full">
-                <div className="text-5xl sm:text-6xl font-bold text-white mb-1 drop-shadow-sm">12+</div>
-                <div className="text-white/95 font-semibold text-base sm:text-lg">Years Of Experience</div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white rounded-xl p-4 sm:p-6 text-center shadow-md border border-gray-100 min-w-0">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gold/20 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl">👨‍🎓</div>
-                </div>
-                <div className="bg-white rounded-xl p-4 sm:p-6 text-center shadow-md border border-gray-100 min-w-0">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gold/20 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl">👩‍🎓</div>
-                </div>
-              </div>
-            </motion.aside>
+      {/* Our Director */}
+      <section className="bg-offwhite py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="mx-auto w-full max-w-container px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-12 lg:gap-16">
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: -28 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-50px', amount: 0.2 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:col-span-8 min-w-0"
+              viewport={{ once: true, margin: '-60px', amount: 0.2 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="relative mx-auto w-full max-w-sm md:max-w-md"
             >
-              <div className="space-y-6">
-                <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-30px' }}
-                  transition={{ duration: 0.4, delay: 0.1 }}
-                  className="text-base sm:text-lg text-gray-600 leading-relaxed"
-                >
-                  MegaRyse EduCntr is a next-generation EdTech startup committed to redefining higher education through accredited online degree and certification programs designed for today's fast-evolving career landscape. We understand the needs of modern learners—balancing work, personal commitments, and career growth—and create learning pathways that are flexible, accessible, and outcome-driven.
-                </motion.p>
-                <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-30px' }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                  className="text-base sm:text-lg text-gray-600 leading-relaxed"
-                >
-                  By partnering with leading universities and institutions, MegaRyse EduCntr delivers high-quality, industry-relevant programs that combine academic excellence with real-world applicability. Our offerings are structured to be affordable without compromising on credibility, ensuring learners gain recognized qualifications that add real value to their professional journey.
-                </motion.p>
-                <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-30px' }}
-                  transition={{ duration: 0.4, delay: 0.3 }}
-                  className="text-base sm:text-lg text-gray-600 leading-relaxed"
-                >
-                  From personalized counseling and seamless enrollment to continuous learner support, we guide students at every stage of their educational journey. At MegaRyse EduCntr, our mission is simple: to empower working professionals and aspiring learners with the right education, skills, and confidence to rise higher in their careers.
-                </motion.p>
+              <div className="absolute -inset-3 rounded-[1.75rem] bg-gradient-to-br from-gold/25 via-gold-bright/10 to-blue-custom/10 blur-sm" />
+              <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-gray-100 shadow-xl ring-1 ring-black/5">
+                <OptimizedImage
+                  src={directorImg}
+                  webpSrc={directorWebp}
+                  alt="Director of MegaRyse EduCntr"
+                  width={768}
+                  height={1024}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#00275E]/35 to-transparent"
+                  aria-hidden
+                />
               </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 28 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px', amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="min-w-0 text-center md:text-left"
+            >
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gold sm:text-sm">
+                Leadership with purpose
+              </p>
+              <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
+                Our <span className="bg-gradient-gold bg-clip-text text-transparent">Director</span>
+              </h2>
+              <div className="mt-6 space-y-4 text-sm leading-relaxed text-gray-600 sm:text-base md:text-lg">
+                <p>
+                  At the heart of MegaRyse EduCntr is a clear belief: every learner deserves access
+                  to credible education, honest guidance, and opportunities that create meaningful
+                  career growth.
+                </p>
+                <p>
+                  Our Director leads this vision with empathy, integrity, and a strong commitment
+                  to student success. Her learner-first approach shapes everything we do—from
+                  building trusted university partnerships to creating flexible learning pathways
+                  and ensuring every student receives personal support throughout their journey.
+                </p>
+              </div>
+              <blockquote className="mt-7 rounded-2xl border-l-4 border-gold bg-offwhite px-5 py-4 text-left text-sm font-medium italic leading-relaxed text-navy shadow-sm sm:text-base">
+                “Education should do more than award a qualification, it should give every learner
+                the confidence and opportunity to rise.”
+              </blockquote>
             </motion.div>
           </div>
         </div>
@@ -179,7 +266,7 @@ const About = () => {
           </motion.div>
           <div className="space-y-12 sm:space-y-16 md:space-y-20">
             {MEGA_RYSE_EDGE.map((item, idx) => {
-              const img = (item as { image?: string }).image ?? EDGE_IMAGES[idx]
+              const visual = EDGE_IMAGES[idx]
               const imageLeft = idx % 2 === 0
               return (
                 <motion.article
@@ -195,9 +282,17 @@ const About = () => {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, margin: '-40px' }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className={`relative aspect-[4/3] min-h-[200px] sm:min-h-0 rounded-2xl overflow-hidden bg-gray-100 shadow-md min-w-0 ${!imageLeft ? 'md:col-start-2' : ''}`}
+                    className={`relative w-full rounded-2xl overflow-hidden bg-gray-100 shadow-md min-w-0 ${!imageLeft ? 'md:col-start-2' : ''}`}
+                    style={{ aspectRatio: `${visual.width} / ${visual.height}` }}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <OptimizedImage
+                      src={visual.src}
+                      webpSrc={visual.webp}
+                      alt=""
+                      width={visual.width}
+                      height={visual.height}
+                      className="absolute inset-0 h-full w-full object-cover object-center"
+                    />
                     <span className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gold text-white font-bold flex items-center justify-center text-sm shadow">
                       {idx + 1}
                     </span>
@@ -222,6 +317,9 @@ const About = () => {
           </div>
         </div>
       </section>
+
+      {/* Life at MegaRyse — team photos from assets/images/gallery */}
+      <AnimatedImageGallery />
 
       {/* Stats — same section padding and container as other pages */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-offwhite">

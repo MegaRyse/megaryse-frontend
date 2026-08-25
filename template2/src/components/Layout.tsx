@@ -1,9 +1,12 @@
-import { ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import Navbar from './Navbar'
 import Footer from './Footer'
-import { EnquireNowFormModal } from './enquireNowFormModal'
 import ScrollToTopButton from './ScrollToTopButton'
-import ClickSpark from '../animatedComponents/ClickSpark'
+
+const ClickSpark = lazy(() => import('../animatedComponents/ClickSpark'))
+const EnquireNowFormModal = lazy(() =>
+  import('./enquireNowFormModal').then((m) => ({ default: m.EnquireNowFormModal })),
+)
 
 interface LayoutProps {
   children: ReactNode
@@ -14,22 +17,25 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="min-h-screen flex flex-col bg-offwhite">
       <Navbar />
       <main className="flex-grow">
-        <ClickSpark
-          sparkColor="black"
-          sparkRadius={18}
-          sparkCount={10}
-          duration={450}
-          className="min-h-full"
-        >
-          {children}
-        </ClickSpark>
+        <Suspense fallback={<div className="min-h-full">{children}</div>}>
+          <ClickSpark
+            sparkColor="black"
+            sparkRadius={18}
+            sparkCount={10}
+            duration={450}
+            className="min-h-full"
+          >
+            {children}
+          </ClickSpark>
+        </Suspense>
       </main>
       <Footer />
-      <EnquireNowFormModal />
+      <Suspense fallback={null}>
+        <EnquireNowFormModal />
+      </Suspense>
       <ScrollToTopButton />
     </div>
   )
 }
 
 export default Layout
-

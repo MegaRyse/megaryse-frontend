@@ -5,13 +5,13 @@ import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { useEnquireModal } from '../context/EnquireModalContext'
 
 const GMAIL_SUFFIX = '@gmail.com'
-const IDLE_SECONDS = 60000
+const SHOW_AFTER_MS = 3 * 60 * 1000
 
 const PAGES_NO_ENQUIRE_MODAL = ['/careers', '/contact']
 
 // Web3Forms
 const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
-const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '23fba237-4956-4562-a399-973a34a2bda1'
+const WEB3_FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '23fba237-4956-4562-a399-973a34a2bda1'
 
 const UNIVERSITIES = [
   'Amity University',
@@ -57,8 +57,9 @@ interface EnquireErrors {
   captcha?: string
 }
 
-// Throttle: reset idle timer at most once per second so rapid events (mousemove/scroll) don't prevent timer from ever firing
-const IDLE_RESET_THROTTLE_MS = 1000
+function isEnquireExcludedPath(pathname: string) {
+  return PAGES_NO_ENQUIRE_MODAL.some((path) => pathname === path || pathname.startsWith(path + '/'))
+}
 
 export const EnquireNowFormModal = () => {
   const location = useLocation()
@@ -78,43 +79,27 @@ export const EnquireNowFormModal = () => {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [submitMessage, setSubmitMessage] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
-  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const lastResetRef = useRef<number>(0)
+  const twoMinutesElapsedRef = useRef(false)
+  const autoPromptDismissedRef = useRef(false)
 
-  // Idle detection: show modal after 12s of no activity. Do not open on Careers or Contact.
-  const isExcludedPage = PAGES_NO_ENQUIRE_MODAL.some((path) => location.pathname === path || location.pathname.startsWith(path + '/'))
+  const isExcludedPage = isEnquireExcludedPath(location.pathname)
+
+  // Show once, 3 minutes after the user enters the site. Stays open until they close it.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      twoMinutesElapsedRef.current = true
+      if (autoPromptDismissedRef.current) return
+      if (isEnquireExcludedPath(window.location.pathname)) return
+      openEnquireModal()
+    }, SHOW_AFTER_MS)
+
+    return () => window.clearTimeout(timer)
+  }, [openEnquireModal])
 
   useEffect(() => {
-    if (isExcludedPage) {
-      if (idleTimerRef.current) {
-        clearTimeout(idleTimerRef.current)
-        idleTimerRef.current = null
-      }
-      return
-    }
-
-    const resetTimer = () => {
-      const now = Date.now()
-      if (now - lastResetRef.current < IDLE_RESET_THROTTLE_MS) return
-      lastResetRef.current = now
-
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-      idleTimerRef.current = setTimeout(() => {
-        const currentPath = window.location.pathname
-        const excluded = PAGES_NO_ENQUIRE_MODAL.some((path) => currentPath === path || currentPath.startsWith(path + '/'))
-        if (excluded) return
-        openEnquireModal()
-      }, IDLE_SECONDS * 1000)
-    }
-
-    resetTimer()
-    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click']
-    events.forEach((ev) => window.addEventListener(ev, resetTimer))
-    return () => {
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-      events.forEach((ev) => window.removeEventListener(ev, resetTimer))
-    }
-  }, [isExcludedPage, openEnquireModal])
+    if (!twoMinutesElapsedRef.current || autoPromptDismissedRef.current || isExcludedPage) return
+    openEnquireModal()
+  }, [isExcludedPage, location.pathname, openEnquireModal])
 
   const validateFullName = useCallback((value: string): string | undefined => {
     if (!value.trim()) return 'Full name is required'
@@ -177,7 +162,7 @@ export const EnquireNowFormModal = () => {
 
       try {
         const payload: Record<string, string> = {
-          access_key: web3FormsAccessKey,
+          access_key: WEB3_FORMS_ACCESS_KEY,
           subject: 'Enquire Now – Course / University interest',
           from_name: form.fullName,
           email: form.email,
@@ -213,7 +198,6 @@ export const EnquireNowFormModal = () => {
           hCaptchaRef.current?.resetCaptcha()
           setErrors({})
           setSubmitTried(false)
-          setTimeout(() => closeEnquireModal(), 2000)
         } else {
           setSubmitStatus('error')
           setSubmitMessage(result.message || 'Something went wrong. Please try again or contact us directly.')
@@ -230,6 +214,7 @@ export const EnquireNowFormModal = () => {
   )
 
   const handleClose = useCallback(() => {
+    autoPromptDismissedRef.current = true
     setErrors({})
     setSubmitTried(false)
     setSubmitStatus('idle')

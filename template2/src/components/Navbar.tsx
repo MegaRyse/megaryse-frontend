@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Logo from '../assets/images/logo_1.png'
+import LogoWebp from '../assets/images/logo_1.webp'
+import { OptimizedImage } from './OptimizedImage'
 import { useEnquireModal } from '../context/EnquireModalContext'
 
 const MOBILE_BREAKPOINT = 768
 const TABLET_BREAKPOINT = 1024
 
 /** === Control mobile navbar (screens < 768px) === */
-/** Logo size in pixels (width and height). */
-const MOBILE_LOGO_SIZE_PX = 150
 /** Navbar bar min-height in rem (1rem = 16px). e.g. 4.25 = 68px. */
 const MOBILE_NAVBAR_MIN_HEIGHT_REM = 5.25
 /** Top/bottom padding of navbar container in rem. */
@@ -18,24 +18,22 @@ const MOBILE_NAVBAR_PADDING_BOTTOM_REM = 0.125
 /** Horizontal padding of navbar container in rem. */
 const MOBILE_NAVBAR_PADDING_X_REM = 0.75
 
-/** Scroll range: animation target reaches 1 when user has scrolled this fraction of viewport height */
-const SCROLL_RANGE_VH = 0.2
-/** Lerp factor for slow, visible animation (0.02–0.04 = slow catch-up even when scrolling fast) */
-const ANIM_LERP = 0.028
-const LEAVE_LERP = 0.06
 /** On mobile/tablet: show navbar gradient + blur only after user has scrolled past this (px) */
 const SCROLL_THRESHOLD_FOR_NAV_BG = 16
+const NAV_ITEMS = [
+  { path: '/', label: 'Home' },
+  { path: '/about', label: 'About' },
+  { path: '/universities', label: 'Universities' },
+  { path: '/courses', label: 'Courses' },
+  { path: '/careers', label: 'Careers' },
+  { path: '/contact', label: 'Contact' },
+]
+const MOBILE_NAV_GRADIENT =
+  'linear-gradient(to bottom, #F5F2EA 0%, #F5F2EA 30%, rgba(245,242,234,0.97) 55%, rgba(245,242,234,0.5) 80%, transparent 100%)'
 
 function useMobileScrollCollapse() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT)
-  const [isMobileOrTablet, setIsMobileOrTablet] = useState(() => typeof window !== 'undefined' && window.innerWidth < TABLET_BREAKPOINT)
   const [scrolledForNavBg, setScrolledForNavBg] = useState(false)
-  const [animatedProgress, setAnimatedProgress] = useState(0)
-  const [animatedLeaveProgress, setAnimatedLeaveProgress] = useState(0)
-  const progressRef = useRef(0)
-  const leaveProgressRef = useRef(0)
-  const animatedRef = useRef(0)
-  const animatedLeaveRef = useRef(0)
 
   useEffect(() => {
     const update = () => {
@@ -43,26 +41,9 @@ function useMobileScrollCollapse() {
       const mobile = w < MOBILE_BREAKPOINT
       const mobileOrTablet = w < TABLET_BREAKPOINT
       setIsMobile(mobile)
-      setIsMobileOrTablet(mobileOrTablet)
 
-      const H = window.innerHeight
-      const maxScroll = SCROLL_RANGE_VH * H
       const scrollY = window.scrollY
-
-      if (mobileOrTablet) {
-        setScrolledForNavBg(scrollY > SCROLL_THRESHOLD_FOR_NAV_BG)
-        if (mobile) {
-          const p = maxScroll <= 0 ? 0 : Math.min(1, scrollY / maxScroll)
-          progressRef.current = p
-        } else {
-          progressRef.current = 0
-        }
-        leaveProgressRef.current = 0
-      } else {
-        setScrolledForNavBg(false)
-        progressRef.current = 0
-        leaveProgressRef.current = 0
-      }
+      setScrolledForNavBg(mobileOrTablet && scrollY > SCROLL_THRESHOLD_FOR_NAV_BG)
     }
     update()
     window.addEventListener('scroll', update, { passive: true })
@@ -73,66 +54,9 @@ function useMobileScrollCollapse() {
     }
   }, [])
 
-  useEffect(() => {
-    animatedRef.current = animatedProgress
-  }, [animatedProgress])
-  useEffect(() => {
-    animatedLeaveRef.current = animatedLeaveProgress
-  }, [animatedLeaveProgress])
-
-  useEffect(() => {
-    if (!isMobile) {
-      setAnimatedProgress(0)
-      animatedRef.current = 0
-    }
-    if (!isMobileOrTablet) {
-      setAnimatedLeaveProgress(0)
-      animatedLeaveRef.current = 0
-    }
-    let rafId: number
-    const tick = () => {
-      if (isMobile) {
-        const target = progressRef.current
-        const current = animatedRef.current
-        const diff = target - current
-        if (Math.abs(diff) < 0.001) {
-          if (current !== target) {
-            animatedRef.current = target
-            setAnimatedProgress(target)
-          }
-        } else {
-          const next = current + diff * ANIM_LERP
-          animatedRef.current = next
-          setAnimatedProgress(next)
-        }
-      }
-      if (isMobileOrTablet) {
-        const leaveTarget = leaveProgressRef.current
-        const leaveCurrent = animatedLeaveRef.current
-        const leaveDiff = leaveTarget - leaveCurrent
-        if (Math.abs(leaveDiff) < 0.002) {
-          if (leaveCurrent !== leaveTarget) {
-            animatedLeaveRef.current = leaveTarget
-            setAnimatedLeaveProgress(leaveTarget)
-          }
-        } else {
-          const nextLeave = leaveCurrent + leaveDiff * LEAVE_LERP
-          animatedLeaveRef.current = nextLeave
-          setAnimatedLeaveProgress(nextLeave)
-        }
-      }
-      rafId = requestAnimationFrame(tick)
-    }
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [isMobile, isMobileOrTablet])
-
-  // On mobile/tablet: no scroll animations (progress and leaveProgress stay 0). scrolledForNavBg = show gradient+blur after scroll.
   return {
     isMobile,
-    isMobileOrTablet,
-    progress: isMobileOrTablet ? 0 : animatedProgress,
-    leaveProgress: isMobileOrTablet ? 0 : animatedLeaveProgress,
+    progress: 0,
     scrolledForNavBg,
   }
 }
@@ -156,16 +80,6 @@ const Navbar = () => {
   // Get current route location for active state detection
   const location = useLocation()
 
-  // NAVIGATION DATA
-  const navItems = useMemo(() => [
-    { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
-    { path: '/universities', label: 'Universities' },
-    { path: '/courses', label: 'Courses' },
-    { path: '/careers', label: 'Careers' },
-    { path: '/contact', label: 'Contact' },
-  ], [])
-
   // DEBOUNCED HOVER EFFECT
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -186,7 +100,6 @@ const Navbar = () => {
   // STYLING CONSTANTS
   const textColorClass = 'text-navy font-bold'
   const activeTextColorClass = 'text-navy font-extrabold'
-  const hoverTextColorClass = 'text-navy font-bold'
 
   // EVENT HANDLERS
   
@@ -204,10 +117,10 @@ const Navbar = () => {
 
   // RENDER FUNCTIONS
   const renderDesktopNavItems = () => {
-    return navItems.map((item) => {
+    return NAV_ITEMS.map((item) => {
       const isItemHovered = debouncedHoveredItem === item.path
       const isItemActive = isActive(item.path)
-      
+
       return (
         <Link
           key={item.path}
@@ -217,114 +130,78 @@ const Navbar = () => {
           className="relative px-3.5 py-1.5 rounded-full group whitespace-nowrap flex-shrink-0"
           aria-label={`Navigate to ${item.label}`}
         >
-          {/* Permanent glossy background for each nav item */}
-          <div 
-            className="absolute inset-0 rounded-full bg-white/40 backdrop-blur-sm shadow-md"
-            style={{ 
-              transform: 'translateZ(0)', 
-              backfaceVisibility: 'hidden', // Prevent flickering
-              willChange: 'opacity, transform' // Performance hint
-            }}
-          />
-          
-          {/* Enhanced gradient background on hover/active */}
+          {/* Soft gold pill — only on hover / active */}
           <motion.div
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-gold/20 via-gold-bright/30 to-gold/20 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
+            className="absolute inset-0 rounded-full bg-gold/15"
+            initial={false}
             animate={{
               opacity: isItemHovered || isItemActive ? 1 : 0,
+              scale: isItemHovered || isItemActive ? 1 : 0.92,
             }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            style={{ 
-              transform: 'translateZ(0)', 
-              backfaceVisibility: 'hidden',
-              willChange: 'opacity'
-            }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           />
-          
-          {/* Navigation item text */}
-          <span 
-            className={`relative z-10 text-sm font-bold transition-all duration-200 whitespace-nowrap inline-block md:text-xs lg:text-sm ${
+
+          <span
+            className={`relative z-10 text-sm font-bold transition-colors duration-200 whitespace-nowrap inline-block md:text-xs lg:text-sm ${
               isItemActive
                 ? activeTextColorClass
                 : isItemHovered
-                ? hoverTextColorClass
-                : textColorClass
+                  ? 'text-navy font-extrabold'
+                  : textColorClass
             }`}
             style={{ fontWeight: 700 }}
           >
             {item.label}
           </span>
-          
-          {/* Active route indicator with animated glow */}
-          {isItemActive && (
-            <motion.div
-              layoutId="activeTab"
-              className="absolute -bottom-1 left-2 right-2 h-1 bg-gradient-to-r from-gold via-gold-bright to-gold rounded-b-full z-20"
-              initial={false}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            >
-              <motion.div
-                className="absolute inset-0 bg-gold-bright blur-sm"
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </motion.div>
-          )}
-          
-          {/* Shine effect on hover - smooth left-to-right animation */}
-          {isItemHovered && (
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full pointer-events-none"
-              initial={{ x: '-100%' }}
-              animate={{ x: '100%' }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
-              style={{ 
-                transform: 'translateZ(0)', 
-                backfaceVisibility: 'hidden'
-              }}
-            />
-          )}
+
+          {/* Gold underline — slides in on hover; stays for active route */}
+          <motion.span
+            className="pointer-events-none absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-gradient-to-r from-gold via-gold-bright to-gold"
+            initial={false}
+            animate={{
+              width: isItemActive || isItemHovered ? '70%' : '0%',
+              opacity: isItemActive || isItemHovered ? 1 : 0,
+            }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          />
         </Link>
       )
     })
   }
 
   const renderMobileNavItems = () => {
-    return navItems.map((item, idx) => (
-      <motion.div
-        key={item.path}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: idx * 0.1 }}
-      >
-        <Link
-          to={item.path}
-          onClick={closeMobileMenu}
-          className={`block relative px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
-            isActive(item.path)
-              ? 'text-navy font-bold bg-gradient-to-r from-gold/25 to-gold-bright/25 shadow-sm'
-              : 'text-navy hover:bg-white/60 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
-          }`}
-          aria-label={`Navigate to ${item.label}`}
+    return NAV_ITEMS.map((item, idx) => {
+      const active = isActive(item.path)
+      return (
+        <motion.div
+          key={item.path}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: idx * 0.1 }}
         >
-          {item.label}
-          {/* Active indicator for mobile */}
-          {isActive(item.path) && (
-            <motion.div
-              layoutId="mobileActiveTab"
-              className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-bright to-gold rounded-r"
-              initial={false}
+          <Link
+            to={item.path}
+            onClick={closeMobileMenu}
+            className={`group relative block overflow-hidden rounded-xl px-3 py-2.5 text-base font-medium transition-colors duration-200 sm:px-4 ${
+              active
+                ? 'bg-gold/20 font-bold text-navy'
+                : 'text-navy hover:bg-gold/10 active:bg-gold/15'
+            }`}
+            aria-label={`Navigate to ${item.label}`}
+          >
+            <span className="relative z-10">{item.label}</span>
+            {/* Gold accent bar — left edge */}
+            <span
+              className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-gold to-gold-bright transition-opacity duration-200 ${
+                active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}
+              aria-hidden
             />
-          )}
-        </Link>
-      </motion.div>
-    ))
+          </Link>
+        </motion.div>
+      )
+    })
   }
-
-  // Theme-based linear gradient for mobile (< 768px): solid at top, transparent at bottom so content appears to disappear under the navbar on scroll. Uses project theme offwhite (#F5F2EA).
-  const mobileNavGradient =
-    'linear-gradient(to bottom, #F5F2EA 0%, #F5F2EA 30%, rgba(245,242,234,0.97) 55%, rgba(245,242,234,0.5) 80%, transparent 100%)'
 
   return (
     <motion.nav className="sticky z-50 top-0 transition-[background] duration-300">
@@ -333,14 +210,14 @@ const Navbar = () => {
         <div
           className="max-md:absolute max-md:inset-0 max-md:pointer-events-none max-md:z-0"
           style={{
-            background: mobileNavGradient,
+            background: MOBILE_NAV_GRADIENT,
           }}
           aria-hidden
         />
       )}
-      {/* Main Navigation Bar Container — mobile padding/height controlled by MOBILE_* constants at top */}
+      {/* Main Navigation Bar Container — lift above mobile menu overlay while open (z-60 > menu z-40) */}
       <div
-        className="relative z-10 w-full md:px-4 md:py-0 lg:px-6 xl:px-8"
+        className={`relative w-full md:px-4 md:py-0 lg:px-6 xl:px-8 ${isOpen ? 'z-[60]' : 'z-10'}`}
         style={
           isMobile
             ? {
@@ -393,7 +270,13 @@ const Navbar = () => {
           </button>
 
           {/* LOGO SECTION — mobile: center, shrinks when user scrolls; desktop: left */}
-          <div className="order-2 flex-1 flex justify-center md:order-none md:flex-initial md:justify-start flex-shrink-0 py-0 md:py-0">
+          {/* When mobile menu is open, disable logo pointer events so the oversized logo
+              cannot intercept taps on the first menu item (Home). */}
+          <div
+            className={`order-2 flex-1 flex justify-center md:order-none md:flex-initial md:justify-start flex-shrink-0 py-0 md:py-0 ${
+              isOpen ? 'max-md:pointer-events-none' : ''
+            }`}
+          >
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -404,19 +287,12 @@ const Navbar = () => {
               className="flex items-center justify-center md:justify-start gap-3 origin-center"
             >
               <Link to="/" className="relative inline-flex items-center gap-3" aria-label="Home">
-                <img
+                <OptimizedImage
                   src={Logo}
+                  webpSrc={LogoWebp}
                   alt="MegaRyse Logo"
-                  className="md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
-                  style={
-                    isMobile
-                      ? {
-                          width: MOBILE_LOGO_SIZE_PX,
-                          height: MOBILE_LOGO_SIZE_PX,
-                        }
-                      : undefined
-                  }
-                  loading="lazy"
+                  priority
+                  className="w-[150px] h-[150px] md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-[10rem] xl:h-[10rem] object-contain"
                 />
                 {/* Logo glow effect on hover */}
                 <motion.span
@@ -477,28 +353,47 @@ const Navbar = () => {
         </motion.div>
       </div>
       
-      {/* MOBILE MENU — overlay on top of screen (screens < 768px), does not push content */}
+      {/* MOBILE MENU — 80vw width, height from content (max viewport), arrow under menu / X control (< 768px) */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="md:hidden fixed left-0 right-0 top-[5.875rem] bottom-0 z-40 overflow-y-auto"
-          >
-            <div
-              className="min-h-full px-6 py-6 space-y-1.5 rounded-b-2xl border-b border-x border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
-              style={{
-                background: 'rgba(255, 255, 255, 0.92)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-              }}
+          <>
+            <motion.button
+              type="button"
+              key="mobile-menu-backdrop"
+              aria-label="Close menu"
+              className="fixed inset-0 z-[55] bg-[#050B23]/40 backdrop-blur-[4px] md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22 }}
+              onClick={closeMobileMenu}
+            />
+            <motion.div
+              key="mobile-menu-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation menu"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+              className="fixed left-3 top-[6.85rem] z-[70] flex w-[80vw] max-w-[80vw] flex-col md:hidden sm:left-4"
             >
-              {/* Mobile navigation items */}
-              {renderMobileNavItems()}
-            </div>
-          </motion.div>
+              {/* Arrow tip centered under menu / X (≈ padding + p-2 + half icon from panel left) */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -top-[11px] left-5 z-10 block h-3 w-[22px] -translate-x-1/2"
+              >
+                <span className="absolute left-1/2 top-0 h-0 w-0 -translate-x-1/2 border-x-[11px] border-b-[12px] border-x-transparent border-b-gold/40" />
+                <span className="absolute left-1/2 top-[2px] h-0 w-0 -translate-x-1/2 border-x-[9px] border-b-[10px] border-x-transparent border-b-offwhite" />
+              </span>
+              <div className="flex max-h-[calc(100dvh-7.25rem)] flex-col overflow-hidden rounded-2xl bg-offwhite shadow-[0_24px_48px_-12px_rgba(5,11,35,0.35)]">
+                <nav className="max-h-[calc(100dvh-8.5rem)] overflow-y-auto overscroll-contain px-4 pb-3 pt-1.5 sm:px-5 sm:pb-3.5 sm:pt-2">
+                  <div className="space-y-0.5">{renderMobileNavItems()}</div>
+                </nav>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.nav>
