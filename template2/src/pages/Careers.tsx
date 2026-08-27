@@ -177,7 +177,10 @@ const Careers = () => {
     setApplyPositionTitle(positionTitle)
     setApplyModalOpen(true)
   }, [])
-  const closeApplyModal = useCallback(() => setApplyModalOpen(false), [])
+  const closeApplyModal = useCallback(() => {
+    setApplyModalOpen(false)
+    setApplyPositionTitle(undefined)
+  }, [])
 
   return (
     <div className="w-full bg-offwhite">

@@ -11,7 +11,7 @@ const PAGES_NO_ENQUIRE_MODAL = ['/careers', '/contact']
 
 // Web3Forms
 const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
-const WEB3_FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '23fba237-4956-4562-a399-973a34a2bda1'
+const WEB3_FORMS_ACCESS_KEY = '23fba237-4956-4562-a399-973a34a2bda1'
 
 const UNIVERSITIES = [
   'Amity University',
@@ -79,6 +79,7 @@ export const EnquireNowFormModal = () => {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [submitMessage, setSubmitMessage] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
+  const localTimeRef = useRef<HTMLInputElement>(null)
   const twoMinutesElapsedRef = useRef(false)
   const autoPromptDismissedRef = useRef(false)
 
@@ -157,6 +158,9 @@ export const EnquireNowFormModal = () => {
       setSubmitMessage('')
       if (!runValidation()) return
 
+      const localTime = new Date().toLocaleString()
+      if (localTimeRef.current) localTimeRef.current.value = localTime
+
       setIsSubmitting(true)
       setSubmitStatus('idle')
 
@@ -173,6 +177,7 @@ export const EnquireNowFormModal = () => {
           'University': form.university,
           'Course': form.course,
           'What defines you / message': form.whatDefinesYou || '—',
+          'Local Time': localTime,
         }
 
         const response = await fetch('https://api.web3forms.com/submit', {
@@ -276,6 +281,7 @@ export const EnquireNowFormModal = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <input type="hidden" name="Local Time" id="enquire_local_time" ref={localTimeRef} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="enquire-fullName" className="block text-sm font-medium text-navy mb-1">
