@@ -1,7 +1,7 @@
 const PREVIEW_STORAGE_KEY = 'megaryse-maintenance-preview'
 
 export function isMaintenanceBuild(): boolean {
-  return import.meta.env.VITE_MAINTENANCE_MODE === 'false'
+  return import.meta.env.VITE_MAINTENANCE_MODE === 'true'
 }
 
 /** True when visitors should see the maintenance page (preview key can bypass). */
