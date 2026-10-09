@@ -1,5 +1,16 @@
 /// <reference types="vite/client" />
 
+interface ImportMetaEnv {
+  readonly VITE_MAINTENANCE_MODE?: string
+  readonly VITE_MAINTENANCE_PREVIEW_KEY?: string
+  readonly VITE_WEB3FORMS_ACCESS_KEY?: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
+
 declare module '*.jpg' {
   const content: string
   export default content
