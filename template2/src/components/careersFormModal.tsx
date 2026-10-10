@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 const GMAIL_SUFFIX = '@gmail.com'
+const SUCCESS_CLOSE_MS = 2400
 
 export interface CareersFormModalProps {
   isOpen: boolean
@@ -42,7 +43,7 @@ const EMPTY_FORM: FormState = {
 
 // Web3Forms hCaptcha site key
 const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
-const WEB3_FORMS_ACCESS_KEY = 'a0955c11-3794-4c9b-a972-65db4935ade2'
+const WEB3_FORMS_ACCESS_KEY = '2a03f997-204d-41fe-989a-3bcbf3181adc'
 
 export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersFormModalProps) => {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
@@ -190,7 +191,7 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
           'h-captcha-response': hCaptchaToken!,
           'Full Name': form.fullName,
           'Mobile': `+91 ${form.mobile}`,
-          'Email': form.email,
+          // Reply-to uses system field `email` above — do not also send custom "Email"
           'Work Experience (Years)': form.workYears,
           'Work Experience (Months)': form.workYears === 'Above 10 years' ? '—' : form.workMonths,
           'What defines you for this role': form.whatDefinesYou || '—',
@@ -218,7 +219,7 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
           clearAutoCloseTimer()
           autoCloseTimerRef.current = setTimeout(() => {
             handleClose()
-          }, 2000)
+          }, SUCCESS_CLOSE_MS)
         } else {
           setSubmitStatus('error')
           setSubmitMessage(result.message || 'Submission failed. Please try again or email us directly.')
@@ -234,9 +235,13 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
     [form, positionTitle, runValidation, hCaptchaToken, handleClose, clearAutoCloseTimer]
   )
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) handleClose()
-  }
+  const handleOutsideClick = useCallback(
+    (e: React.MouseEvent) => {
+      // Tap outside the card (form or success) closes the modal
+      if (e.target === e.currentTarget) handleClose()
+    },
+    [handleClose],
+  )
 
   return (
     <AnimatePresence>
@@ -247,20 +252,91 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 z-[100]"
-            onClick={handleBackdropClick}
+            onClick={handleClose}
             aria-hidden
           />
-          <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+          <div
+            className="fixed inset-0 z-[101] flex items-center justify-center p-4"
+            onClick={handleOutsideClick}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 0.94, y: 10 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
               className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-xl pointer-events-auto"
               role="dialog"
               aria-modal="true"
               aria-labelledby="apply-form-title"
             >
+              <AnimatePresence mode="wait">
+                {submitStatus === 'success' ? (
+                  <motion.div
+                    key="careers-success"
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96, y: -8 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+                    className="flex flex-col items-center justify-center px-6 py-14 text-center sm:py-16"
+                  >
+                    <motion.div
+                      className="relative mb-6 flex h-20 w-20 items-center justify-center"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 16, delay: 0.08 }}
+                    >
+                      <motion.span
+                        aria-hidden
+                        className="absolute inset-0 rounded-full bg-gold/25"
+                        animate={{ scale: [1, 1.35, 1], opacity: [0.55, 0, 0.55] }}
+                        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
+                      />
+                      <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-gold to-gold-bright shadow-lg shadow-gold/30">
+                        <motion.svg
+                          className="h-8 w-8 text-navy"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
+                        >
+                          <motion.path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1 }}
+                            transition={{ delay: 0.25, duration: 0.5, ease: 'easeOut' }}
+                          />
+                        </motion.svg>
+                      </span>
+                    </motion.div>
+                    <motion.h2
+                      id="apply-form-title"
+                      className="text-2xl font-bold text-navy"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.28 }}
+                    >
+                      Form Submitted
+                    </motion.h2>
+                    <motion.p
+                      className="mt-2 max-w-sm text-sm leading-relaxed text-navy/70"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.38 }}
+                    >
+                      {submitMessage || "Application submitted successfully! We'll be in touch."}
+                    </motion.p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="careers-form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                  >
               {/* Header with close */}
               <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-xl z-10">
                 <h2 id="apply-form-title" className="text-xl font-bold text-navy">
@@ -433,9 +509,6 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
                 {submitStatus === 'error' && submitMessage && (
                   <p className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">{submitMessage}</p>
                 )}
-                {submitStatus === 'success' && submitMessage && (
-                  <p className="text-sm text-green-700 bg-green-50 px-4 py-2 rounded-lg">{submitMessage}</p>
-                )}
                 <div className="pt-2">
                   <button
                     type="submit"
@@ -446,6 +519,9 @@ export const CareersFormModal = ({ isOpen, onClose, positionTitle }: CareersForm
                   </button>
                 </div>
               </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </>

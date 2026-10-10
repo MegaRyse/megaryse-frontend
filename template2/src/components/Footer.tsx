@@ -118,23 +118,16 @@ const Footer = () => {
               </li>
               <li>
                 <span className="block text-xs font-semibold uppercase tracking-wide text-gold/90">Phone</span>
-                <a href="tel:+15551234567" className="transition-colors hover:text-gold-bright">
-                  +1 (555) 123-4567
+                <a href="tel:+918431867374" className="transition-colors hover:text-gold-bright">
+                  +918431867374
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/15 pt-6 text-center text-xs text-white/60 sm:flex-row sm:text-left">
+        <div className="mt-10 flex items-center justify-center border-t border-white/15 pt-6 text-center text-xs text-white/60">
           <p>&copy; 2026 MegaRyse EduCntr. All rights reserved.</p>
-          <button
-            type="button"
-            onClick={openEnquireModal}
-            className="font-semibold text-gold transition-colors hover:text-gold-bright"
-          >
-            Start your learning journey →
-          </button>
         </div>
       </div>
     </footer>
