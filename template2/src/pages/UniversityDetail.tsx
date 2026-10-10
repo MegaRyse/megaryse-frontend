@@ -1213,45 +1213,70 @@ const UniversityDetail = () => {
               </div>
             </div>
 
-            {/* Row 2: Two columns - Eligibility | Fees */}
-            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gold/20">
-              <div className="p-6 sm:p-8 bg-offwhite/50">
-                <h3 className="text-base font-semibold text-[#00275E] mb-4 pb-2 border-b border-gold/30">
-                  Eligibility Criteria
-                </h3>
-                <ul className="space-y-3 text-sm text-gray-700">
-                  {eligibilityPointsResolved.map((item, index) => (
-                    <li key={item} className="flex gap-3">
-                      <span className="shrink-0 w-5 h-5 rounded-full bg-gold/20 text-gold flex items-center justify-center text-xs font-semibold">
-                        {index + 1}
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="p-6 sm:p-8 bg-white">
-                <h3 className="mb-4 border-b border-gold/30 pb-2 text-base font-semibold text-[#00275E]">
-                  Application & Programme Fee
-                </h3>
-                <div className="space-y-3">
-                  {effectiveFees?.applicationFee && (
-                    <FeeCard title="Application Fee" value={effectiveFees.applicationFee} />
-                  )}
-                  {effectiveFees?.totalFee && (
-                    <FeeCard title="Total Programme Fee" value={effectiveFees.totalFee} />
-                  )}
-                  {effectiveFees?.examAndOtherCharges && (
-                    <FeeCard
-                      title="Exam & Other Charges"
-                      value={effectiveFees.examAndOtherCharges}
-                      variant="muted"
-                    />
-                  )}
-                  {effectiveFees?.paymentModes && (
-                    <FeeCard title="Payment Modes" value={effectiveFees.paymentModes} variant="muted" />
-                  )}
+            {/* Row 2: Two columns - Eligibility | Fees (blurred; lock + Apply Now overlay) */}
+            <div className="relative">
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gold/20 blur-md select-none pointer-events-none"
+                aria-hidden
+              >
+                <div className="p-6 sm:p-8 bg-offwhite/50">
+                  <h3 className="text-base font-semibold text-[#00275E] mb-4 pb-2 border-b border-gold/30">
+                    Eligibility Criteria
+                  </h3>
+                  <ul className="space-y-3 text-sm text-gray-700">
+                    {eligibilityPointsResolved.map((item, index) => (
+                      <li key={item} className="flex gap-3">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-gold/20 text-gold flex items-center justify-center text-xs font-semibold">
+                          {index + 1}
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+                <div className="p-6 sm:p-8 bg-white">
+                  <h3 className="mb-4 border-b border-gold/30 pb-2 text-base font-semibold text-[#00275E]">
+                    Application & Programme Fee
+                  </h3>
+                  <div className="space-y-3">
+                    {effectiveFees?.applicationFee && (
+                      <FeeCard title="Application Fee" value={effectiveFees.applicationFee} />
+                    )}
+                    {effectiveFees?.totalFee && (
+                      <FeeCard title="Total Programme Fee" value={effectiveFees.totalFee} />
+                    )}
+                    {effectiveFees?.examAndOtherCharges && (
+                      <FeeCard
+                        title="Exam & Other Charges"
+                        value={effectiveFees.examAndOtherCharges}
+                        variant="muted"
+                      />
+                    )}
+                    {effectiveFees?.paymentModes && (
+                      <FeeCard title="Payment Modes" value={effectiveFees.paymentModes} variant="muted" />
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-4">
+                <span
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#00275E] shadow-lg ring-1 ring-gold/50"
+                  aria-hidden
+                >
+                  <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current" aria-hidden>
+                    <path d="M17 8h-1V6a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4V6Zm3 10.7V18a1 1 0 1 1-2 0v-1.3a2 2 0 1 1 2 0Z" />
+                  </svg>
+                </span>
+                <motion.button
+                  type="button"
+                  onClick={openEnquireModal}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold text-[#050B23] px-8 py-3.5 sm:px-10 sm:py-4 text-sm sm:text-base font-semibold shadow-lg hover:bg-gold-bright transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-bright focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Apply Now
+                  <span className="text-lg" aria-hidden>→</span>
+                </motion.button>
               </div>
             </div>
 
@@ -1312,20 +1337,6 @@ const UniversityDetail = () => {
                 </div>
               </div>
             )}
-
-            {/* Apply Now button - centered */}
-            <div className="p-6 sm:p-8 bg-offwhite/30 flex justify-center">
-              <motion.button
-                type="button"
-                onClick={openEnquireModal}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold text-[#050B23] px-8 py-3.5 sm:px-10 sm:py-4 text-sm sm:text-base font-semibold shadow-lg hover:bg-gold-bright transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-bright focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-                whileHover={{ y: -2, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Apply Now
-                <span className="text-lg" aria-hidden>→</span>
-              </motion.button>
-            </div>
             </motion.section>
           )}
 

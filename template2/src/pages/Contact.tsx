@@ -1,5 +1,6 @@
-import { useState, FormEvent, useCallback } from 'react'
+import { useState, FormEvent, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 const COUNTRIES = [
   'United States',
@@ -12,8 +13,11 @@ const COUNTRIES = [
   'India',
   'Other',
 ]
-const INTAKES = ['Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026', 'Not Sure Yet']
+const INTAKES = ['Fall 2026', 'Spring 2027', 'Fall 2027', 'Not Sure Yet']
 const RESET_DELAY_MS = 3000
+const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
+const WEB3_FORMS_ACCESS_KEY = 'cdd002cc-e902-4392-9cf6-87f21c3a11b0'
+
 const INITIAL_FORM_DATA = {
   name: '',
   email: '',
@@ -27,6 +31,11 @@ const Contact = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [hCaptchaToken, setHCaptchaToken] = useState<string | null>(null)
+  const hCaptchaRef = useRef<HCaptcha>(null)
+  const localTimeRef = useRef<HTMLInputElement>(null)
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -48,21 +57,64 @@ const Contact = () => {
     if (!formData.country) newErrors.country = 'Please select a country'
     if (!formData.intake) newErrors.intake = 'Please select an intake'
     if (!formData.message.trim()) newErrors.message = 'Message is required'
+    if (!hCaptchaToken) newErrors.captcha = 'Please complete the captcha verification'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }, [formData])
+  }, [formData, hCaptchaToken])
 
-  const handleSubmit = useCallback((e: FormEvent) => {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault()
-    if (validate()) {
-      setSubmitted(true)
-      setTimeout(() => {
-        setSubmitted(false)
+    setSubmitError('')
+    if (!validate()) return
+
+    const localTime = new Date().toLocaleString()
+    if (localTimeRef.current) localTimeRef.current.value = localTime
+
+    setIsSubmitting(true)
+
+    try {
+      const payload: Record<string, string> = {
+        access_key: WEB3_FORMS_ACCESS_KEY,
+        subject: 'Contact Form Enquiry',
+        from_name: formData.name,
+        email: formData.email,
+        'h-captcha-response': hCaptchaToken!,
+        'Full Name': formData.name,
+        'Mobile': formData.phone,
+        'Preferred Country': formData.country,
+        'Preferred Intake': formData.intake,
+        'Message': formData.message,
+        'Local Time': localTime,
+      }
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      const result = await response.json().catch(() => ({ success: false, message: 'Invalid response' }))
+
+      if (result.success) {
+        setSubmitted(true)
         setFormData(INITIAL_FORM_DATA)
-      }, RESET_DELAY_MS)
+        setHCaptchaToken(null)
+        hCaptchaRef.current?.resetCaptcha()
+        setErrors({})
+        setTimeout(() => {
+          setSubmitted(false)
+        }, RESET_DELAY_MS)
+      } else {
+        setSubmitError(result.message || 'Something went wrong. Please try again or contact us directly.')
+      }
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Network error. Please check your connection and try again.')
+      console.error('Contact form submit error:', err)
+    } finally {
+      setIsSubmitting(false)
     }
-  }, [validate])
+  }, [formData, hCaptchaToken, validate])
 
   return (
     <div className="w-full bg-offwhite">
@@ -196,7 +248,12 @@ const Contact = () => {
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 mb-1.5 text-lg">Contact Number</h3>
-                    <p className="text-gray-600 text-base leading-relaxed">+1 (555) 123-4567</p>
+                    <a
+                      href="tel:+918431867374"
+                      className="text-gray-600 text-base leading-relaxed transition-colors hover:text-navy"
+                    >
+                      +918431867374
+                    </a>
                   </div>
                 </motion.div>
               </div>
@@ -237,10 +294,9 @@ const Contact = () => {
                 ) : (
                   <form
                     onSubmit={handleSubmit}
-                    action="https://formspree.io/f/YOUR_FORM_ID"
-                    method="POST"
                     className="flex h-full min-h-0 flex-col"
                   >
+                    <input type="hidden" name="Local Time" id="contact_local_time" ref={localTimeRef} />
                     <div className="flex flex-1 flex-col space-y-5">
                       <div>
                         <label htmlFor="name" className="block text-sm font-semibold text-white mb-2.5">
@@ -361,19 +417,38 @@ const Contact = () => {
                         />
                         {errors.message && <p className="text-red-400 text-sm mt-1.5">{errors.message}</p>}
                       </div>
+
+                      <div>
+                        <HCaptcha
+                          ref={hCaptchaRef}
+                          sitekey={HCAPTCHA_SITEKEY}
+                          reCaptchaCompat={false}
+                          onVerify={(token: string) => {
+                            setHCaptchaToken(token)
+                            setErrors((prev) => ({ ...prev, captcha: '' }))
+                          }}
+                          onExpire={() => setHCaptchaToken(null)}
+                        />
+                        {errors.captcha && <p className="text-red-400 text-sm mt-1.5">{errors.captcha}</p>}
+                      </div>
+
+                      {submitError && (
+                        <p className="rounded-lg bg-red-500/20 px-4 py-2 text-sm text-red-200">{submitError}</p>
+                      )}
                     </div>
 
                     <motion.button
                       type="submit"
-                      className="mt-5 w-full shrink-0 rounded-lg bg-gradient-gold px-8 py-4 text-base font-semibold text-gray-900 shadow-md transition-all duration-300 hover:shadow-xl lg:mt-auto lg:pt-6"
-                      whileHover={{
+                      disabled={isSubmitting}
+                      className="mt-5 w-full shrink-0 rounded-lg bg-gradient-gold px-8 py-4 text-base font-semibold text-gray-900 shadow-md transition-all duration-300 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 lg:mt-auto lg:pt-6"
+                      whileHover={isSubmitting ? undefined : {
                         scale: 1.02,
                         boxShadow: '0 20px 40px rgba(213, 173, 54, 0.3)',
                       }}
-                      whileTap={{ scale: 0.98 }}
+                      whileTap={isSubmitting ? undefined : { scale: 0.98 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                     >
-                      Send Message
+                      {isSubmitting ? 'Sending…' : 'Send Message'}
                     </motion.button>
                   </form>
                 )}
@@ -387,4 +462,3 @@ const Contact = () => {
 }
 
 export default Contact
-
