@@ -305,9 +305,71 @@ const Navbar = () => {
             </motion.div>
           </div>
 
-          {/* DESKTOP NAVIGATION ITEMS — visible from 768px; more gap between items on large screens */}
-          <div className="hidden md:flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg justify-evenly flex-nowrap overflow-hidden mx-auto relative flex-1 min-w-0 max-w-2xl md:px-2 md:py-1.5 md:-top-4 md:gap-2 lg:px-4 lg:py-2 lg:-top-5 lg:gap-4 xl:-top-6 xl:gap-6">
-            {renderDesktopNavItems()}
+          {/* DESKTOP NAV — Apple-style Liquid Glass (glossy specular, not frosted blur) */}
+          <div
+            className="relative mx-auto hidden min-w-0 max-w-2xl flex-1 items-center justify-evenly self-center overflow-hidden rounded-full md:flex md:gap-2 md:px-2 md:py-1.5 lg:gap-4 lg:px-4 lg:py-2 xl:gap-6"
+            style={{
+              // Clearer glass body — light tint, not heavy frost
+              background:
+                'linear-gradient(165deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.38) 28%, rgba(255,255,255,0.18) 55%, rgba(255,255,255,0.32) 78%, rgba(255,255,255,0.48) 100%)',
+              // Light blur only — Apple Liquid Glass stays optically clear
+              backdropFilter: 'blur(8px) saturate(180%) brightness(1.08)',
+              WebkitBackdropFilter: 'blur(8px) saturate(180%) brightness(1.08)',
+              border: '1px solid rgba(255,255,255,0.75)',
+              boxShadow: [
+                // Outer lift + soft ambient (glass floating above surface)
+                '0 10px 32px rgba(5,11,35,0.12)',
+                '0 2px 8px rgba(5,11,35,0.06)',
+                // Crisp specular rim (top edge catch-light)
+                'inset 0 1.5px 0 rgba(255,255,255,0.95)',
+                'inset 0 -1px 0 rgba(255,255,255,0.35)',
+                // Soft inner depth
+                'inset 0 0 0 0.5px rgba(255,255,255,0.55)',
+                'inset 0 -8px 20px rgba(5,11,35,0.04)',
+              ].join(', '),
+            }}
+          >
+            {/* Primary specular — bright liquid sheen across the crown */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-[55%] rounded-full"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.55) 35%, rgba(255,255,255,0.12) 70%, transparent 100%)',
+                mixBlendMode: 'soft-light',
+              }}
+            />
+            {/* Diagonal gloss streak — Apple-like reflective flash */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -left-1/4 top-[-20%] h-[140%] w-[55%] -rotate-[18deg] rounded-full"
+              style={{
+                background:
+                  'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 42%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.4) 58%, transparent 100%)',
+                opacity: 0.55,
+                filter: 'blur(1px)',
+              }}
+            />
+            {/* Bottom caustic edge — subtle warm refraction */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-4 bottom-0 h-[38%] rounded-full"
+              style={{
+                background:
+                  'linear-gradient(0deg, rgba(201,169,120,0.18) 0%, rgba(255,255,255,0.1) 45%, transparent 100%)',
+              }}
+            />
+            {/* Hairline rim light */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-full"
+              style={{
+                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.45)',
+              }}
+            />
+            <div className="relative z-10 flex w-full min-w-0 flex-nowrap items-center justify-evenly md:gap-2 lg:gap-4 xl:gap-6">
+              {renderDesktopNavItems()}
+            </div>
           </div>
 
           {/* Until 767px: phone icon; from 768px: Enquire Now button only */}
